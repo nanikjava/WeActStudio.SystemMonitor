@@ -2,7 +2,7 @@
 author: "@mathoudebine"
 
 display:
-  DISPLAY_SIZE: 5"
+  DISPLAY_SIZE: 480x800
   DISPLAY_ORIENTATION: landscape
   DISPLAY_RGB_LED: 0, 0, 255
 

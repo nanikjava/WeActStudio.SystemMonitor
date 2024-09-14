@@ -1,0 +1,211 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2024-09-15 00:14+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp936\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: .\configure.py:92
+msgid "landscape"
+msgstr ""
+
+#: .\configure.py:92
+msgid "portrait"
+msgstr ""
+
+#: .\configure.py:114
+msgid "Automatic"
+msgstr ""
+
+#: .\configure.py:117
+msgid "Fake random data"
+msgstr ""
+
+#: .\configure.py:118
+msgid "Fake static data"
+msgstr ""
+
+#: .\configure.py:120
+msgid "Classic"
+msgstr ""
+
+#: .\configure.py:120
+msgid "Reverse"
+msgstr ""
+
+#: .\configure.py:155
+msgid "Automatic detection"
+msgstr ""
+
+#: .\configure.py:198
+msgid "WeAct Studio System Monitor Configuration"
+msgstr ""
+
+#: .\configure.py:217
+msgid "Display configuration"
+msgstr ""
+
+#: .\configure.py:221
+msgid "Screen model"
+msgstr ""
+
+#: .\configure.py:231
+msgid "Screen size"
+msgstr ""
+
+#: .\configure.py:240
+msgid "COM port"
+msgstr ""
+
+#: .\configure.py:247 .\configure.py:823
+msgid "Orientation"
+msgstr ""
+
+#: .\configure.py:255
+msgid "Brightness"
+msgstr ""
+
+#: .\configure.py:274
+msgid "Online Display, Auto Save"
+msgstr ""
+
+#: .\configure.py:280
+msgid "Other Config"
+msgstr ""
+
+#: .\configure.py:287
+msgid "System Monitor Configuration"
+msgstr ""
+
+#: .\configure.py:291
+msgid "Theme"
+msgstr ""
+
+#: .\configure.py:297
+msgid "Refresh"
+msgstr ""
+
+#: .\configure.py:301
+msgid "Hardware monitoring"
+msgstr ""
+
+#: .\configure.py:311
+msgid "Ethernet interface"
+msgstr ""
+
+#: .\configure.py:316
+msgid "Wi-Fi interface"
+msgstr ""
+
+#: .\configure.py:324
+msgid "Restart as admin. or select another Hardware monitoring"
+msgstr ""
+
+#: .\configure.py:341
+msgid "Edit theme"
+msgstr ""
+
+#: .\configure.py:346
+msgid "Save settings"
+msgstr ""
+
+#: .\configure.py:351
+msgid "Save and run"
+msgstr ""
+
+#: .\configure.py:357
+msgid "New theme"
+msgstr ""
+
+#: .\configure.py:364
+msgid "Delete theme"
+msgstr ""
+
+#: .\configure.py:389
+msgid "Bootstrap"
+msgstr ""
+
+#: .\configure.py:395
+msgid "Enable"
+msgstr ""
+
+#: .\configure.py:427
+msgid "Close Confirm"
+msgstr ""
+
+#: .\configure.py:449
+msgid "Do you want to run it?"
+msgstr ""
+
+#: .\configure.py:462 .\configure.py:991
+msgid "NO"
+msgstr ""
+
+#: .\configure.py:475 .\configure.py:1012
+msgid "OK"
+msgstr ""
+
+#: .\configure.py:533
+msgid "Error: "
+msgstr ""
+
+#: .\configure.py:533 .\configure.py:541 .\configure.py:597 .\configure.py:605
+#: .\configure.py:921 .\configure.py:925 .\configure.py:956
+#: .\configure.py:1019 .\configure.py:1038
+msgid "Error"
+msgstr ""
+
+#: .\configure.py:541
+msgid "error: COM Port is closed"
+msgstr ""
+
+#: .\configure.py:597 .\configure.py:605
+msgid "error: "
+msgstr ""
+
+#: .\configure.py:637
+msgid "Author: "
+msgstr ""
+
+#: .\configure.py:811 .\configure.py:882
+msgid "Name"
+msgstr ""
+
+#: .\configure.py:838
+msgid "Cancel"
+msgstr ""
+
+#: .\configure.py:877
+msgid "Theme name already exists."
+msgstr ""
+
+#: .\configure.py:886
+msgid "Error input: "
+msgstr ""
+
+#: .\configure.py:962
+msgid "Delete Theme"
+msgstr ""
+
+#: .\configure.py:984
+msgid "Delete Theme: "
+msgstr ""
+
+#: .\configure.py:1019
+msgid "theme editor is running !"
+msgstr ""
+
+#: .\configure.py:1038
+msgid "display other config is running !"
+msgstr ""
+

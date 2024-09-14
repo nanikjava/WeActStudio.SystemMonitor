@@ -37,14 +37,14 @@ def get_themes(display_size: str):
                 # Get display size from theme.yaml
                 with open(theme, "rt", encoding='utf8') as stream:
                     theme_data = yaml.safe_load(stream)
-                    if theme_data['display'].get("DISPLAY_SIZE", '3.5"') == display_size:
+                    if theme_data['display'].get("DISPLAY_SIZE", '320x480') == display_size:
                         themes.append(filename)
     return sorted(themes, key=str.casefold)
 
 
 if __name__ == "__main__":
-    themes3inch = get_themes('3.5"')
-    themes5inch = get_themes('5"')
+    themes3inch = get_themes('320x480')
+    themes5inch = get_themes('480x800')
 
     with open("res/themes/themes.md", "w", encoding='utf-8') as file:
         file.write("<!--- This file is generated automatically by GitHub Actions, do not edit it! --->\n")

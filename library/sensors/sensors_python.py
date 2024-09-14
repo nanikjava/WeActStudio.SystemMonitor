@@ -443,21 +443,33 @@ class Disk(sensors.Disk):
     @staticmethod
     def disk_usage_percent() -> float:
         try:
-            return psutil.disk_usage("/").percent
+            disks = psutil.disk_partitions(all=True)
+            usage = 0
+            for disk in disks:
+                usage = usage + psutil.disk_usage(disk.device).percent
+            return usage / len(disks) # return all used space among all disks
         except:
             return math.nan
 
     @staticmethod
     def disk_used() -> int:  # In bytes
         try:
-            return psutil.disk_usage("/").used
+            disks = psutil.disk_partitions(all=True)
+            usage = 0
+            for disk in disks:
+                usage = usage + psutil.disk_usage(disk.device).used
+            return usage
         except:
             return -1
-
+        
     @staticmethod
     def disk_free() -> int:  # In bytes
         try:
-            return psutil.disk_usage("/").free
+            disks = psutil.disk_partitions(all=True)
+            usage = 0
+            for disk in disks:
+                usage = usage + psutil.disk_usage(disk.device).free
+            return usage
         except:
             return -1
 

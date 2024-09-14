@@ -2,6 +2,7 @@
 # https://github.com/mathoudebine/turing-smart-screen-python/
 
 # Copyright (C) 2021-2023  Matthieu Houdebine (mathoudebine)
+# Copyright (C) 2024-2024  WeAct Studio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -87,10 +88,10 @@ class LcdComm(ABC):
             if not self.com_port:
                 logger.error(
                     "Cannot find COM port automatically, please run Configuration again and select COM port manually")
-                try:
-                    sys.exit(0)
-                except:
-                    os._exit(0)
+                # try:
+                #     sys.exit(0)
+                # except:
+                #     os._exit(0)
             else:
                 logger.debug(f"Auto detected COM port: {self.com_port}")
         else:
@@ -100,10 +101,10 @@ class LcdComm(ABC):
             self.lcd_serial = serial.Serial(self.com_port, 115200, timeout=1, rtscts=1)
         except Exception as e:
             logger.error(f"Cannot open COM port {self.com_port}: {e}")
-            try:
-                sys.exit(0)
-            except:
-                os._exit(0)
+            # try:
+            #     sys.exit(0)
+            # except:
+            #     os._exit(0)
 
     def closeSerial(self):
         try:
@@ -123,36 +124,40 @@ class LcdComm(ABC):
             self.WriteLine(line)
 
     def WriteLine(self, line: bytes):
-        try:
-            self.lcd_serial.write(line)
-        except serial.serialutil.SerialTimeoutException:
-            # We timed-out trying to write to our device, slow things down.
-            logger.warning("(Write line) Too fast! Slow down!")
-        except serial.serialutil.SerialException:
-            # Error writing data to device: close and reopen serial port, try to write again
-            logger.error(
-                "SerialException: Failed to send serial data to device. Closing and reopening COM port before retrying once.")
-            self.closeSerial()
-            time.sleep(1)
-            self.openSerial()
-            self.lcd_serial.write(line)
+        if self.lcd_serial.is_open:
+            try:
+                self.lcd_serial.write(line)
+            except serial.serialutil.SerialTimeoutException:
+                # We timed-out trying to write to our device, slow things down.
+                logger.warning("(Write line) Too fast! Slow down!")
+            except serial.serialutil.SerialException:
+                # Error writing data to device: close and reopen serial port, try to write again
+                logger.error(
+                    "SerialException: Failed to send serial data to device. Closing and reopening COM port before retrying once.")
+                self.closeSerial()
+                # time.sleep(1)
+                # self.openSerial()
+                # self.lcd_serial.write(line)
 
     def ReadData(self, readSize: int):
-        try:
-            response = self.lcd_serial.read(readSize)
-            # logger.debug("Received: [{}]".format(str(response, 'utf-8')))
-            return response
-        except serial.serialutil.SerialTimeoutException:
-            # We timed-out trying to read from our device, slow things down.
-            logger.warning("(Read data) Too fast! Slow down!")
-        except serial.serialutil.SerialException:
-            # Error writing data to device: close and reopen serial port, try to read again
-            logger.error(
-                "SerialException: Failed to read serial data from device. Closing and reopening COM port before retrying once.")
-            self.closeSerial()
-            time.sleep(1)
-            self.openSerial()
-            return self.lcd_serial.read(readSize)
+        if self.lcd_serial.is_open:
+            try:
+                response = self.lcd_serial.read(readSize)
+                # logger.debug("Received: [{}]".format(str(response, 'utf-8')))
+                return response
+            except serial.serialutil.SerialTimeoutException:
+                # We timed-out trying to read from our device, slow things down.
+                logger.warning("(Read data) Too fast! Slow down!")
+            except serial.serialutil.SerialException:
+                # Error writing data to device: close and reopen serial port, try to read again
+                logger.error(
+                    "SerialException: Failed to read serial data from device. Closing and reopening COM port before retrying once.")
+                self.closeSerial()
+                # time.sleep(1)
+                # self.openSerial()
+                # return self.lcd_serial.read(readSize)
+        else:
+            return None
 
     @staticmethod
     @abstractmethod
@@ -190,6 +195,12 @@ class LcdComm(ABC):
     def SetOrientation(self, orientation: Orientation):
         pass
 
+    def SetSensorReportTime(self, time_ms: int):
+        pass
+
+    def HandleSensorReport(self):
+        return 25,50
+
     @abstractmethod
     def DisplayPILImage(
             self,
@@ -224,9 +235,8 @@ class LcdComm(ABC):
 
         if isinstance(font_color, str):
             font_color = tuple(map(int, font_color.split(', ')))
-
-        if isinstance(background_color, str):
-            background_color = tuple(map(int, background_color.split(', ')))
+        else:
+            assert 'font_color not str'
 
         assert x <= self.get_width(), 'Text X coordinate ' + str(x) + ' must be <= display width ' + str(
             self.get_width())
@@ -235,13 +245,18 @@ class LcdComm(ABC):
         assert len(text) > 0, 'Text must not be empty'
         assert font_size > 0, "Font size must be > 0"
 
+        text_image = None
         if background_image is None:
-            # A text bitmap is created with max width/height by default : text with solid background
-            text_image = Image.new(
-                'RGB',
-                (self.get_width(), self.get_height()),
-                background_color
-            )
+            if isinstance(background_color, str):
+                background_color = tuple(map(int, background_color.split(', ')))
+                # A text bitmap is created with max width/height by default : text with solid background
+                text_image = Image.new(
+                    'RGB',
+                    (self.get_width(), self.get_height()),
+                    background_color
+                )
+            else:
+                assert 'background_color not str'
         else:
             # The text bitmap is created from provided background image : text with transparent background
             text_image = self.open_image(background_image)

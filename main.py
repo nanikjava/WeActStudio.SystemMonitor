@@ -8,6 +8,7 @@
 # Copyright (C) 2022-2023  w1ld3r
 # Copyright (C) 2022-2023  Charles Ferguson (gerph)
 # Copyright (C) 2022-2023  Russ Nelson (RussNelson)
+# Copyright (C) 2024-2024  WeAct Studio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
 # This file is the system monitor main program to display HW sensors on your screen using themes (see README)
 import os
 import sys
-
+sys.path.append(os.path.dirname(__file__))
 MIN_PYTHON = (3, 8)
 if sys.version_info < MIN_PYTHON:
     print("[ERROR] Python %s.%s or later is required." % MIN_PYTHON)
@@ -42,6 +43,7 @@ try:
     import subprocess
     import time
     from PIL import Image
+    from tkinter import messagebox
 
     if platform.system() == 'Windows':
         import win32api
@@ -59,6 +61,23 @@ except:
         sys.exit(0)
     except:
         os._exit(0)
+
+# Loading Language
+import locale,gettext
+lang, encoding = locale.getlocale()
+print(f"Language: {lang}, Encoding: {encoding}")
+localedir = os.path.join(
+    os.path.dirname(__file__), "res\\language\\main"
+) 
+if encoding == "936":
+    language = "zh"
+    domain = "zh"
+else:
+    language = "en"
+    domain = "en"
+lang = gettext.translation(domain, localedir, languages=[language], fallback=True)
+lang.install(domain)
+_ = lang.gettext
 
 from library.log import logger
 import library.scheduler as scheduler
@@ -105,10 +124,12 @@ if __name__ == "__main__":
         logger.info("Caught signal %d, exiting" % signum)
         clean_stop()
 
+    def start_configure():
+        subprocess.Popen(("python",os.path.join(os.getcwd(), "configure.py")), shell=True)
 
     def on_configure_tray(tray_icon, item):
         logger.info("Configure from tray icon")
-        subprocess.Popen(os.path.join(os.getcwd(), "configure.py"), shell=True)
+        start_configure()
         clean_stop(tray_icon)
 
 
@@ -153,16 +174,16 @@ if __name__ == "__main__":
     # Create a tray icon for the program, with an Exit entry in menu
     try:
         tray_icon = pystray.Icon(
-            name='Turing System Monitor',
-            title='Turing System Monitor',
-            icon=Image.open("res/icons/monitor-icon-17865/64.png"),
+            name=_('WeAct Studio System Monitor'),
+            title=_('WeAct Studio System Monitor'),
+            icon=Image.open("res/icons/logo.png"),
             menu=pystray.Menu(
                 pystray.MenuItem(
-                    text='Configure',
-                    action=on_configure_tray),
+                    text=_('Configure'),
+                    action=on_configure_tray,default=True),
                 pystray.Menu.SEPARATOR,
                 pystray.MenuItem(
-                    text='Exit',
+                    text=_('Exit'),
                     action=on_exit_tray)
             )
         )
@@ -185,32 +206,46 @@ if __name__ == "__main__":
     if platform.system() == "Windows":
         win32api.SetConsoleCtrlHandler(on_win32_ctrl_event, True)
 
-    # Initialize the display
-    display.initialize_display()
+    def display_init():
+        # Initialize the display
+        display.initialize_display()
 
-    # Create all static images
-    display.display_static_images()
+        # Initialize lcd sensor
+        display.initialize_sensor()
 
-    # Create all static texts
-    display.display_static_text()
+        # Create all static images
+        display.display_static_images()
 
-    # Run our jobs that update data
-    import library.stats as stats
+        # Create all static texts
+        display.display_static_text()
 
-    scheduler.CPUPercentage()
-    scheduler.CPUFrequency()
-    scheduler.CPULoad()
-    scheduler.CPUTemperature()
-    scheduler.CPUFanSpeed()
-    if stats.Gpu.is_available():
-        scheduler.GpuStats()
-    scheduler.MemoryStats()
-    scheduler.DiskStats()
-    scheduler.NetStats()
-    scheduler.DateStats()
-    scheduler.SystemUptimeStats()
-    scheduler.CustomStats()
-    scheduler.QueueHandler()
+        # Run our jobs that update data
+        import library.stats as stats
+
+        scheduler.CPUPercentage()
+        scheduler.CPUFrequency()
+        scheduler.CPULoad()
+        scheduler.CPUTemperature()
+        scheduler.CPUFanSpeed()
+        if stats.Gpu.is_available():
+            scheduler.GpuStats()
+        scheduler.MemoryStats()
+        scheduler.DiskStats()
+        scheduler.NetStats()
+        scheduler.DateStats()
+        scheduler.SystemUptimeStats()
+        scheduler.CustomStats()
+        scheduler.LcdSensorTemperature()
+        scheduler.LcdSensorHumidness()
+        scheduler.QueueHandler()
+        scheduler.LcdRxHandler()
+
+    try:
+        display_init()
+    except Exception as e:
+        messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
+        start_configure()
+        clean_stop(tray_icon)
 
     if tray_icon and platform.system() == "Darwin":  # macOS-specific
         from AppKit import NSBundle, NSApp, NSApplicationActivationPolicyProhibited
@@ -221,14 +256,55 @@ if __name__ == "__main__":
         NSApp.setActivationPolicy_(NSApplicationActivationPolicyProhibited)
 
         # For macOS: display the tray icon now with blocking function
-        tray_icon.run()
+        tray_icon.run_detached()
+
+        tick = 0
+        step = 0
+        retry_connect_count = 0
+        while True:
+            tick  = tick + 1
+            if step ==0 :
+                if tick > 4:
+                    tick = 0
+                    if display.lcd.lcd_serial.is_open == False:
+                        scheduler.STOPPING = True
+                        logger.debug('scheduler stopping')
+                        step = 1
+            elif step == 1:
+                if scheduler.is_queue_empty() or tick > 10:
+                    tick = 0
+                    step = 2
+            elif step == 2:
+                if tick > 6:
+                    tick = 0
+                    try:
+                        display.lcd.lcd_serial.open()
+                        logger.debug('Re-open Serial Successful')
+                        step = 3
+                    except Exception as e:
+                        retry_connect_count = retry_connect_count + 1
+                        logger.debug('Re-open Serial Fail')
+                        if retry_connect_count >= 20:
+                            logger.error(f'Re-open Serial Fail Count {retry_connect_count}')
+                            messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
+                            start_configure()
+                            clean_stop(tray_icon)
+            elif step == 3:
+                logger.debug('Re-init Display')
+                scheduler.STOPPING = False
+                display_init()
+                step = 0
+                tick = 0
+                retry_connect_count = 0
+                
+            time.sleep(0.5)
 
     elif platform.system() == "Windows":  # Windows-specific
         # Create a hidden window just to be able to receive window message events (for shutdown/logoff clean stop)
         hinst = win32api.GetModuleHandle(None)
         wndclass = win32gui.WNDCLASS()
         wndclass.hInstance = hinst
-        wndclass.lpszClassName = "turingEventWndClass"
+        wndclass.lpszClassName = "SystemMonitorEventWndClass"
         messageMap = {win32con.WM_QUERYENDSESSION: on_win32_wm_event,
                       win32con.WM_ENDSESSION: on_win32_wm_event,
                       win32con.WM_QUIT: on_win32_wm_event,
@@ -242,7 +318,7 @@ if __name__ == "__main__":
             myWindowClass = win32gui.RegisterClass(wndclass)
             hwnd = win32gui.CreateWindowEx(win32con.WS_EX_LEFT,
                                            myWindowClass,
-                                           "turingEventWnd",
+                                           "SystemMonitorEventWnd",
                                            0,
                                            0,
                                            0,
@@ -252,9 +328,49 @@ if __name__ == "__main__":
                                            0,
                                            hinst,
                                            None)
+            tick = 0
+            step = 0
+            retry_connect_count = 0
             while True:
                 # Receive and dispatch window messages
                 win32gui.PumpWaitingMessages()
+
+                tick  = tick + 1
+                if step ==0 :
+                    if tick > 4:
+                        tick = 0
+                        if display.lcd.lcd_serial != None:
+                            if display.lcd.lcd_serial.is_open == False:
+                                scheduler.STOPPING = True
+                                logger.debug('scheduler stopping')
+                                step = 1
+                elif step == 1:
+                    if scheduler.is_queue_empty() or tick > 10:
+                        tick = 0
+                        step = 2
+                elif step == 2:
+                    if tick > 6:
+                        tick = 0
+                        try:
+                            display.lcd.lcd_serial.open()
+                            logger.debug('Re-open Serial Successful')
+                            step = 3
+                        except Exception as e:
+                            retry_connect_count = retry_connect_count + 1
+                            logger.debug('Re-open Serial Fail')
+                            if retry_connect_count >= 20:
+                                logger.error(f'Re-open Serial Fail Count {retry_connect_count}')
+                                messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
+                                start_configure()
+                                clean_stop(tray_icon)
+                elif step == 3:
+                    logger.debug('Re-init Display')
+                    scheduler.STOPPING = False
+                    display_init()
+                    step = 0
+                    tick = 0
+                    retry_connect_count = 0
+                    
                 time.sleep(0.5)
 
         except Exception as e:

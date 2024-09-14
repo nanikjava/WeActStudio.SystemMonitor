@@ -4,6 +4,7 @@ import os
 import sys
 
 # Copyright (C) 2021-2023  Matthieu Houdebine (mathoudebine)
+# Copyright (C) 2024-2024  WeAct Studio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,10 +21,7 @@ import sys
 
 from library import config
 from library.lcd.lcd_comm import Orientation
-from library.lcd.lcd_comm_rev_a import LcdCommRevA
-from library.lcd.lcd_comm_rev_b import LcdCommRevB
-from library.lcd.lcd_comm_rev_c import LcdCommRevC
-from library.lcd.lcd_comm_rev_d import LcdCommRevD
+from library.lcd.lcd_comm_weact_a import LcdComm_WeAct_A
 from library.lcd.lcd_simulated import LcdSimulated
 from library.log import logger
 
@@ -55,22 +53,13 @@ def _get_theme_orientation() -> Orientation:
 class Display:
     def __init__(self):
         self.lcd = None
-        if config.CONFIG_DATA["display"]["REVISION"] == "A":
-            self.lcd = LcdCommRevA(com_port=config.CONFIG_DATA['config']['COM_PORT'],
+        if config.CONFIG_DATA["display"]["REVISION"] == "A_320x480":
+            self.lcd = LcdComm_WeAct_A(com_port=config.CONFIG_DATA['config']['COM_PORT'],
                                    update_queue=config.update_queue)
-        elif config.CONFIG_DATA["display"]["REVISION"] == "B":
-            self.lcd = LcdCommRevB(com_port=config.CONFIG_DATA['config']['COM_PORT'],
-                                   update_queue=config.update_queue)
-        elif config.CONFIG_DATA["display"]["REVISION"] == "C":
-            self.lcd = LcdCommRevC(com_port=config.CONFIG_DATA['config']['COM_PORT'],
-                                   update_queue=config.update_queue)
-        elif config.CONFIG_DATA["display"]["REVISION"] == "D":
-            self.lcd = LcdCommRevD(com_port=config.CONFIG_DATA['config']['COM_PORT'],
-                                   update_queue=config.update_queue)
-        elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU":
+        elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU_320x480":
             self.lcd = LcdSimulated(display_width=320,
                                     display_height=480)
-        elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU5":
+        elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU_480x800":
             self.lcd = LcdSimulated(display_width=480,
                                     display_height=800)
         else:
@@ -139,5 +128,35 @@ class Display:
                     anchor=config.THEME_DATA['static_text'][text].get("ANCHOR", "lt"),
                 )
 
+    def initialize_sensor(self):
+        error = True
+        if config.THEME_DATA.get('STATS', False):
+            if config.THEME_DATA['STATS'].get('LCD_SENSOR', False):
+                temp_interval = 0
+                humid_interval = 0
+                time_set = 0
+                if config.THEME_DATA['STATS']['LCD_SENSOR'].get('TEMPERATURE', False):
+                    temp_interval = config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE'].get('INTERVAL',0)
+                if config.THEME_DATA['STATS']['LCD_SENSOR'].get('HUMIDNESS', False):
+                    humid_interval = config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS'].get('INTERVAL',0)
+                if temp_interval > humid_interval:
+                    if humid_interval > 0:
+                        time_set = humid_interval
+                    else:
+                        time_set = temp_interval
+                elif temp_interval < humid_interval:
+                    if temp_interval > 0:
+                        time_set = temp_interval
+                    else:
+                        time_set = humid_interval
+                else:
+                    if temp_interval > 0:
+                        time_set = temp_interval
+                if time_set > 0:
+                    logger.debug(f'Set LCD_SENSOR Report Time {time_set}s')
+                    self.lcd.SetSensorReportTime(time_set*1000)
+                    error = False
+        if error == True:
+            self.lcd.SetSensorReportTime(0)
 
 display = Display()

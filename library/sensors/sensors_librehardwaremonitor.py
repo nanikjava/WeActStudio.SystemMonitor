@@ -449,16 +449,36 @@ class Memory(sensors.Memory):
 class Disk(sensors.Disk):
     @staticmethod
     def disk_usage_percent() -> float:
-        return psutil.disk_usage("/").percent
+        try:
+            disks = psutil.disk_partitions(all=True)
+            usage = 0
+            for disk in disks:
+                usage = usage + psutil.disk_usage(disk.device).percent
+            return usage / len(disks) # return all used space among all disks
+        except:
+            return math.nan
 
     @staticmethod
     def disk_used() -> int:  # In bytes
-        return psutil.disk_usage("/").used
-
+        try:
+            disks = psutil.disk_partitions(all=True)
+            usage = 0
+            for disk in disks:
+                usage = usage + psutil.disk_usage(disk.device).used
+            return usage
+        except:
+            return -1
+        
     @staticmethod
     def disk_free() -> int:  # In bytes
-        return psutil.disk_usage("/").free
-
+        try:
+            disks = psutil.disk_partitions(all=True)
+            usage = 0
+            for disk in disks:
+                usage = usage + psutil.disk_usage(disk.device).free
+            return usage
+        except:
+            return -1
 
 class Net(sensors.Net):
     @staticmethod

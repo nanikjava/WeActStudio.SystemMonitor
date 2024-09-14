@@ -6,6 +6,7 @@
 # Copyright (C) 2022-2023  Ebag333
 # Copyright (C) 2022-2023  w1ld3r
 # Copyright (C) 2022-2023  Charles Ferguson (gerph)
+# Copyright (C) 2024-2024  WeAct Studio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -93,11 +94,18 @@ def display_themed_value(theme_data, value, min_size=0, unit=''):
         return
 
     # overridable MIN_SIZE from theme with backward compatibility
-    min_size = theme_data.get("MIN_SIZE", min_size)
+    min_size_t = theme_data.get("MIN_SIZE", min_size)
+    if min_size_t != 0:
+        min_size = min_size_t
 
     text = f"{{:>{min_size}}}".format(value)
+    anchor = theme_data.get("ANCHOR", "lt")
     if theme_data.get("SHOW_UNIT", True) and unit:
-        text += str(unit)
+        if theme_data.get("UNIT_ML", False):
+            text += '\n' + str(unit)
+            anchor = None
+        else:
+            text += str(unit)
 
     display.lcd.DisplayText(
         text=text,
@@ -111,7 +119,7 @@ def display_themed_value(theme_data, value, min_size=0, unit=''):
         background_color=theme_data.get("BACKGROUND_COLOR", (255, 255, 255)),
         background_image=get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None)),
         align=theme_data.get("ALIGN", "left"),
-        anchor=theme_data.get("ANCHOR", "lt"),
+        anchor=anchor,
     )
 
 
@@ -131,7 +139,6 @@ def display_themed_temperature_value(theme_data, value):
         min_size=3,
         unit="°C"
     )
-
 
 def display_themed_progress_bar(theme_data, value):
     if not theme_data.get("SHOW", False):
@@ -482,6 +489,9 @@ class Gpu:
                 logger.warning("Your GPU total memory capacity (M) is not supported yet")
                 gpu_mem_total_text_data['SHOW'] = False
 
+        if total_memory_mb != total_memory_mb:
+            total_memory_mb = float(0)
+
         display_themed_value(
             theme_data=gpu_mem_total_text_data,
             value=int(total_memory_mb),
@@ -691,7 +701,6 @@ class Net:
         Net._show_themed_tax_rate(net_theme_data['WLO']['DOWNLOAD']['TEXT'], download_wlo)
         Net._show_themed_total_data(net_theme_data['WLO']['DOWNLOADED']['TEXT'], downloaded_wlo)
         display_themed_line_graph(net_theme_data['WLO']['DOWNLOAD']['LINE_GRAPH'], cls.last_values_wlo_download)
-
         upload_eth, uploaded_eth, download_eth, downloaded_eth = sensors.Net.stats(ETH_CARD, interval)
 
         save_last_value(upload_eth, cls.last_values_eth_upload,
@@ -705,7 +714,7 @@ class Net:
         Net._show_themed_tax_rate(net_theme_data['ETH']['DOWNLOAD']['TEXT'], download_eth)
         Net._show_themed_total_data(net_theme_data['ETH']['DOWNLOADED']['TEXT'], downloaded_eth)
         display_themed_line_graph(net_theme_data['ETH']['DOWNLOAD']['LINE_GRAPH'], cls.last_values_eth_download)
-
+        
     @staticmethod
     def _show_themed_total_data(theme_data, amount):
         display_themed_value(
@@ -716,9 +725,14 @@ class Net:
 
     @staticmethod
     def _show_themed_tax_rate(theme_data, rate):
+        value = f"{bytes2human(rate, '%(value).1f %(symbol)s/s')}"
+        value_split = value.split(' ')
+        rate = value_split[0]
+        unit = value_split[1]
         display_themed_value(
             theme_data=theme_data,
-            value=f"{bytes2human(rate, '%(value).1f %(symbol)s/s')}",
+            value=rate,
+            unit=unit,
             min_size=10
         )
 
@@ -726,11 +740,11 @@ class Net:
 class Date:
     @staticmethod
     def stats():
-        if HW_SENSORS == "STATIC":
-            # For static sensors, use predefined date/time
-            date_now = datetime.datetime.fromtimestamp(1694014609)
-        else:
-            date_now = datetime.datetime.now()
+        # if HW_SENSORS == "STATIC":
+        #     # For static sensors, use predefined date/time
+        #     date_now = datetime.datetime.fromtimestamp(1694014609)
+        # else:
+        date_now = datetime.datetime.now()
 
         if platform.system() == "Windows":
             # Windows does not have LC_TIME environment variable, use deprecated getdefaultlocale() that returns language code following RFC 1766
@@ -824,3 +838,97 @@ class Custom:
                 theme_data = config.THEME_DATA['STATS']['CUSTOM'][custom_stat].get("LINE_GRAPH", None)
                 if theme_data is not None and last_values is not None:
                     display_themed_line_graph(theme_data=theme_data, values=last_values)
+
+class LcdSensor:
+    last_values_temperature = []
+    last_values_humidness = []
+    _temperature = 0
+    _humidness = 0
+    @classmethod
+    def temperature(cls):
+        if HW_SENSORS == "STATIC":
+            # For static sensors
+            cls._temperature = 26.2
+
+        save_last_value(cls._temperature, cls.last_values_temperature,
+                        config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE']['LINE_GRAPH'].get("HISTORY_SIZE",
+                                                                                           DEFAULT_HISTORY_SIZE))
+
+        temp_text_data = config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE']['TEXT']
+        temp_radial_data = config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE']['RADIAL']
+        temp_graph_data = config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE']['GRAPH']
+        temp_line_graph_data = config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE']['LINE_GRAPH']
+
+        if math.isnan(cls._temperature):
+            cls._temperature = 0
+            if temp_text_data['SHOW'] or temp_radial_data['SHOW'] or temp_graph_data[
+                'SHOW'] or temp_line_graph_data['SHOW']:
+                logger.warning("Your CPU temperature is not supported yet")
+                temp_text_data['SHOW'] = False
+                temp_radial_data['SHOW'] = False
+                temp_graph_data['SHOW'] = False
+                temp_line_graph_data['SHOW'] = False
+
+        display_themed_value(
+            theme_data=temp_text_data,
+            value=f'{cls._temperature:.1f}',
+            unit="°C",
+            min_size=5
+        )
+        display_themed_progress_bar(temp_graph_data, cls._temperature)
+        display_themed_radial_bar(
+            theme_data=temp_radial_data,
+            value=f'{cls._temperature:.1f}',
+            unit="°C",
+            min_size=5
+        )
+        display_themed_line_graph(temp_line_graph_data, cls.last_values_temperature)
+
+    @classmethod
+    def humidness(cls):
+        if HW_SENSORS == "STATIC":
+            # For static sensors
+            cls._humidness = 50.5
+        save_last_value(cls._humidness, cls.last_values_humidness,
+                        config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS']['LINE_GRAPH'].get("HISTORY_SIZE",
+                                                                                           DEFAULT_HISTORY_SIZE))
+
+        humid_text_data = config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS']['TEXT']
+        humid_radial_data = config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS']['RADIAL']
+        humid_graph_data = config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS']['GRAPH']
+        humid_line_graph_data = config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS']['LINE_GRAPH']
+
+        if math.isnan(cls._humidness):
+            cls._humidness = 0
+            if humid_text_data['SHOW'] or humid_radial_data['SHOW'] or humid_graph_data[
+                'SHOW'] or humid_line_graph_data['SHOW']:
+                logger.warning("Your humidness is not supported yet")
+                humid_text_data['SHOW'] = False
+                humid_radial_data['SHOW'] = False
+                humid_graph_data['SHOW'] = False
+                humid_line_graph_data['SHOW'] = False
+
+        display_themed_value(
+            theme_data=humid_text_data,
+            value=f'{cls._humidness:.1f}',
+            unit="%",
+            min_size=5
+        )
+        display_themed_progress_bar(humid_graph_data, cls._humidness)
+        display_themed_radial_bar(
+            theme_data=humid_radial_data,
+            value=f'{cls._humidness:.1f}',
+            unit="%",
+            min_size=5
+        )
+        display_themed_line_graph(humid_line_graph_data, cls.last_values_humidness)
+    
+    @classmethod
+    def handle(cls):
+        try:
+            cls._temperature,cls._humidness = display.lcd.HandleSensorReport()
+        except:
+            cls._temperature = 0
+            cls._humidness = 0
+
+

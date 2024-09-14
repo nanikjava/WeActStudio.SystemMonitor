@@ -1,0 +1,212 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2024-09-14 23:32+0800\n"
+"PO-Revision-Date: 2024-09-15 00:15+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=cp936\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"X-Generator: Poedit 3.5\n"
+
+#: .\configure.py:92
+msgid "landscape"
+msgstr "横向"
+
+#: .\configure.py:92
+msgid "portrait"
+msgstr "纵向"
+
+#: .\configure.py:114
+msgid "Automatic"
+msgstr "自动"
+
+#: .\configure.py:117
+msgid "Fake random data"
+msgstr "假的随机数据"
+
+#: .\configure.py:118
+msgid "Fake static data"
+msgstr "假的静态数据"
+
+#: .\configure.py:120
+msgid "Classic"
+msgstr "经典"
+
+#: .\configure.py:120
+msgid "Reverse"
+msgstr "反向"
+
+#: .\configure.py:155
+msgid "Automatic detection"
+msgstr "自动检测"
+
+#: .\configure.py:198
+msgid "WeAct Studio System Monitor Configuration"
+msgstr "WeAct Studio 副屏配置"
+
+#: .\configure.py:217
+msgid "Display configuration"
+msgstr "显示配置"
+
+#: .\configure.py:221
+msgid "Screen model"
+msgstr "屏幕型号"
+
+#: .\configure.py:231
+msgid "Screen size"
+msgstr "屏幕大小"
+
+#: .\configure.py:240
+msgid "COM port"
+msgstr "串口号"
+
+#: .\configure.py:247
+msgid "Orientation"
+msgstr "显示方向"
+
+#: .\configure.py:255
+msgid "Brightness"
+msgstr "亮度"
+
+#: .\configure.py:274
+msgid "Online Display, Auto Save"
+msgstr "实时显示，自动保存"
+
+#: .\configure.py:280
+msgid "Other Config"
+msgstr "其他配置"
+
+#: .\configure.py:287
+msgid "System Monitor Configuration"
+msgstr "系统监视器配置"
+
+#: .\configure.py:291
+msgid "Theme"
+msgstr "主题"
+
+#: .\configure.py:297
+msgid "Refresh"
+msgstr "刷新"
+
+#: .\configure.py:301
+msgid "Hardware monitoring"
+msgstr "硬件监控库"
+
+#: .\configure.py:311
+msgid "Ethernet interface"
+msgstr "以太网接口"
+
+#: .\configure.py:316
+msgid "Wi-Fi interface"
+msgstr "Wi-Fi接口"
+
+#: .\configure.py:324
+msgid "Restart as admin. or select another Hardware monitoring"
+msgstr "请以admin身份重新启动。或选择其他硬件监控库"
+
+#: .\configure.py:341
+msgid "Edit theme"
+msgstr "编辑主题"
+
+#: .\configure.py:346
+msgid "Save settings"
+msgstr "保存设置"
+
+#: .\configure.py:351
+msgid "Save and run"
+msgstr "保存和运行"
+
+#: .\configure.py:357
+msgid "New theme"
+msgstr "新建主题"
+
+#: .\configure.py:364
+msgid "Delete theme"
+msgstr "删除主题"
+
+#: .\configure.py:389
+msgid "Bootstrap"
+msgstr "开机自启动"
+
+#: .\configure.py:395
+msgid "Enable"
+msgstr "使能"
+
+#: .\configure.py:483
+msgid "Error: "
+msgstr "错误: "
+
+#: .\configure.py:427
+msgid "Close Confirm"
+msgstr "关闭确认"
+
+#: .\configure.py:462 .\configure.py:991
+msgid "NO"
+msgstr "否"
+
+#: .\configure.py:475 .\configure.py:1012
+msgid "OK"
+msgstr "是"
+
+#: .\configure.py:449
+msgid "Do you want to run it?"
+msgstr "是否需要运行?"
+
+#: .\configure.py:483 .\configure.py:491 .\configure.py:547 .\configure.py:555
+#: .\configure.py:871 .\configure.py:875 .\configure.py:906 .\configure.py:969
+#: .\configure.py:988
+msgid "Error"
+msgstr "错误"
+
+#: .\configure.py:491
+msgid "error: COM Port is closed"
+msgstr "错误: 串口已经关闭"
+
+#: .\configure.py:547 .\configure.py:555
+msgid "error: "
+msgstr "错误: "
+
+#: .\configure.py:587
+msgid "Author: "
+msgstr "作者: "
+
+#: .\configure.py:827
+msgid "Theme name already exists."
+msgstr "主题名称已经存在。"
+
+#: .\configure.py:788
+msgid "Cancel"
+msgstr "取消"
+
+#: .\configure.py:832
+msgid "Name"
+msgstr "名称"
+
+#: .\configure.py:836
+msgid "Error input: "
+msgstr "错误输入: "
+
+#: .\configure.py:912
+msgid "Delete Theme"
+msgstr "删除主题"
+
+#: .\configure.py:934
+msgid "Delete Theme: "
+msgstr "删除主题: "
+
+#: .\configure.py:969
+msgid "theme editor is running !"
+msgstr "主题编辑器正在运行 !"
+
+#: .\configure.py:988
+msgid "display other config is running !"
+msgstr "其他配置正在运行 !"
+

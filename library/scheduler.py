@@ -4,6 +4,7 @@
 # Copyright (C) 2021-2023  Matthieu Houdebine (mathoudebine)
 # Copyright (C) 2022-2023  Rollbacke
 # Copyright (C) 2022-2023  Ebag333
+# Copyright (C) 2024-2024  WeAct Studio
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -167,6 +168,17 @@ def CustomStats():
     # print("Refresh custom stats")
     stats.Custom.stats()
 
+@async_job("LcdSensor_Temperature")
+@schedule(timedelta(seconds=config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE'].get("INTERVAL", 0)).total_seconds())
+def LcdSensorTemperature():
+    """ Refresh the Humiture Temperature """
+    stats.LcdSensor.temperature()
+
+@async_job("LcdSensor_Humidness")
+@schedule(timedelta(seconds=config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS'].get("INTERVAL", 0)).total_seconds())
+def LcdSensorHumidness():
+    """ Refresh the Humiture Humidness """
+    stats.LcdSensor.humidness()
 
 @async_job("Queue_Handler")
 @schedule(timedelta(milliseconds=1).total_seconds())
@@ -187,3 +199,8 @@ def QueueHandler():
 
 def is_queue_empty() -> bool:
     return config.update_queue.empty()
+
+@async_job("LcdRx_Handler")
+@schedule(timedelta(milliseconds=250).total_seconds())
+def LcdRxHandler():
+    stats.LcdSensor.handle()

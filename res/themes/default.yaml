@@ -219,3 +219,24 @@ STATS:
         SHOW: False
   CUSTOM:
     INTERVAL: 0
+  LCD_SENSOR:
+    TEMPERATURE:
+      INTERVAL: 0
+      TEXT:
+        SHOW: False
+      GRAPH:
+        SHOW: False
+      RADIAL:
+        SHOW: False
+      LINE_GRAPH:
+        SHOW: False
+    HUMIDNESS:
+      INTERVAL: 0
+      TEXT:
+        SHOW: False
+      GRAPH:
+        SHOW: False
+      RADIAL:
+        SHOW: False
+      LINE_GRAPH:
+        SHOW: False
