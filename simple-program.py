@@ -38,7 +38,7 @@ from library.log import logger
 COM_PORT = "AUTO"
 
 # Display revision:
-# - A_320x480  for WeAct Studio Display V1 FS
+# - A_320x480  for WeAct Studio Display FS V1
 # - SIMU_320x480  for 320x480 simulated LCD (image written in screencap.png)
 # - SIMU_480x800  for 480x800 simulated LCD (image written in screencap.png)
 REVISION = "A_320x480"

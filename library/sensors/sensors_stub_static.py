@@ -25,7 +25,7 @@ from typing import Tuple
 import library.sensors.sensors as sensors
 
 # Define here global static values that will be applied to all sensors of the same type
-PERCENTAGE_SENSOR_VALUE = 50.0
+PERCENTAGE_SENSOR_VALUE = 100.0
 TEMPERATURE_SENSOR_VALUE = 67.3
 
 # Define other sensors

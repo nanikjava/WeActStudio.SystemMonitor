@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2024-09-11 22:10+0800\n"
+"POT-Creation-Date: 2024-09-17 09:57+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,88 +15,92 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: .\theme-editor.py:201
+#: .\theme-editor.py:218
 msgid "WeAct Studio System Monitor Theme Editor"
 msgstr ""
 
-#: .\theme-editor.py:240
+#: .\theme-editor.py:257
 msgid "Click or draw a zone to show coordinates"
 msgstr ""
 
-#: .\theme-editor.py:250
+#: .\theme-editor.py:267
 msgid "This preview size: "
 msgstr ""
 
-#: .\theme-editor.py:286
+#: .\theme-editor.py:305
 msgid "Save to file"
 msgstr ""
 
-#: .\theme-editor.py:291
+#: .\theme-editor.py:312
 msgid "Image Scaler"
 msgstr ""
 
-#: .\theme-editor.py:334
+#: .\theme-editor.py:354
 msgid "Clear log"
 msgstr ""
 
-#: .\theme-editor.py:677
+#: .\theme-editor.py:711
 msgid "Waiting selection"
 msgstr ""
 
-#: .\theme-editor.py:699
+#: .\theme-editor.py:733
 msgid " Editor"
 msgstr ""
 
-#: .\theme-editor.py:704
+#: .\theme-editor.py:739
 msgid "Please input"
 msgstr ""
 
-#: .\theme-editor.py:733
+#: .\theme-editor.py:775
 msgid "Please Select"
 msgstr ""
 
-#: .\theme-editor.py:747 .\theme-editor.py:892 .\theme-editor.py:956
-#: .\theme-editor.py:1188
+#: .\theme-editor.py:790 .\theme-editor.py:944 .\theme-editor.py:1010
+#: .\theme-editor.py:1247
 msgid "Confirm"
 msgstr ""
 
-#: .\theme-editor.py:777
+#: .\theme-editor.py:825
 msgid "Select the font in the res/fonts/"
 msgstr ""
 
-#: .\theme-editor.py:781
+#: .\theme-editor.py:829
 msgid "Select the picture in "
 msgstr ""
 
-#: .\theme-editor.py:785
+#: .\theme-editor.py:833
 msgid "Select the color you like"
 msgstr ""
 
-#: .\theme-editor.py:909
+#: .\theme-editor.py:962
 msgid "Name Editor"
 msgstr ""
 
-#: .\theme-editor.py:1210
+#: .\theme-editor.py:1260
 msgid "Do you need to save it?"
 msgstr ""
 
-#: .\theme-editor.py:1233
+#: .\theme-editor.py:1277
+msgid "Cancel"
+msgstr ""
+
+#: .\theme-editor.py:1283
 msgid "NO"
 msgstr ""
 
-#: .\theme-editor.py:1248
+#: .\theme-editor.py:1298
 msgid "OK"
 msgstr ""
 
-#: .\theme-editor.py:1285
+#: .\theme-editor.py:1346
 msgid "Drawing zone from [{},{}] to [{},{}]"
 msgstr ""
 
-#: .\theme-editor.py:1311
+#: .\theme-editor.py:1374
 msgid "Zone: X={}, Y={}, width={} height={}"
 msgstr ""
 
-#: .\theme-editor.py:1316
+#: .\theme-editor.py:1381
 msgid "X={}, Y={} (click and drag to draw a zone)"
 msgstr ""
 

@@ -479,6 +479,27 @@ class Disk(sensors.Disk):
             return usage
         except:
             return -1
+    
+    @staticmethod
+    def disk_state(if_name=None)-> float:
+        temperature = 0
+        read_rate = 0
+        write_rate = 0
+        used_space = 0
+        disk = get_hw_and_update(Hardware.HardwareType.Storage,if_name)
+        for sensor in disk.Sensors:
+            if sensor.SensorType == Hardware.SensorType.Temperature and str(sensor.Name) == "Temperature":
+                temperature = float(sensor.Value)
+            elif sensor.SensorType == Hardware.SensorType.Throughput:
+                if str(sensor.Name) == "Read Rate" and sensor.Value is not None:
+                    read_rate = int(sensor.Value)
+                elif str(sensor.Name) == "Write Rate" and sensor.Value is not None:
+                    write_rate = int(sensor.Value)
+            elif sensor.SensorType == Hardware.SensorType.Load:
+                if str(sensor.Name) == "Used Space":
+                    used_space = float(sensor.Value)
+        # print(temperature,used_space,read_rate,write_rate)
+        return temperature,used_space,read_rate,write_rate
 
 class Net(sensors.Net):
     @staticmethod

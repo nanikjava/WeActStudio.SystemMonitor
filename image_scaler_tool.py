@@ -13,6 +13,7 @@ class ImageScaler:
             self.frame = frame
 
         self.frame.title(_("ImageScaler Tool"))  
+        self.frame.iconphoto(True, tk.PhotoImage(file="res/icons/logo.png"))
         self.frame.geometry('320x80')
         # 图片显示  
         self.label_image = ttk.Label(self.frame)  
@@ -22,29 +23,29 @@ class ImageScaler:
         self.width_label = ttk.Label(self.frame, text=_("Width:"))  
         self.width_label.place(x=10,y=10)  
         self.width_var = tk.StringVar()  
-        self.width_entry = ttk.Entry(self.frame, textvariable=self.width_var, width=8)  
-        self.width_entry.place(x=60,y=10)  
+        self.width_entry = ttk.Entry(self.frame, textvariable=self.width_var)  
+        self.width_entry.place(x=60,y=10, width=60,relwidth=0)  
   
         self.height_label = tk.Label(self.frame, text=_("Height:"))  
         self.height_label.place(x=10,y=40)  
         self.height_var = tk.StringVar()  
-        self.height_entry = ttk.Entry(self.frame, textvariable=self.height_var, width=8)  
-        self.height_entry.place(x=60,y=40)  
+        self.height_entry = ttk.Entry(self.frame, textvariable=self.height_var)  
+        self.height_entry.place(x=60,y=40, width=60,relwidth=0)  
 
         self.size_label = ttk.Label(self.frame, text="")  
-        self.size_label.place(x=128,y=40)
+        self.size_label.place(x=128,y=40,width=100,relwidth=0)
 
         # 打开文件按钮  
         self.open_button = ttk.Button(self.frame, text=_("Open Pic"), command=self.open_image)  
-        self.open_button.place(x=220,y=8)  
+        self.open_button.place(x=220,y=8,width=80,relwidth=0)  
   
         # 缩放按钮  
         self.scale_button = ttk.Button(self.frame, text=_("Scale Pic"), command=self.apply_scale)  
-        self.scale_button.place(x=128,y=8)  
+        self.scale_button.place(x=128,y=8,width=80,relwidth=0)  
   
         # 保存按钮  
         self.save_button = ttk.Button(self.frame, text=_("Save Pic"), command=self.save_image)  
-        self.save_button.place(x=220,y=38)  
+        self.save_button.place(x=220,y=38,width=80,relwidth=0)  
   
         # 初始时没有图片  
         self.original_image = None  

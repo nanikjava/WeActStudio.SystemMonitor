@@ -43,9 +43,10 @@ class LcdComm_WeAct_A(LcdComm):
         auto_com_port = None
 
         for com_port in com_ports:
-            if com_port.serial_number.startswith("AB"):
-                auto_com_port = com_port.device
-                break
+            if type(com_port.serial_number) == str:
+                if com_port.serial_number.startswith("AB"):
+                    auto_com_port = com_port.device
+                    break
 
         return auto_com_port
 
@@ -109,13 +110,13 @@ class LcdComm_WeAct_A(LcdComm):
     def ScreenOff(self):
         self.SetBrightness(0)
         self.SetSensorReportTime(0)
+        # self.Free()
 
     def ScreenOn(self):
         self.SetBrightness(self.brightness)
 
     def SetBrightness(self, level: int = 0):
         assert 0 <= level <= 100, "Brightness level must be [0-100]"
-
         converted_level = int((level / 100) * 255)
         brightness_ms = 1000
         byteBuffer = bytearray(5)
@@ -124,9 +125,7 @@ class LcdComm_WeAct_A(LcdComm):
         byteBuffer[2] = brightness_ms & 0xFF
         byteBuffer[3] = brightness_ms >> 8 & 0xFF
         byteBuffer[4] = Command.CMD_END
-
         self.SendCommand(byteBuffer)
-
         self.brightness = level
 
     def SetOrientation(self, orientation: Orientation = Orientation.PORTRAIT):
@@ -135,7 +134,6 @@ class LcdComm_WeAct_A(LcdComm):
         byteBuffer[0] = Command.CMD_SET_ORIENTATION
         byteBuffer[1] = self.orientation
         byteBuffer[2] = Command.CMD_END
-
         self.SendCommand(byteBuffer)
 
     def SetSensorReportTime(self, time_ms: int):
@@ -146,6 +144,12 @@ class LcdComm_WeAct_A(LcdComm):
         byteBuffer[1] = time_ms & 0xFF
         byteBuffer[2] = time_ms >> 8 & 0xFF
         byteBuffer[3] = Command.CMD_END
+        self.SendCommand(byteBuffer)
+
+    def Free(self):
+        byteBuffer = bytearray(2)
+        byteBuffer[0] = Command.CMD_FREE
+        byteBuffer[1] = Command.CMD_END
         self.SendCommand(byteBuffer)
 
     def HandleSensorReport(self):
@@ -222,10 +226,10 @@ class LcdComm_WeAct_A(LcdComm):
                     rgb = (R << 11) | (G << 5) | B
                     line += struct.pack("<H", rgb)
 
-                    # Send image data by multiple of "display width" bytes
-                    # if len(line) >= self.get_width() * 32:
-                    #     self.SendLine(line)
-                    #     line = bytes()
+                # Send image data by multiple of "display width" bytes
+                if len(line) >= self.get_width() * 32:
+                    self.SendLine(line)
+                    line = bytes()
 
             # Write last line if needed
             if len(line) > 0:

@@ -82,7 +82,7 @@ _ = lang.gettext
 from library.sensors.sensors_python import sensors_fans, is_cpu_fan
 from library.lcd.lcd_comm import Orientation
 
-WEACT_A_MODEL = "WeAct Studio Display V1"
+WEACT_A_MODEL = "WeAct Studio Display FS V1"
 SIMULATED_A_MODEL = "Simulated 320x480"
 SIMULATED_B_MODEL = "Simulated 480x800"
 
@@ -206,7 +206,7 @@ class ConfigWindow:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.iconphoto(True, tkinter.PhotoImage(file="res/icons/logo.png"))
         # Make TK look better with Sun Valley ttk theme
-        sv_ttk.set_theme("light")
+        # sv_ttk.set_theme("light")
 
         self.theme_preview_img = None
         self.theme_preview = ttk.Label(self.window)
@@ -272,7 +272,7 @@ class ConfigWindow:
         self.live_display_bool_var.set(False)
         self.live_display_checkbox = ttk.Checkbutton(
             self.window,
-            text=_("Online Display, Auto Save"),
+            text=_("Theme Preview, Auto Save"),
             variable=self.live_display_bool_var,
         )
         self.live_display_checkbox.place(x=500, y=228)
@@ -417,10 +417,6 @@ class ConfigWindow:
         self.window.mainloop()
 
     def on_closing(self):
-        if self.display_init == True:
-            self.live_display_checkbox.state(["disabled"])
-            self.display_off()
-            self.display_init = False
         self.on_closing_confirm()
 
     def on_closing_confirm(self):
@@ -447,17 +443,25 @@ class ConfigWindow:
         self.closing_confirm_frame.grab_set()
 
         self.closing_confirm_label = ttk.Label(
-            self.closing_confirm_frame, text=_("Do you want to run it?")
+            self.closing_confirm_frame, text=_("Do you want to run theme?")
         )
         self.closing_confirm_label.pack(
             side=tkinter.TOP, padx=5, pady=10, anchor=tkinter.W
         )
 
         def on_closing_confirm_frame_no():
+            if self.display_init == True:
+                self.live_display_checkbox.state(["disabled"])
+                self.display_off()
+                self.display_init = False
             print("Exiting System Monitor Configuration...")
             self.closing_confirm_frame.grab_release()
             self.closing_confirm_frame.destroy()
             self.window.destroy()
+            try:
+                sys.exit(0)
+            except:
+                os._exit(0)
 
         cancel_button = ttk.Button(
             self.closing_confirm_frame, text=_("NO"), command=on_closing_confirm_frame_no
@@ -466,21 +470,28 @@ class ConfigWindow:
         self.closing_confirm_frame.focus_force()
 
         def on_closing_confirm_frame_ok():
+            if self.display_init == True:
+                self.live_display_checkbox.state(["disabled"])
+                self.display_off()
+                self.display_init = False
             print("Exiting System Monitor Configuration...")
             self.closing_confirm_frame.grab_release()
             self.closing_confirm_frame.destroy()
             subprocess.Popen(("python", os.path.join(os.getcwd(), "main.py")), shell=True)
             self.window.destroy()
+            try:
+                sys.exit(0)
+            except:
+                os._exit(0)
 
         ok_button = ttk.Button(
             self.closing_confirm_frame, text=_("OK"), command=on_closing_confirm_frame_ok
         )
         ok_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
-
-        if self.save_run_btn.state()[0] == "disabled":
-            ok_button.state(["disabled"])
+        ok_button['state'] = self.save_run_btn['state']
 
     def display_off(self):
+        print('display.turn_off')
         self.display.turn_off()
 
         # Do not stop the program now in case data transmission was in progress
@@ -494,7 +505,7 @@ class ConfigWindow:
             import time
             time.sleep(0.1)
             wait_time = wait_time - 0.1
-
+        print('display.lcd.lcd_serial.close')
         self.display.lcd.lcd_serial.close()
 
     def window_refresh(self):
@@ -523,14 +534,18 @@ class ConfigWindow:
 
                     self.scheduler = scheduler
                     self.display = display
+                    print("Open Display LCD Serial")
                     if self.display.lcd.lcd_serial != None:
                         if self.display.lcd.lcd_serial.is_open == False:
                             self.display.lcd.lcd_serial.open()
                     else:
                         self.display.lcd.openSerial()
+                    print("Initialize display")
                     self.display.initialize_display()
+                    print("Enable QueueHandler")
                     self.scheduler.STOPPING = False
                     self.scheduler.QueueHandler()
+                    print("display_init Ok")
                     self.display_init = True
                 except Exception as e:
                     traceback.print_exc()
@@ -551,6 +566,7 @@ class ConfigWindow:
                         self.window_after_time = 200
                     elif self.display_step == 1:
                         if self.display_brightness_change == True:
+                            print(f"display.lcd.SetBrightness {int(self.brightness_slider.get())}")
                             self.display.lcd.SetBrightness(
                                 int(self.brightness_slider.get())
                             )
@@ -560,9 +576,12 @@ class ConfigWindow:
                                 theme_preview = Image.open(
                                     "res/themes/" + self.theme_cb.get() + "/preview.png"
                                 )
+                                print("Show preview.png")
                             except:
                                 theme_preview = Image.open("res/docs/no-preview.png")
+                                print("Show no-preview.png")
                             theme_data = get_theme_data(self.theme_cb.get())
+                            print("display.lcd.SetOrientation")
                             d_o = theme_data.get("display")
                             if d_o["DISPLAY_ORIENTATION"] == "portrait":
                                 if self.orient_cb.get() == reverse_map[True]:
@@ -588,6 +607,7 @@ class ConfigWindow:
                                     self.display.lcd.get_height(),
                                 )
                             )
+                            print("display.lcd.DisplayPILImage")
                             self.display.lcd.DisplayPILImage(
                                 theme_preview_d,
                                 image_width=theme_preview_d.width,
@@ -797,13 +817,13 @@ class ConfigWindow:
 
     def on_new_theme_editor_click(self):
         self.new_theme_editor = tkinter.Toplevel(self.window)
-        self.new_theme_editor.title("New Theme")
+        self.new_theme_editor.title(_("New Theme"))
         main_window_x = self.window.winfo_x()
         main_window_y = self.window.winfo_y()
         main_window_width = self.window.winfo_width()
         main_window_height = self.window.winfo_height()
-        width = 240
-        height = 200
+        width = 300
+        height = 210
         x = main_window_x + (main_window_width // 2) - (width // 2)
         y = main_window_y + (main_window_height // 2) - (height // 2)
         self.new_theme_editor.geometry(f"{width}x{height}+{x}+{y}")
@@ -968,7 +988,7 @@ class ConfigWindow:
         main_window_y = self.window.winfo_y()
         main_window_width = self.window.winfo_width()
         main_window_height = self.window.winfo_height()
-        width = 240
+        width = 300
         height = 100
         x = main_window_x + (main_window_width // 2) - (width // 2)
         y = main_window_y + (main_window_height // 2) - (height // 2)
@@ -1108,13 +1128,13 @@ class ConfigWindow:
             is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
             if (hwlib == "LHM" or hwlib == "AUTO") and not is_admin:
                 self.lhm_admin_warning.place(x=320, y=510)
-                self.save_run_btn.state(["disabled"])
+                self.save_run_btn['state'] = "disabled"
                 self.live_display_bool_var.set(False)
-                self.live_display_checkbox.state(["disabled"])
+                self.live_display_checkbox['state'] = "disabled"
             else:
                 self.lhm_admin_warning.place_forget()
-                self.save_run_btn.state(["!disabled"])
-                self.live_display_checkbox.state(["!disabled"])
+                self.save_run_btn['state'] = "normal"
+                self.live_display_checkbox['state'] = "normal"
         else:
             if hwlib == "PYTHON" or hwlib == "AUTO":
                 self.cpu_fan_label.place(x=320, y=520)

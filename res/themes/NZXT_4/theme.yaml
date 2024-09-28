@@ -90,27 +90,27 @@ STATS:
       INTERVAL: 5
       TEXT:
         ALIGN: right
-        ANCHOR: lt
+        ANCHOR: mt
         BACKGROUND_IMAGE: background.png
         FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
         FONT_COLOR: 255, 255, 255
         FONT_SIZE: 20
         SHOW: true
         SHOW_UNIT: true
-        X: 357
+        X: 400
         Y: 125
     TEMPERATURE:
       INTERVAL: 5
       TEXT:
         ALIGN: right
-        ANCHOR: lt
+        ANCHOR: mt
         BACKGROUND_IMAGE: background.png
         FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
         FONT_COLOR: 255, 255, 255
         FONT_SIZE: 20
         SHOW: true
         SHOW_UNIT: true
-        X: 345
+        X: 400
         Y: 100
   MEMORY:
     INTERVAL: 5

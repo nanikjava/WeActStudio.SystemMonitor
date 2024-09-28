@@ -94,7 +94,7 @@ def display_themed_value(theme_data, value, min_size=0, unit=''):
         return
 
     # overridable MIN_SIZE from theme with backward compatibility
-    min_size_t = theme_data.get("MIN_SIZE", min_size)
+    min_size_t = theme_data.get("MINI_SIZE", min_size)
     if min_size_t != 0:
         min_size = min_size_t
 

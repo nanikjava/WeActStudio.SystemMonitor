@@ -1,152 +1,240 @@
----
-author: "@mathoudebine"
-
-display:
-  DISPLAY_SIZE: 480x800
-  DISPLAY_ORIENTATION: landscape
-  DISPLAY_RGB_LED: 0, 0, 255
-
-static_images:
-  BACKGROUND:
-    PATH: background.png
-    X: 0
-    Y: 0
-    WIDTH: 800
-    HEIGHT: 480
-static_text:
-  CPU_MODEL:
-   TEXT: I9 10900K
-   X: 80
-   Y: 32
-   FONT: roboto/Roboto-Bold.ttf
-   FONT_SIZE: 30
-   FONT_COLOR: 89, 181, 248
-   # BACKGROUND_COLOR: 255, 255, 255
-   BACKGROUND_IMAGE: background.png
-  GPU_MODEL:
-   TEXT: RTX3080TI
-   X: 314
-   Y: 32
-   FONT: roboto/Roboto-Bold.ttf
-   FONT_SIZE: 30
-   FONT_COLOR: 49, 212, 74
-   # BACKGROUND_COLOR: 255, 255, 255
-   BACKGROUND_IMAGE: background.png
 STATS:
   CPU:
     PERCENTAGE:
-      INTERVAL: 1
       GRAPH:
-        SHOW: True
-        X: 50
-        Y: 134
-        WIDTH: 184
-        HEIGHT: 19
-        MIN_VALUE: 0
-        MAX_VALUE: 100
-        BAR_COLOR: 255, 255, 255
-        BAR_OUTLINE: False
         BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 41, 158, 239
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 115
+        X: 26
+        Y: 90
+      INTERVAL: 1
     TEMPERATURE:
       INTERVAL: 5
       TEXT:
-        SHOW: True
-        SHOW_UNIT: True
-        X: 104
-        Y: 74
+        ALIGN: right
+        ANCHOR: mt
+        BACKGROUND_IMAGE: background.png
         FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-        FONT_SIZE: 46
         FONT_COLOR: 255, 255, 255
-        BACKGROUND_IMAGE: background.png
-  GPU:
-    INTERVAL: 1
-    PERCENTAGE:
-      GRAPH:
-        SHOW: True
-        X: 290
-        Y: 134
-        WIDTH: 184
-        HEIGHT: 19
-        MIN_VALUE: 0
-        MAX_VALUE: 100
-        BAR_COLOR: 255, 255, 255
-        BAR_OUTLINE: False
-        BACKGROUND_IMAGE: background.png
-    TEMPERATURE:
+        FONT_SIZE: 30
+        SHOW: true
+        SHOW_UNIT: true
+        X: 110
+        Y: 50
+  DATE:
+    DAY:
       TEXT:
-        SHOW: True
-        SHOW_UNIT: True
-        X: 340
-        Y: 74
-        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-        FONT_SIZE: 46
-        FONT_COLOR: 255, 255, 255
+        ALIGN: center
+        ANCHOR: mt
         BACKGROUND_IMAGE: background.png
-  MEMORY:
-    INTERVAL: 5
-    VIRTUAL:
-      PERCENT_TEXT:
-        SHOW: True
-        SHOW_UNIT: True
-        X: 126
-        Y: 236
-        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-        FONT_SIZE: 46
+        FONT: SourceHanSansCN/SourceHanSansCN-Bold.otf
         FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 15
+        FORMAT: medium
+        SHOW: true
+        X: 400
+        Y: 282
+    HOUR:
+      TEXT:
+        ALIGN: center
+        ANCHOR: mt
         BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 25
+        FORMAT: medium
+        SHOW: true
+        X: 400
+        Y: 255
+    INTERVAL: 1
   DISK:
     INTERVAL: 10
     USED:
       PERCENT_TEXT:
-        SHOW: True
-        SHOW_UNIT: True
-        X: 371
-        Y: 236
-        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-        FONT_SIZE: 46
-        FONT_COLOR: 255, 255, 255
+        ALIGN: left
+        ANCHOR: mt
         BACKGROUND_IMAGE: background.png
-  NET:
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 30
+        SHOW: true
+        SHOW_UNIT: true
+        X: 270
+        Y: 155
+  GPU:
     INTERVAL: 1
+    PERCENTAGE:
+      GRAPH:
+        BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 49, 199, 33
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 115
+        X: 186
+        Y: 90
+    TEMPERATURE:
+      TEXT:
+        ALIGN: right
+        ANCHOR: mt
+        BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 30
+        SHOW: true
+        SHOW_UNIT: true
+        X: 270
+        Y: 50
+  LCD_SENSOR:
+    HUMIDNESS:
+      INTERVAL: 5
+      TEXT:
+        ALIGN: right
+        ANCHOR: mt
+        BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 20
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        X: 400
+        Y: 182
+    TEMPERATURE:
+      INTERVAL: 5
+      TEXT:
+        ALIGN: right
+        ANCHOR: mt
+        BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 20
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        X: 400
+        Y: 156
+  MEMORY:
+    INTERVAL: 5
+    VIRTUAL:
+      PERCENT_TEXT:
+        ALIGN: right
+        ANCHOR: mt
+        BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 30
+        SHOW: true
+        SHOW_UNIT: true
+        X: 110
+        Y: 155
+  NET:
     ETH:
-      UPLOAD:
-        TEXT:
-          SHOW: True
-          X: 120
-          Y: 394
-          FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-          FONT_SIZE: 22
-          FONT_COLOR: 255, 255, 255
-          BACKGROUND_IMAGE: background.png
       DOWNLOAD:
         TEXT:
-          SHOW: True
-          X: 360
-          Y: 394
-          FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-          FONT_SIZE: 22
-          FONT_COLOR: 255, 255, 255
+          ALIGN: right
           BACKGROUND_IMAGE: background.png
-  DATE:
-    # For time display, it is recommended not to change the interval: keep to 1
+          FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+          FONT_COLOR: 255, 255, 255
+          FONT_SIZE: 20
+          SHOW: false
+          UNIT_ML: true
+          X: 192
+          Y: 248
+      UPLOAD:
+        TEXT:
+          ALIGN: right
+          BACKGROUND_IMAGE: background.png
+          FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+          FONT_COLOR: 255, 255, 255
+          FONT_SIZE: 20
+          SHOW: false
+          UNIT_ML: true
+          X: 32
+          Y: 248
     INTERVAL: 1
-    DAY: # Format (Y/M/D ordering, month/day translations...) will match your computer locale
-      TEXT:
-        FORMAT: medium # short (2/20/23) / medium (Feb 20, 2023) / long (February 20, 2023) / full (Monday, February 20, 2023)
-        SHOW: True
-        X: 560
-        Y: 419
-        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-        FONT_SIZE: 23
-        FONT_COLOR: 255, 255, 255
-        BACKGROUND_IMAGE: background.png
-    HOUR: # Format (12/24h, timezone translations) will match your computer locale
-      TEXT:
-        FORMAT: short # short (6:48 PM) / medium (6:48:53 PM) / long (6:48:53 PM UTC) / full (6:48:53 PM Coordinated Universal Time)
-        SHOW: True
-        X: 560
-        Y: 372
-        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-        FONT_SIZE: 46
-        FONT_COLOR: 255, 255, 255
-        BACKGROUND_IMAGE: background.png
+    WLO:
+      DOWNLOAD:
+        TEXT:
+          ALIGN: right
+          BACKGROUND_IMAGE: background.png
+          FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+          FONT_COLOR: 255, 255, 255
+          FONT_SIZE: 20
+          SHOW: true
+          SHOW_UNIT: true
+          UNIT_ML: true
+          X: 192
+          Y: 248
+      UPLOAD:
+        TEXT:
+          ALIGN: right
+          BACKGROUND_IMAGE: background.png
+          FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+          FONT_COLOR: 255, 255, 255
+          FONT_SIZE: 20
+          SHOW: true
+          SHOW_UNIT: true
+          UNIT_ML: true
+          X: 32
+          Y: 248
+author: '@WeActStudio'
+display:
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_RGB_LED: 255, 255, 255
+  DISPLAY_SIZE: 320x480
+static_images:
+  BACKGROUND:
+    HEIGHT: 320
+    PATH: background.png
+    WIDTH: 480
+    X: 0
+    Y: 0
+static_text:
+  CPU_MODEL:
+    ANCHOR: mt
+    BACKGROUND_IMAGE: background.png
+    FONT: roboto/Roboto-Bold.ttf
+    FONT_COLOR: 89, 181, 248
+    FONT_SIZE: 18
+    TEXT: I9 10900K
+    X: 90
+    Y: 20
+  GPU_MODEL:
+    ANCHOR: mt
+    BACKGROUND_IMAGE: background.png
+    FONT: roboto/Roboto-Bold.ttf
+    FONT_COLOR: 74, 231, 107
+    FONT_SIZE: 18
+    TEXT: RTX3080TI
+    X: 250
+    Y: 20
+  TH:
+    ALIGN: center
+    ANCHOR: mt
+    BACKGROUND_IMAGE: background.png
+    FONT: geforce/GeForce-Bold.ttf
+    FONT_COLOR: 255, 255, 255
+    FONT_SIZE: 22
+    HEIGHT: 0
+    TEXT: T&H
+    WIDTH: 0
+    X: 400
+    Y: 130
+  TIME:
+    ALIGN: center
+    ANCHOR: mt
+    BACKGROUND_IMAGE: background.png
+    FONT: geforce/GeForce-Bold.ttf
+    FONT_COLOR: 255, 255, 255
+    FONT_SIZE: 22
+    TEXT: TIME
+    X: 400
+    Y: 228

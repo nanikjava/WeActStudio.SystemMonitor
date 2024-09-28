@@ -500,25 +500,27 @@ class tk_gui:
 
         self.window = tkinter.Tk()
         self.window.title(_("WeAct Studio Display Configuration"))
-        self.window.geometry("350x285")
+        # self.window.geometry("350x285")
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.resizable(False, False)
+        self.main_frame = tkinter.Frame(self.window)
+        self.main_frame.pack()
 
         self.device_state_string = tkinter.StringVar()
         self.device_state_string.set(device_state)
         device_state_label = ttk.Label(
-            self.window, textvariable=self.device_state_string
+            self.main_frame, textvariable=self.device_state_string
         )
         device_state_label.grid(
             row=0, column=0, columnspan=2, padx=5, pady=5, sticky="W"
         )
 
         device_refresh_button = ttk.Button(
-            self.window, text=_("Refresh"), command=self.on_refresh_device_open
+            self.main_frame, text=_("Refresh"), command=self.on_refresh_device_open
         )
         device_refresh_button.grid(row=0, column=2, sticky="W" + "E")
 
-        orient_label = ttk.Label(self.window, text=_("Orientation"))
+        orient_label = ttk.Label(self.main_frame, text=_("Orientation"))
         orient_label.grid(row=4, column=0, padx=5, pady=5, sticky="W")
 
         self.orient_map = [
@@ -529,14 +531,14 @@ class tk_gui:
             "ANY",
         ]
         self.orient_cb = ttk.Combobox(
-            self.window, values=self.orient_map[0:-1], state="readonly"
+            self.main_frame, values=self.orient_map[0:-1], state="readonly"
         )
         self.orient_cb.grid(row=4, column=1, columnspan=2, padx=5, pady=5, sticky="W" + "E")
 
-        self.brightness_label = ttk.Label(self.window, text=_("Brightness"))
+        self.brightness_label = ttk.Label(self.main_frame, text=_("Brightness"))
         self.brightness_label.grid(row=6, column=0, padx=5, pady=5, sticky="W")
         self.brightness_slider = ttk.Scale(
-            self.window,
+            self.main_frame,
             from_=0,
             to=100,
             orient=tkinter.HORIZONTAL,
@@ -545,22 +547,22 @@ class tk_gui:
         self.brightness_string = tkinter.StringVar()
         self.brightness_string.set("10%")
         brightness_val_label = ttk.Label(
-            self.window, width=10, textvariable=self.brightness_string
+            self.main_frame, width=10, textvariable=self.brightness_string
         )
         brightness_val_label.grid(row=6, column=1, padx=5, pady=5)
 
-        u_orient_label = ttk.Label(self.window, text=_("Unconnect Orientation"))
+        u_orient_label = ttk.Label(self.main_frame, text=_("Unconnect Orientation"))
         u_orient_label.grid(row=7, column=0, padx=5, pady=5, sticky="W")
 
         self.u_orient_cb = ttk.Combobox(
-            self.window, value=self.orient_map, state="readonly"
+            self.main_frame, value=self.orient_map, state="readonly"
         )
         self.u_orient_cb.grid(row=7, column=1, columnspan=2, padx=5, pady=5, sticky="W" + "E")
 
-        self.u_brightness_label = ttk.Label(self.window, text=_("Unconnect Brightness"))
+        self.u_brightness_label = ttk.Label(self.main_frame, text=_("Unconnect Brightness"))
         self.u_brightness_label.grid(row=8, column=0, padx=5, pady=5, sticky="W")
         self.u_brightness_slider = ttk.Scale(
-            self.window,
+            self.main_frame,
             from_=0,
             to=100,
             orient=tkinter.HORIZONTAL,
@@ -570,33 +572,33 @@ class tk_gui:
         self.u_brightness_string = tkinter.StringVar()
         self.u_brightness_string.set("10%")
         u_brightness_val_label = ttk.Label(
-            self.window, width=10, textvariable=self.u_brightness_string
+            self.main_frame, width=10, textvariable=self.u_brightness_string
         )
         u_brightness_val_label.grid(row=8, column=1, padx=5, pady=5)
 
         self.device_reset_button = ttk.Button(
-            self.window, text=_("Device Reset"), command=self.on_device_reset
+            self.main_frame, text=_("Device Reset"), command=self.on_device_reset
         )
         self.device_reset_button.grid(row=9, column=0, padx=5, sticky="W" + "E")
 
         self.WHO_AM_I_string = tkinter.StringVar()
         self.WHO_AM_I_string.set("WHO_AM_I: ")
         WHO_AM_I_label = ttk.Label(
-            self.window, textvariable=self.WHO_AM_I_string
+            self.main_frame, textvariable=self.WHO_AM_I_string
         )
         WHO_AM_I_label.grid(row=1, column=0,columnspan=3, padx=5, pady=5, sticky="W")
 
         self.Version_string = tkinter.StringVar()
         self.Version_string.set(_("Version: "))
         Version_label = ttk.Label(
-            self.window, textvariable=self.Version_string
+            self.main_frame, textvariable=self.Version_string
         )
         Version_label.grid(row=2, column=0,columnspan=3, padx=5, pady=5, sticky="W")
 
         self.Serial_Num_string = tkinter.StringVar()
         self.Serial_Num_string.set(_("Serial Num: "))
         Serial_Num_label = ttk.Label(
-            self.window, textvariable=self.Serial_Num_string
+            self.main_frame, textvariable=self.Serial_Num_string
         )
         Serial_Num_label.grid(row=3, column=0,columnspan=3, padx=5, pady=5, sticky="W")
 
@@ -610,6 +612,7 @@ class tk_gui:
         self.refresh_device_state()
         self.window_refresh_tick = 0
         self.window_refresh()
+
         self.window.mainloop()
         pass
 

@@ -8,7 +8,7 @@ config:
 
   # Theme to use (located in res/themes)
   # Use the name of the folder as value
-  THEME: LandscapeEarth
+  THEME: 3.5inchTheme2
 
   # Hardware sensors reading
   # Choose the appropriate method for reading your hardware sensors:
@@ -34,7 +34,7 @@ config:
 
 display:
   # Display revision:
-  # - A_320x480  for WeAct Studio Display V1 FS
+  # - A_320x480  for WeAct Studio Display FS V1
   # - SIMU_320x480  for 320x480 simulated LCD (image written in screencap.png)
   # - SIMU_480x800  for 480x800 simulated LCD (image written in screencap.png)
   REVISION: A_320x480
@@ -42,7 +42,7 @@ display:
   # Display Brightness
   # Set this as the desired %, 0 being completely dark and 100 being max brightness
   # Warning: revision A display can get hot at high brightness!
-  BRIGHTNESS: 12
+  BRIGHTNESS: 10
 
   # Display reverse: true/false
   # Set to true to reverse display orientation (landscape <-> reverse landscape, portrait <-> reverse portrait)
