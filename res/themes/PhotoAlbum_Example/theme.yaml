@@ -1,0 +1,92 @@
+STATS:
+  DATE:
+    DAY:
+      TEXT:
+        ALIGN: left
+        ANCHOR: lt
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 15
+        FORMAT: short
+        HEIGHT: 0
+        SHOW: true
+        WIDTH: 0
+        X: 10
+        Y: 462
+    HOUR:
+      TEXT:
+        ALIGN: left
+        ANCHOR: lt
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 15
+        FORMAT: medium
+        HEIGHT: 0
+        SHOW: true
+        WIDTH: 0
+        X: 100
+        Y: 462
+    INTERVAL: 1
+  LCD_SENSOR:
+    HUMIDNESS:
+      INTERVAL: 5
+      TEXT:
+        ALIGN: right
+        ANCHOR: lt
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 15
+        HEIGHT: 0
+        MINI_SIZE: 0
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        WIDTH: 0
+        X: 255
+        Y: 462
+    TEMPERATURE:
+      INTERVAL: 5
+      TEXT:
+        ALIGN: right
+        ANCHOR: lt
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_COLOR: 255, 255, 255
+        FONT_SIZE: 15
+        HEIGHT: 0
+        MINI_SIZE: 0
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        WIDTH: 0
+        X: 190
+        Y: 462
+author: '@your_GitHub_username'
+display:
+  DISPLAY_ORIENTATION: portrait
+  DISPLAY_RGB_LED: 0, 0, 0
+  DISPLAY_SIZE: 320x480
+photo_album:
+  ALIGN: center
+  BACKGROUND_COLOR: 0, 0, 0
+  INTERVAL: 10
+  MAX_HEIGHT: 455
+  MAX_WIDTH: 0
+  SHOW: true
+  SHOW_RANDOM: false
+  X: 0
+  Y: 0
+static_images:
+  background:
+    HEIGHT: 480
+    PATH: background.png
+    WIDTH: 320
+    X: 0
+    Y: 0

@@ -67,6 +67,32 @@ static_text:
    ALIGN: left  # left / center / right
    ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
 
+dynamic_images:
+  SHOW: False
+  BACKGROUND_COLOR: 0, 0, 0
+  BACKGROUND_IMAGE: background.png
+  dynamic_x:
+    ID: -1
+    INTERVAL_100mS: 10
+    PATH: dynamic_0.png
+    X: 0
+    Y: 0
+    WIDTH: 320
+    HEIGHT: 480
+
+photo_album:
+  SHOW: False
+  SHOW_RANDOM: False
+  BACKGROUND_COLOR: 0, 0, 0
+  BACKGROUND_IMAGE: background.png
+  X: 0
+  Y: 0
+  ALIGN: left
+  MAX_WIDTH: 0
+  MAX_HEIGHT: 0
+  AUTO_REFRESH: False
+  INTERVAL: 3
+
 STATS:
   CPU:
     PERCENTAGE:

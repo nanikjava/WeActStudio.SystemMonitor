@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2024-09-11 21:20+0800\n"
-"PO-Revision-Date: 2024-09-17 09:58+0800\n"
+"PO-Revision-Date: 2024-10-01 11:05+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -35,6 +35,9 @@ msgstr "±£´æ"
 #: .\theme-editor.py:291
 msgid "Image Scaler"
 msgstr "Í¼ÏñËõ·Å"
+
+msgid "GIF Scaler"
+msgstr "GIFËõ·Å"
 
 #: .\theme-editor.py:334
 msgid "Clear log"

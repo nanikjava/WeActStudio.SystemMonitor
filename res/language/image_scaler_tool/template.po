@@ -27,6 +27,9 @@ msgstr ""
 msgid "Height:"
 msgstr ""
 
+msgid "Frame num:"
+msgstr ""
+
 #: .\image_scaler_tool.py:34
 msgid "Open Pic"
 msgstr ""

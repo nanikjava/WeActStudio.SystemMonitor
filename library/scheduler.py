@@ -27,9 +27,10 @@ from functools import wraps
 
 import library.config as config
 import library.stats as stats
+import library.dynamic_images as dynamic_images
+import library.photo_album as photo_album
 
 STOPPING = False
-
 
 def async_job(threadname=None):
     """ wrapper to handle asynchronous threads """
@@ -196,11 +197,29 @@ def QueueHandler():
         if f:
             f(*args)
 
-
 def is_queue_empty() -> bool:
     return config.update_queue.empty()
+
+def get_queue_size() -> int:
+    return config.update_queue.qsize()
 
 @async_job("LcdRx_Handler")
 @schedule(timedelta(milliseconds=250).total_seconds())
 def LcdRxHandler():
     stats.LcdSensor.handle()
+
+def dynamic_images_Init():
+    dynamic_images.dynamic_images.init()
+    
+@async_job("dynamic_images_Handler")
+@schedule(timedelta(milliseconds=(100 if config.THEME_DATA['dynamic_images'].get("SHOW", False) == True else 0)).total_seconds())
+def dynamic_images_Handler():
+    dynamic_images.dynamic_images.handle()
+
+def photo_album_Init():
+    photo_album.photo_album.init()
+
+@async_job("photo_album_Handler")
+@schedule(timedelta(seconds=(config.THEME_DATA['photo_album'].get("INTERVAL", 0))).total_seconds())
+def photo_album_Handler():
+    photo_album.photo_album.handle()

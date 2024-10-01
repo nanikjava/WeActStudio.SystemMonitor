@@ -243,7 +243,11 @@ class ConfigWindow:
         self.com_cb = ttk.Combobox(
             self.window, values=get_com_ports(), state="readonly"
         )
-        self.com_cb.place(x=500, y=110, width=250)
+        self.com_cb.place(x=500, y=112, width=150)
+        self.com_refresh_button = ttk.Button(
+            self.window, text=_("Refresh"), command=lambda: self.on_com_refresh_button()
+        )
+        self.com_refresh_button.place(x=660, y=110, width=90)
 
         self.orient_label = ttk.Label(self.window, text=_("Orientation"))
         self.orient_label.place(x=320, y=155)
@@ -492,21 +496,25 @@ class ConfigWindow:
 
     def display_off(self):
         print('display.turn_off')
-        self.display.turn_off()
+        try:
+            self.display.turn_off()
+            if self.scheduler.STOPPING != True:
+                # Do not stop the program now in case data transmission was in progress
+                # Instead, ask the scheduler to empty the action queue before stopping
+                self.scheduler.STOPPING = True
 
-        # Do not stop the program now in case data transmission was in progress
-        # Instead, ask the scheduler to empty the action queue before stopping
-        self.scheduler.STOPPING = True
+                # Allow 5 seconds max. delay in case scheduler is not responding
+                wait_time = 5
 
-        # Allow 5 seconds max. delay in case scheduler is not responding
-        wait_time = 5
-
-        while not self.scheduler.is_queue_empty() and wait_time > 0:
-            import time
-            time.sleep(0.1)
-            wait_time = wait_time - 0.1
-        print('display.lcd.lcd_serial.close')
-        self.display.lcd.lcd_serial.close()
+                while not self.scheduler.is_queue_empty() and wait_time > 0:
+                    import time
+                    time.sleep(0.1)
+                    wait_time = wait_time - 0.1
+            print('display.lcd.lcd_serial.close')
+            self.display.lcd.lcd_serial.close()
+        except Exception as e:
+            traceback.print_exc()
+            messagebox.showerror(_("Error"), _("error: ") + f'{e}')
 
     def window_refresh(self):
         if self.live_display_bool_var.get() == True:
@@ -535,11 +543,13 @@ class ConfigWindow:
                     self.scheduler = scheduler
                     self.display = display
                     print("Open Display LCD Serial")
-                    if self.display.lcd.lcd_serial != None:
-                        if self.display.lcd.lcd_serial.is_open == False:
-                            self.display.lcd.lcd_serial.open()
+                    self.on_com_refresh_button()
+                    if self.com_cb.current() == 0:
+                        self.display.lcd.com_port = "AUTO"
                     else:
-                        self.display.lcd.openSerial()
+                        self.display.lcd.com_port = self.com_cb.get()
+                    self.display.lcd.openSerial()
+                        
                     print("Initialize display")
                     self.display.initialize_display()
                     print("Enable QueueHandler")
@@ -622,11 +632,7 @@ class ConfigWindow:
                     self.live_display_bool_var.set(False)
         else:
             if self.display_init == True:
-                try:
-                    self.display_off()
-                except Exception as e:
-                    traceback.print_exc()
-                    messagebox.showerror(_("Error"), _("error: ") + f'{e}')
+                self.display_off()
                 self.display_init = False
             self.display_setting_change = True
             self.theme_setting_change = True
@@ -1172,6 +1178,11 @@ class ConfigWindow:
                 self.schedule_task_name, self.schedule_task_path
             )
 
+    def on_com_refresh_button(self):
+        com_now = self.com_cb.get()
+        self.com_cb['values'] = get_com_ports()
+        if com_now not in self.com_cb['values']:
+            self.com_cb.current(0)
 
 if __name__ == "__main__":
     configurator = ConfigWindow()

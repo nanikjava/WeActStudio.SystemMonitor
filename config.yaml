@@ -8,7 +8,7 @@ config:
 
   # Theme to use (located in res/themes)
   # Use the name of the folder as value
-  THEME: 3.5inchTheme2
+  THEME: PhotoAlbum_Example
 
   # Hardware sensors reading
   # Choose the appropriate method for reading your hardware sensors:

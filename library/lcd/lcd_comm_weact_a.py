@@ -106,6 +106,22 @@ class LcdComm_WeAct_A(LcdComm):
         byteBuffer[2] = color >> 8 & 0xFF
         byteBuffer[3] = Command.CMD_END
         self.SendCommand(byteBuffer)
+    
+    def Full(self,color: Tuple[int, int, int] = (0, 0, 0)):
+        R = color[0] >> 3
+        G = color[1] >> 2
+        B = color[2] >> 3
+        # Color information is 0bRRRRRGGGGGGBBBBB
+        # Encode in Little-Endian
+        rgb = (R << 11) | (G << 5) | B
+        line = struct.pack("<H", rgb)
+
+        byteBuffer = bytearray(4)
+        byteBuffer[0] = Command.CMD_FULL
+        byteBuffer[1] = line[0]
+        byteBuffer[2] = line[1]
+        byteBuffer[3] = Command.CMD_END
+        self.SendCommand(byteBuffer)
 
     def ScreenOff(self):
         self.SetBrightness(0)

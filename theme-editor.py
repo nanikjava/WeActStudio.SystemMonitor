@@ -133,7 +133,10 @@ class file_tools:
                     or file_l.endswith(".jpg")
                     or file_l.endswith(".bmp")
                 ):
-                    pic.append(file)
+                    if len(root) > len(config.THEME_DATA_EDIT["PATH"]):
+                        pic.append(root[len(config.THEME_DATA_EDIT["PATH"]) :] + "/" + file)
+                    else:
+                        pic.append(file)
         return pic
 
 
@@ -174,10 +177,13 @@ class theme_editor:
         self.x0 = 0
         self.y0 = 0
 
+        self.theme_file_change = False
         self.theme_refresh = True
         self.theme_file_unsave = False
 
         self.image_scaler = None
+
+        self.main_refresh_tick = 0
 
         library.log.logger.setLevel(
             logging.NOTSET
@@ -311,12 +317,19 @@ class theme_editor:
         )
         button.pack(side="left")
 
-        button_imgae = ttk.Button(
+        button_image = ttk.Button(
             self.file_frame,
             text=_("Image Scaler"),
             command=self.on_file_image_scaler_button_press,
         )
-        button_imgae.pack(side="left")
+        button_image.pack(side="left")
+
+        button_image = ttk.Button(
+            self.file_frame,
+            text=_("GIF Scaler"),
+            command=self.on_file_gif_scaler_button_press,
+        )
+        button_image.pack(side="left")
 
     def on_file_save_button_press(self):
         self.logger.info("Start Save THEME_DATA_EDIT To File")
@@ -330,6 +343,17 @@ class theme_editor:
         sys.path.append(".")
         self.image_scaler_process = subprocess.Popen(
             ("python", os.path.join(os.getcwd(), "image_scaler_tool.py")),
+            shell=True,
+        )
+
+    def on_file_gif_scaler_button_press(self):
+        if self.image_scaler_process != None:
+            if self.image_scaler_process.poll() == None:
+                messagebox.showerror("Error", "gif scaler tool is running !")
+                return
+        sys.path.append(".")
+        self.image_scaler_process = subprocess.Popen(
+            ("python", os.path.join(os.getcwd(), "image_gif2png_scaler_tool.py")),
             shell=True,
         )
 
@@ -408,7 +432,7 @@ class theme_editor:
             "", "end", text=self.theme_file
         )
 
-        order = ["author", "display", "static_images", "static_text"]
+        order = ["author", "display", "static_images", "static_text", "dynamic_images"]
         sorted_d = dict_tools.sort_dict_by_order(config.THEME_DATA_EDIT, order)
         import copy
 
@@ -596,7 +620,7 @@ class theme_editor:
     def on_theme_tree_add_item(self, config_dict, item_key, item_value):
         config_dict[item_key] = item_value
 
-        order = ["author", "display", "static_images", "static_text"]
+        order = ["author", "display", "static_images", "static_text", "dynamic_images"]
         sorted_d = dict_tools.sort_dict_by_order(config_dict, order)
         import copy
 
@@ -668,11 +692,29 @@ class theme_editor:
                             parent_item = self.theme_tree.parent(selection[0])
                             if parent_item != "":
                                 parent_text = self.theme_tree.item(parent_item, "text")
-                                if selection_length == 3 and parent_text == "static_images":
-                                    theme_example = config.THEME_EXAMPLE[parent_text]['BACKGROUND']
+                                if (
+                                    selection_length == 3
+                                    and parent_text == "static_images"
+                                ):
+                                    theme_example = config.THEME_EXAMPLE[parent_text][
+                                        "BACKGROUND"
+                                    ]
                                     s = True
-                                elif selection_length == 3 and parent_text == "static_text":
-                                    theme_example = config.THEME_EXAMPLE[parent_text]['TEXT_EXAMPLE']
+                                elif (
+                                    selection_length == 3
+                                    and parent_text == "static_text"
+                                ):
+                                    theme_example = config.THEME_EXAMPLE[parent_text][
+                                        "TEXT_EXAMPLE"
+                                    ]
+                                    s = True
+                                elif (
+                                    selection_length == 3
+                                    and parent_text == "dynamic_images"
+                                ):
+                                    theme_example = config.THEME_EXAMPLE[parent_text][
+                                        "dynamic_x"
+                                    ]
                                     s = True
                             if s == False:
                                 theme_example = self.theme_tree_item_get_config_dict(
@@ -811,6 +853,7 @@ class theme_editor:
             # )
         else:
             if type(value) == int:
+
                 def restrict_entry(event):
                     current_text = event.widget.get()
                     cursor_index = event.widget.index(tkinter.INSERT)
@@ -939,13 +982,13 @@ class theme_editor:
                             self.theme_refresh = True
 
                 if type(value) == bool:
-                    check_button['command']=on_confirm
+                    check_button["command"] = on_confirm
                 else:
                     try:
                         entry.bind("<Return>", on_confirm)
                     except:
                         pass
-                    
+
                     confirm_button = ttk.Button(
                         self.editor, text=_("Confirm"), command=on_confirm
                     )
@@ -1042,6 +1085,7 @@ class theme_editor:
                             if length == 3 and (
                                 parent_text == "static_images"
                                 or parent_text == "static_text"
+                                or parent_text == "dynamic_images"
                             ):
                                 item_text = self.theme_tree.item(
                                     self.theme_tree_selection, "text"
@@ -1091,7 +1135,8 @@ class theme_editor:
             height=display.lcd.get_height()
             + 2 * self.RGB_LED_MARGIN
             - 50
-            - (25 + self.RGB_LED_MARGIN) + 100,
+            - (25 + self.RGB_LED_MARGIN)
+            + 100,
         )
 
         self.editor.place(
@@ -1119,9 +1164,15 @@ class theme_editor:
         if (
             os.path.exists(self.theme_file)
             and os.path.getmtime(self.theme_file) > self.last_edit_time
-        ) or self.theme_refresh == True:
+        ):
+            self.theme_file_change = True
+        else:
+            self.theme_file_change = False
 
-            self.refresh_theme()
+        self.main_refresh_tick = self.main_refresh_tick + 1
+        self.refresh_theme()
+
+        if self.theme_file_change == True or self.theme_refresh == True:
 
             if self.theme_refresh == True:
                 log = "The preview window will refresh"
@@ -1167,81 +1218,102 @@ class theme_editor:
         self.main.after(100, self.main_refresh)
 
     def refresh_theme(self):
-
+        need_refresh = False
         if self.theme_refresh == True:
             config.load_edit(config.THEME_DATA_EDIT)
-        else:
+            need_refresh = True
+        elif self.theme_file_change == True:
             config.load_theme()
             config.load_theme_edit()
+            need_refresh = True
 
         import traceback
 
         error_text = ""
         try:
-            error_text = "initialize_display"
-            # Initialize the display
-            display.initialize_display()
-            error_text = "display_static_images"
-            # Create all static images
-            display.lcd.image_cache = {}
-            display.display_static_images()
-            error_text = "display_static_text"
-            # Create all static texts
-            display.display_static_text()
+            import library.dynamic_images as dynamic_images
+            import library.photo_album as photo_album
 
-            # Display all data on screen once
-            import library.stats as stats
+            if need_refresh == True:
+                error_text = "initialize_display"
+                # Initialize the display
+                display.initialize_display()
+                error_text = "display_static_images"
+                # Create all static images
+                display.lcd.image_cache = {}
+                display.display_static_images()
+                error_text = "display_static_text"
+                # Create all static texts
+                display.display_static_text()
 
-            if config.THEME_DATA["STATS"]["CPU"]["PERCENTAGE"].get("INTERVAL", 0) > 0:
-                error_text = "CPU percentage"
-                stats.CPU.percentage()
-            if config.THEME_DATA["STATS"]["CPU"]["FREQUENCY"].get("INTERVAL", 0) > 0:
-                error_text = "CPU frequency"
-                stats.CPU.frequency()
-            if config.THEME_DATA["STATS"]["CPU"]["LOAD"].get("INTERVAL", 0) > 0:
-                error_text = "CPU load"
-                stats.CPU.load()
-            if config.THEME_DATA["STATS"]["CPU"]["TEMPERATURE"].get("INTERVAL", 0) > 0:
-                error_text = "CPU temperature"
-                stats.CPU.temperature()
-            if config.THEME_DATA["STATS"]["CPU"]["FAN_SPEED"].get("INTERVAL", 0) > 0:
-                error_text = "CPU fan_speed"
-                stats.CPU.fan_speed()
-            if config.THEME_DATA["STATS"]["GPU"].get("INTERVAL", 0) > 0:
-                error_text = "Gpu stats"
-                stats.Gpu.stats()
-            if config.THEME_DATA["STATS"]["MEMORY"].get("INTERVAL", 0) > 0:
-                error_text = "Memory stats"
-                stats.Memory.stats()
-            if config.THEME_DATA["STATS"]["DISK"].get("INTERVAL", 0) > 0:
-                error_text = "Disk stats"
-                stats.Disk.stats()
-            if config.THEME_DATA["STATS"]["NET"].get("INTERVAL", 0) > 0:
-                error_text = "Net stats"
-                stats.Net.stats()
-            if config.THEME_DATA["STATS"]["DATE"].get("INTERVAL", 0) > 0:
-                error_text = "Date stats"
-                stats.Date.stats()
-            if config.THEME_DATA["STATS"]["UPTIME"].get("INTERVAL", 0) > 0:
-                error_text = "SystemUptime stats"
-                stats.SystemUptime.stats()
-            if config.THEME_DATA["STATS"]["CUSTOM"].get("INTERVAL", 0) > 0:
-                error_text = "Custom stats"
-                stats.Custom.stats()
-            if (
-                config.THEME_DATA["STATS"]["LCD_SENSOR"]["TEMPERATURE"].get(
-                    "INTERVAL", 0
-                )
-                > 0
-            ):
-                error_text = "LcdSensor temperature"
-                stats.LcdSensor.temperature()
-            if (
-                config.THEME_DATA["STATS"]["LCD_SENSOR"]["HUMIDNESS"].get("INTERVAL", 0)
-                > 0
-            ):
-                error_text = "LcdSensor humidness"
-                stats.LcdSensor.humidness()
+                # Display all data on screen once
+                import library.stats as stats
+
+                if config.THEME_DATA["STATS"]["CPU"]["PERCENTAGE"].get("INTERVAL", 0) > 0:
+                    error_text = "CPU percentage"
+                    stats.CPU.percentage()
+                if config.THEME_DATA["STATS"]["CPU"]["FREQUENCY"].get("INTERVAL", 0) > 0:
+                    error_text = "CPU frequency"
+                    stats.CPU.frequency()
+                if config.THEME_DATA["STATS"]["CPU"]["LOAD"].get("INTERVAL", 0) > 0:
+                    error_text = "CPU load"
+                    stats.CPU.load()
+                if config.THEME_DATA["STATS"]["CPU"]["TEMPERATURE"].get("INTERVAL", 0) > 0:
+                    error_text = "CPU temperature"
+                    stats.CPU.temperature()
+                if config.THEME_DATA["STATS"]["CPU"]["FAN_SPEED"].get("INTERVAL", 0) > 0:
+                    error_text = "CPU fan_speed"
+                    stats.CPU.fan_speed()
+                if config.THEME_DATA["STATS"]["GPU"].get("INTERVAL", 0) > 0:
+                    error_text = "Gpu stats"
+                    stats.Gpu.stats()
+                if config.THEME_DATA["STATS"]["MEMORY"].get("INTERVAL", 0) > 0:
+                    error_text = "Memory stats"
+                    stats.Memory.stats()
+                if config.THEME_DATA["STATS"]["DISK"].get("INTERVAL", 0) > 0:
+                    error_text = "Disk stats"
+                    stats.Disk.stats()
+                if config.THEME_DATA["STATS"]["NET"].get("INTERVAL", 0) > 0:
+                    error_text = "Net stats"
+                    stats.Net.stats()
+                if config.THEME_DATA["STATS"]["DATE"].get("INTERVAL", 0) > 0:
+                    error_text = "Date stats"
+                    stats.Date.stats()
+                if config.THEME_DATA["STATS"]["UPTIME"].get("INTERVAL", 0) > 0:
+                    error_text = "SystemUptime stats"
+                    stats.SystemUptime.stats()
+                if config.THEME_DATA["STATS"]["CUSTOM"].get("INTERVAL", 0) > 0:
+                    error_text = "Custom stats"
+                    stats.Custom.stats()
+                if (
+                    config.THEME_DATA["STATS"]["LCD_SENSOR"]["TEMPERATURE"].get(
+                        "INTERVAL", 0
+                    )
+                    > 0
+                ):
+                    error_text = "LcdSensor temperature"
+                    stats.LcdSensor.temperature()
+                if (
+                    config.THEME_DATA["STATS"]["LCD_SENSOR"]["HUMIDNESS"].get("INTERVAL", 0)
+                    > 0
+                ):
+                    error_text = "LcdSensor humidness"
+                    stats.LcdSensor.humidness()
+            
+                dynamic_images.dynamic_images.init()
+
+                photo_album.photo_album.init()
+
+            if dynamic_images.dynamic_images.handle():
+                self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)
+                self.viewer_picture.config(image=self.display_image)
+
+            if config.THEME_DATA["photo_album"].get("INTERVAL", 0) > 0:
+                if self.main_refresh_tick % (config.THEME_DATA["photo_album"].get("INTERVAL", 0) * 10) == 0:
+                    if photo_album.photo_album.handle():
+                        self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)
+                        self.viewer_picture.config(image=self.display_image)
+            
         except Exception as e:
             self.logger_error_message(error_text + ": " + str(e))
             traceback.print_exc()
@@ -1389,8 +1461,12 @@ class theme_editor:
         else:
             # Display click coordinates
             self.label_coord.config(
-                text=(_("X={}, Y={} (click and drag to draw a zone)") + ' (R,G,B)={}').format(
-                    self.x0, self.y0,display.lcd.screen_image.getpixel((self.x0,self.y0))
+                text=(
+                    _("X={}, Y={} (click and drag to draw a zone)") + " (R,G,B)={}"
+                ).format(
+                    self.x0,
+                    self.y0,
+                    display.lcd.screen_image.getpixel((self.x0, self.y0)),
                 )
             )
 

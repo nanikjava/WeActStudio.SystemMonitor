@@ -88,6 +88,8 @@ class LcdComm(ABC):
             if not self.com_port:
                 logger.error(
                     "Cannot find COM port automatically, please run Configuration again and select COM port manually")
+                self.com_port = 'AUTO'
+                return
                 # try:
                 #     sys.exit(0)
                 # except:
@@ -175,6 +177,10 @@ class LcdComm(ABC):
     @abstractmethod
     def Clear(self):
         pass
+    
+    @abstractmethod
+    def Full(self,color: Tuple[int, int, int] = (0, 0, 0)):
+        pass
 
     @abstractmethod
     def ScreenOff(self):
@@ -214,6 +220,24 @@ class LcdComm(ABC):
     def DisplayBitmap(self, bitmap_path: str, x: int = 0, y: int = 0, width: int = 0, height: int = 0):
         image = self.open_image(bitmap_path)
         self.DisplayPILImage(image, x, y, width, height)
+
+    def DisplayBitmap2(self, bitmap_path: str, x: int = 0, y: int = 0, max_width: int = 0, max_height: int = 0,align: str = 'left'):
+        
+        assert x <= self.get_width(), 'Display Image X coordinate must be <= display width'
+        assert y <= self.get_height(), 'Display Image Y coordinate must be <= display height'
+        assert x + max_width <= self.get_width(), f'Display Bitmap max width exceeds display width {self.get_width()}'
+        assert y + max_height <= self.get_height(), f'Display Bitmap max height exceeds display height {self.get_height()}'
+
+        image = self.open_image(bitmap_path,max_width,max_height)
+
+        if max_width > 0 and max_height > 0:
+            if align == 'right':
+                x = max_width - image.width + x
+            elif align == 'center':
+                x = (max_width - image.width) // 2 + x
+                y = (max_height - image.height) // 2 + y
+                
+        self.DisplayPILImage(image, x, y)
 
     def DisplayText(
             self,
@@ -610,8 +634,111 @@ class LcdComm(ABC):
         self.DisplayPILImage(bar_image, xc - radius, yc - radius)
 
     # Load image from the filesystem, or get from the cache if it has already been loaded previously
-    def open_image(self, bitmap_path: str) -> Image:
+    def open_image(self, bitmap_path: str,max_width: int=0,max_height:int=0) -> Image:
         if bitmap_path not in self.image_cache:
             logger.debug("Bitmap " + bitmap_path + " is now loaded in the cache")
-            self.image_cache[bitmap_path] = Image.open(bitmap_path)
+
+            image = Image.open(bitmap_path)
+            if max_width > 0 and max_height > 0:
+                width_set = max_width
+                height_set = max_height
+                if image.width > width_set: 
+                    ratio = width_set / image.width  
+                    height = int(image.height * ratio)  
+                    image = image.resize((width_set, height), Image.LANCZOS)  
+                if image.height > height_set:   
+                    ratio = height_set / image.height  
+                    width = int(image.width * ratio)  
+                    image = image.resize((width, height_set), Image.LANCZOS) 
+
+            self.image_cache[bitmap_path] = image
         return copy.copy(self.image_cache[bitmap_path])
+    
+    def DisplayImage(self, x: int, y: int,width: int,height: int,color: Tuple[int, int, int] = (255, 255, 255),image: str = None,
+                           background_color: Tuple[int, int, int] = (255, 255, 255),
+                           background_image: str = None):
+        # display a image
+
+        if isinstance(color, str):
+            color = tuple(map(int, color.split(', ')))
+
+        if image is None:
+            # A bitmap is created with solid display
+            display_image = Image.new('RGB', (width, height), color)
+        else:
+            # A bitmap is created from provided display image
+            display_image = self.open_image(image)
+            width = display_image.size[0]
+            height = display_image.size[1]
+            
+        assert x <= self.get_width(), 'Display Image X coordinate must be <= display width'
+        assert y <= self.get_height(), 'Display Image Y coordinate must be <= display height'
+        assert x + width <= self.get_width(), 'Display Image width exceeds display width'
+        assert y + height <= self.get_height(), 'Display Image height exceeds display height'
+
+        if isinstance(background_color, str):
+            background_color = tuple(map(int, background_color.split(', ')))
+
+        if background_image is None:
+            # A bitmap is created with solid background
+            bg_image = Image.new('RGB', (width, height), background_color)
+        else:
+            # A bitmap is created from provided background image
+            bg_image = self.open_image(background_image)
+
+            # Crop bitmap to keep only the image background
+            bg_image = bg_image.crop(box=(x, y, x + width, y + height))
+
+        if 'A' in display_image.mode:
+            bg_image.paste(display_image,(0, 0),display_image)
+        else:
+            bg_image.paste(display_image,(0, 0))
+            
+        self.DisplayPILImage(bg_image, x, y)
+
+    def DisplayImage2(self, x: int, y: int,max_width: int,max_height: int,image: str = None,align: str = 'left',
+                           background_color: Tuple[int, int, int] = (255, 255, 255),
+                           background_image: str = None):
+        # display a image
+
+        if image is None:
+            assert 'Display Image in None'
+        else:
+            # A bitmap is created from provided display image
+            display_image = self.open_image(image,max_width,max_height)
+            width = display_image.size[0]
+            height = display_image.size[1]
+            
+        assert x <= self.get_width(), 'Display Image X coordinate must be <= display width'
+        assert y <= self.get_height(), 'Display Image Y coordinate must be <= display height'
+        assert x + max_width <= self.get_width(), 'Display Image width exceeds display width'
+        assert y + max_height <= self.get_height(), 'Display Image height exceeds display height'
+
+        if isinstance(background_color, str):
+            background_color = tuple(map(int, background_color.split(', ')))
+
+        if background_image is None:
+            # A bitmap is created with solid background
+            bg_image = Image.new('RGB', (max_width, max_height), background_color)
+        else:
+            # A bitmap is created from provided background image
+            bg_image = self.open_image(background_image)
+
+            # Crop bitmap to keep only the image background
+            bg_image = bg_image.crop(box=(x, y, x + max_width, y + max_height))
+
+        x_d = 0
+        y_d = 0
+        if max_width > 0 and max_height > 0:
+            if align == 'right':
+                x_d = max_width - width
+            elif align == 'center':
+                x_d = (max_width - width) // 2
+                y_d = (max_height - height) // 2
+
+        if 'A' in display_image.mode:
+            bg_image.paste(display_image,(x_d, y_d),display_image)
+        else:
+            bg_image.paste(display_image,(x_d, y_d))
+            
+        self.DisplayPILImage(bg_image, x, y)

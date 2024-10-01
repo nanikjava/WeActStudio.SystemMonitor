@@ -91,7 +91,11 @@ if __name__ == "__main__":
     logger.debug("Using Python %s" % sys.version)
 
 
-    def clean_stop(tray_icon=None):
+    def clean(tray_icon=None):
+        # Remove tray icon just before exit
+        if tray_icon:
+            tray_icon.visible = False
+
         # Turn screen and LEDs off before stopping
         display.turn_off()
 
@@ -101,24 +105,24 @@ if __name__ == "__main__":
 
         # Allow 5 seconds max. delay in case scheduler is not responding
         wait_time = 5
-        logger.info("Waiting for all pending request to be sent to display (%ds max)..." % wait_time)
+        logger.info(f"Waiting for {scheduler.get_queue_size()} pending request to be sent to display ({wait_time}s max)...")
 
         while not scheduler.is_queue_empty() and wait_time > 0:
             time.sleep(0.1)
             wait_time = wait_time - 0.1
 
         logger.debug("(%.1fs)" % (5 - wait_time))
-
-        # Remove tray icon just before exit
-        if tray_icon:
-            tray_icon.visible = False
-
+    
+    def stop():
         # We force the exit to avoid waiting for other scheduled tasks: they may have a long delay!
         try:
             sys.exit(0)
         except:
             os._exit(0)
 
+    def clean_stop(tray_icon=None):
+        clean(tray_icon)
+        stop()
 
     def on_signal_caught(signum, frame=None):
         logger.info("Caught signal %d, exiting" % signum)
@@ -129,8 +133,9 @@ if __name__ == "__main__":
 
     def on_configure_tray(tray_icon, item):
         logger.info("Configure from tray icon")
+        clean(tray_icon)
         start_configure()
-        clean_stop(tray_icon)
+        stop()
 
 
     def on_exit_tray(tray_icon, item):
@@ -239,6 +244,10 @@ if __name__ == "__main__":
         scheduler.LcdSensorHumidness()
         scheduler.QueueHandler()
         scheduler.LcdRxHandler()
+        scheduler.dynamic_images_Init()
+        scheduler.dynamic_images_Handler()
+        scheduler.photo_album_Init()
+        scheduler.photo_album_Handler()
 
     try:
         display_init()

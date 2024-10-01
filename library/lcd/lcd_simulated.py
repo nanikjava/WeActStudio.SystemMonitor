@@ -19,10 +19,11 @@
 import mimetypes
 import shutil
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from io import BytesIO
 
 from library.lcd.lcd_comm import *
 
-SCREENSHOT_FILE = "screencap.png"
+SCREENSHOT_FILE = BytesIO()  
 WEBSERVER_PORT = 5678
 
 
@@ -56,10 +57,11 @@ class SimulatedLcdWebServer(BaseHTTPRequestHandler):
 class LcdSimulated(LcdComm):
     def __init__(self, com_port: str = "AUTO", display_width: int = 320, display_height: int = 480,
                  update_queue: queue.Queue = None):
+        self.tmp = BytesIO()  
         LcdComm.__init__(self, com_port, display_width, display_height, update_queue)
         self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (255, 255, 255))
-        self.screen_image.save("tmp", "PNG")
-        shutil.copyfile("tmp", SCREENSHOT_FILE)
+        self.screen_image.save(self.tmp, "PNG")
+        shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
         self.orientation = Orientation.PORTRAIT
 
         try:
@@ -89,6 +91,12 @@ class LcdSimulated(LcdComm):
     def Clear(self):
         self.SetOrientation(self.orientation)
 
+    def Full(self,color: Tuple[int, int, int] = (0, 0, 0)):
+        with self.update_queue_mutex:
+            self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), color)
+            self.screen_image.save(self.tmp, "PNG")
+            shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
+
     def ScreenOff(self):
         pass
 
@@ -106,8 +114,8 @@ class LcdSimulated(LcdComm):
         # Just draw the screen again with the new width/height based on orientation
         with self.update_queue_mutex:
             self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (255, 255, 255))
-            self.screen_image.save("tmp", "PNG")
-            shutil.copyfile("tmp", SCREENSHOT_FILE)
+            self.screen_image.save(self.tmp, "PNG")
+            shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
 
     def DisplayPILImage(
             self,
@@ -135,5 +143,5 @@ class LcdSimulated(LcdComm):
 
         with self.update_queue_mutex:
             self.screen_image.paste(image, (x, y))
-            self.screen_image.save("tmp", "PNG")
-            shutil.copyfile("tmp", SCREENSHOT_FILE)
+            self.screen_image.save(self.tmp, "PNG")
+            shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)

@@ -35,6 +35,9 @@ msgstr ""
 msgid "Image Scaler"
 msgstr ""
 
+msgid "GIF Scaler"
+msgstr ""
+
 #: .\theme-editor.py:354
 msgid "Clear log"
 msgstr ""
