@@ -432,7 +432,7 @@ class theme_editor:
             "", "end", text=self.theme_file
         )
 
-        order = ["author", "display", "static_images", "static_text", "dynamic_images"]
+        order = ["author", "display", "static_images", "static_text", "dynamic_images", "photo_album"]
         sorted_d = dict_tools.sort_dict_by_order(config.THEME_DATA_EDIT, order)
         import copy
 
@@ -620,7 +620,7 @@ class theme_editor:
     def on_theme_tree_add_item(self, config_dict, item_key, item_value):
         config_dict[item_key] = item_value
 
-        order = ["author", "display", "static_images", "static_text", "dynamic_images"]
+        order = ["author", "display", "static_images", "static_text", "dynamic_images", "photo_album"]
         sorted_d = dict_tools.sort_dict_by_order(config_dict, order)
         import copy
 
