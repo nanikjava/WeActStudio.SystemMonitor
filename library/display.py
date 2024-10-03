@@ -24,14 +24,13 @@ from library.lcd.lcd_comm import Orientation
 from library.lcd.lcd_comm_weact_a import LcdComm_WeAct_A
 from library.lcd.lcd_simulated import LcdSimulated
 from library.log import logger
-
+import ctypes
 
 def _get_full_path(path, name):
     if name:
         return path + name
     else:
         return None
-
 
 def _get_theme_orientation() -> Orientation:
     if config.THEME_DATA["display"]["DISPLAY_ORIENTATION"] == 'portrait':
@@ -49,6 +48,11 @@ def _get_theme_orientation() -> Orientation:
                        "' unknown, using portrait")
         return Orientation.PORTRAIT
 
+def get_config_display_free_off() -> bool:
+    return config.CONFIG_DATA["display"].get("FREE_OFF", False)
+
+def get_config_display_brightness() -> int:
+    return config.CONFIG_DATA["display"].get("BRIGHTNESS", 0)
 
 class Display:
     def __init__(self):

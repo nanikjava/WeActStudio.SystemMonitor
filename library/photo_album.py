@@ -22,8 +22,10 @@ def list_theme_pic():
                     or file_l.endswith(".bmp")
                 ):
                     if len(root) > len(config.THEME_DATA_EDIT["PATH"]):
-                        path = root[len(config.THEME_DATA_EDIT["PATH"]) :] + "/" + file
-                        pic.append(get_theme_file_path(path))
+                        root_path = root[len(config.THEME_DATA_EDIT["PATH"]) :]
+                        if root_path.startswith("Photos\\") or root_path == "Photos":
+                            path = root[len(config.THEME_DATA_EDIT["PATH"]) :] + "\\" + file
+                            pic.append(get_theme_file_path(path))
                     # else:
                     #     pic.append(file)
         return pic
@@ -86,7 +88,11 @@ class photo_album:
             
             if cls.auto_refresh == True:
                 cls.theme_pic_list = list_theme_pic()
-                
+
+            if  len(cls.theme_pic_list) == 0:
+                cls.theme_pic_id = 0
+                return refresh
+            
             if cls.show_sequential == True:
                 pic_path = cls.theme_pic_list[cls.theme_pic_id]
                 cls.theme_pic_id = cls.theme_pic_id + 1

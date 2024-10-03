@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2024-09-14 23:32+0800\n"
-"PO-Revision-Date: 2024-09-24 21:29+0800\n"
+"PO-Revision-Date: 2024-10-02 23:12+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -209,4 +209,7 @@ msgstr "主题编辑器正在运行 !"
 #: .\configure.py:988
 msgid "display other config is running !"
 msgstr "其他配置正在运行 !"
+
+msgid "Free Off(3 min)"
+msgstr "空闲息屏(3分钟)"
 

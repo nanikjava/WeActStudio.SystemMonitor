@@ -80,20 +80,8 @@ class LcdComm_WeAct_A(LcdComm):
             with self.update_queue_mutex:
                 self.update_queue.put((self.WriteData, [byteBuffer]))
 
-    def _who_am_i(self):
-        byteBuffer = bytearray(2)
-        byteBuffer[0] = Command.CMD_WHO_AM_I | Command.CMD_READ
-        byteBuffer[1] = Command.CMD_END
-
-        # This command reads LCD answer on serial link, so it bypasses the queue
-        self.SendCommand(byteBuffer, bypass_queue=True)
-        self.lcd_serial.flushInput()
-        response = self.lcd_serial.readline()
-
-        logger.info("Who Am I: %s" % (str(response[1:])))
-
     def InitializeComm(self):
-        self._who_am_i()
+        pass
 
     def Reset(self):
         self.Clear()
@@ -227,10 +215,9 @@ class LcdComm_WeAct_A(LcdComm):
         byteBuffer[8] = y1 >> 8 & 0xFF
         byteBuffer[9] = Command.CMD_END
 
-        self.SendCommand(byteBuffer)
-
         # Lock queue mutex then queue all the requests for the image data
         with self.update_queue_mutex:
+            self.SendLine(byteBuffer)
             for h in range(image_height):
                 for w in range(image_width):
                     R = pix[w, h][0] >> 3

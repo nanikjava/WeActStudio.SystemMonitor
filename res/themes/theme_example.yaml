@@ -29,6 +29,7 @@ static_images:
   #   Y:
   #   WIDTH:
   #   HEIGHT:
+  # If you want to add more image, change the BACKGROUND name first
   BACKGROUND:
     PATH: background.png
     X: 0
@@ -53,6 +54,7 @@ static_text:
   #   BACKGROUND_IMAGE: path of your background picture (if you want transparent background)
   #   ALIGN:    # left / center / right
   #   ANCHOR:   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+  # If you want to add more text, change the TEXT_EXAMPLE name first
   TEXT_EXAMPLE:
    TEXT: Add your custom text here!
    X: 20
@@ -62,7 +64,7 @@ static_text:
    FONT: geforce/GeForce-Bold.ttf
    FONT_SIZE: 20
    FONT_COLOR: 0, 0, 0
-   # BACKGROUND_COLOR: 255, 255, 255
+   BACKGROUND_COLOR: 255, 255, 255
    BACKGROUND_IMAGE: background.png
    ALIGN: left  # left / center / right
    ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
@@ -71,6 +73,7 @@ dynamic_images:
   SHOW: False
   BACKGROUND_COLOR: 0, 0, 0
   BACKGROUND_IMAGE: background.png
+  # If you want to add more image, change the dynamic_x name first
   dynamic_x:
     ID: -1
     INTERVAL_100mS: 10
@@ -81,6 +84,7 @@ dynamic_images:
     HEIGHT: 480
 
 photo_album:
+  # You need to create a new folder called Photos and place your pictures in it
   SHOW: False
   SHOW_RANDOM: False
   BACKGROUND_COLOR: 0, 0, 0
@@ -192,7 +196,7 @@ STATS:
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
-        # BACKGROUND_COLOR: 50, 50, 50
+        BACKGROUND_COLOR: 50, 50, 50
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
@@ -269,7 +273,7 @@ STATS:
           FONT: roboto-mono/RobotoMono-Bold.ttf
           FONT_SIZE: 13
           FONT_COLOR: 200, 200, 200
-          # BACKGROUND_COLOR: 50, 50, 50
+          BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
           ALIGN: left  # left / center / right
           ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
@@ -290,7 +294,7 @@ STATS:
           FONT: roboto-mono/RobotoMono-Bold.ttf
           FONT_SIZE: 13
           FONT_COLOR: 200, 200, 200
-          # BACKGROUND_COLOR: 50, 50, 50
+          BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
           ALIGN: left  # left / center / right
           ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
@@ -311,7 +315,7 @@ STATS:
           FONT: roboto-mono/RobotoMono-Bold.ttf
           FONT_SIZE: 13
           FONT_COLOR: 200, 200, 200
-          # BACKGROUND_COLOR: 50, 50, 50
+          BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
           ALIGN: left  # left / center / right
           ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
@@ -892,7 +896,7 @@ STATS:
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
-        # BACKGROUND_COLOR: 50, 50, 50
+        BACKGROUND_COLOR: 50, 50, 50
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html

@@ -82,14 +82,50 @@ _ = lang.gettext
 from library.log import logger
 import library.scheduler as scheduler
 from library.display import display
+from library.display import get_config_display_free_off
+from library.display import get_config_display_brightness
+
+from pynput import keyboard, mouse
 
 if __name__ == "__main__":
+
+    if get_config_display_free_off() == True:
+        display_free_off_tick = 0
+        IDLE_THRESHOLD = 180  
+        activity = True
+        display_off = False
+ 
+        def reset_activity():  
+            global activity  
+            activity = True  
+        
+        def on_key_press(key):  
+            reset_activity()  
+        
+        def on_mouse_move(x, y):  
+            reset_activity()  
+        
+        def on_mouse_click(x, y, button, pressed):  
+            reset_activity()  
+        
+        def on_mouse_scroll(x, y, dx, dy):  
+            reset_activity()  
+        
+        keyboard_listener = keyboard.Listener(on_press=on_key_press)  
+        mouse_listener = mouse.Listener(  
+            on_move=on_mouse_move,
+            on_click=on_mouse_click,
+            on_scroll=on_mouse_scroll
+        )
+        
+        keyboard_listener.start()
+        mouse_listener.start()
+        logger.info('display free off enabled')
 
     # Apply system locale to this program
     locale.setlocale(locale.LC_ALL, '')
 
     logger.debug("Using Python %s" % sys.version)
-
 
     def clean(tray_icon=None):
         # Remove tray icon just before exit
@@ -114,6 +150,10 @@ if __name__ == "__main__":
         logger.debug("(%.1fs)" % (5 - wait_time))
     
     def stop():
+        global keyboard_listener,mouse_listener
+        if get_config_display_free_off() == True:
+            keyboard_listener.stop()  
+            mouse_listener.stop()
         # We force the exit to avoid waiting for other scheduled tasks: they may have a long delay!
         try:
             sys.exit(0)
@@ -137,16 +177,52 @@ if __name__ == "__main__":
         start_configure()
         stop()
 
-
     def on_exit_tray(tray_icon, item):
         logger.info("Exit from tray icon")
         clean_stop(tray_icon)
-
 
     def on_clean_exit(*args):
         logger.info("Program will now exit")
         clean_stop()
 
+    def display_init():
+        # Initialize the display
+        display.initialize_display()
+
+        # Initialize lcd sensor
+        display.initialize_sensor()
+
+        # Create all static images
+        display.display_static_images()
+
+        # Create all static texts
+        display.display_static_text()
+
+    def scheduler_init():
+        # Run our jobs that update data
+        import library.stats as stats
+
+        scheduler.CPUPercentage()
+        scheduler.CPUFrequency()
+        scheduler.CPULoad()
+        scheduler.CPUTemperature()
+        scheduler.CPUFanSpeed()
+        if stats.Gpu.is_available():
+            scheduler.GpuStats()
+        scheduler.MemoryStats()
+        scheduler.DiskStats()
+        scheduler.NetStats()
+        scheduler.DateStats()
+        scheduler.SystemUptimeStats()
+        scheduler.CustomStats()
+        scheduler.LcdSensorTemperature()
+        scheduler.LcdSensorHumidness()
+        scheduler.QueueHandler()
+        scheduler.LcdRxHandler()
+        scheduler.dynamic_images_Init()
+        scheduler.dynamic_images_Handler()
+        scheduler.photo_album_Init()
+        scheduler.photo_album_Handler()
 
     if platform.system() == "Windows":
         def on_win32_ctrl_event(event):
@@ -167,10 +243,7 @@ if __name__ == "__main__":
                     display.turn_off()
                 elif wParam == win32con.PBT_APMRESUMEAUTOMATIC:
                     logger.info("Computer is resuming from sleep, display will turn on")
-                    display.turn_on()
-                    # Some models have troubles displaying back the previous bitmap after being turned off/on
-                    display.display_static_images()
-                    display.display_static_text()
+                    display_init()
             else:
                 # For any other events, the program will stop
                 logger.info("Program will now exit")
@@ -211,46 +284,9 @@ if __name__ == "__main__":
     if platform.system() == "Windows":
         win32api.SetConsoleCtrlHandler(on_win32_ctrl_event, True)
 
-    def display_init():
-        # Initialize the display
-        display.initialize_display()
-
-        # Initialize lcd sensor
-        display.initialize_sensor()
-
-        # Create all static images
-        display.display_static_images()
-
-        # Create all static texts
-        display.display_static_text()
-
-        # Run our jobs that update data
-        import library.stats as stats
-
-        scheduler.CPUPercentage()
-        scheduler.CPUFrequency()
-        scheduler.CPULoad()
-        scheduler.CPUTemperature()
-        scheduler.CPUFanSpeed()
-        if stats.Gpu.is_available():
-            scheduler.GpuStats()
-        scheduler.MemoryStats()
-        scheduler.DiskStats()
-        scheduler.NetStats()
-        scheduler.DateStats()
-        scheduler.SystemUptimeStats()
-        scheduler.CustomStats()
-        scheduler.LcdSensorTemperature()
-        scheduler.LcdSensorHumidness()
-        scheduler.QueueHandler()
-        scheduler.LcdRxHandler()
-        scheduler.dynamic_images_Init()
-        scheduler.dynamic_images_Handler()
-        scheduler.photo_album_Init()
-        scheduler.photo_album_Handler()
-
     try:
         display_init()
+        scheduler_init()
     except Exception as e:
         messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
         start_configure()
@@ -302,10 +338,28 @@ if __name__ == "__main__":
                 logger.debug('Re-init Display')
                 scheduler.STOPPING = False
                 display_init()
+                scheduler_init()
                 step = 0
                 tick = 0
                 retry_connect_count = 0
-                
+
+            if get_config_display_free_off() == True:
+                display_free_off_tick = display_free_off_tick + 1
+                if activity == False:
+                    if display_free_off_tick > IDLE_THRESHOLD * 2:
+                        display_free_off_tick = 0
+                        if display_off == False:
+                            display.lcd.SetBrightness(0)
+                            logger.info('display off')
+                            display_off = True
+                else:
+                    activity = False
+                    display_free_off_tick = 0
+                    if display_off == True:
+                        display.lcd.SetBrightness(get_config_display_brightness())
+                        logger.info('display on')
+                        display_off = False
+
             time.sleep(0.5)
 
     elif platform.system() == "Windows":  # Windows-specific
@@ -376,10 +430,28 @@ if __name__ == "__main__":
                     logger.debug('Re-init Display')
                     scheduler.STOPPING = False
                     display_init()
+                    scheduler_init()
                     step = 0
                     tick = 0
                     retry_connect_count = 0
-                    
+                
+                if get_config_display_free_off() == True:
+                    display_free_off_tick = display_free_off_tick + 1
+                    if activity == False:
+                        if display_free_off_tick > IDLE_THRESHOLD * 2:
+                            display_free_off_tick = 0
+                            if display_off == False:
+                                display.lcd.SetBrightness(0)
+                                logger.info('display off')
+                                display_off = True
+                    else:
+                        activity = False
+                        display_free_off_tick = 0
+                        if display_off == True:
+                            display.lcd.SetBrightness(get_config_display_brightness())
+                            logger.info('display on')
+                            display_off = False
+
                 time.sleep(0.5)
 
         except Exception as e:

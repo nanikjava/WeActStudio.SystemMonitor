@@ -280,12 +280,22 @@ class ConfigWindow:
             variable=self.live_display_bool_var,
         )
         self.live_display_checkbox.place(x=500, y=228)
+
         self.other_setting_button = ttk.Button(
             self.window,
             text=_("Other Config"),
             command=lambda: self.on_display_other_config_click(),
         )
         self.other_setting_button.place(x=320, y=225)
+
+        self.free_off_bool_var = tkinter.BooleanVar()
+        self.free_off_bool_var.set(False)
+        self.free_off_checkbox = ttk.Checkbutton(
+            self.window,
+            text=_("Free Off(3 min)"),
+            variable=self.free_off_bool_var,
+        )
+        self.free_off_checkbox.place(x=500, y=258)
 
         # System Monitor Configuration
         sysmon_label = ttk.Label(
@@ -588,7 +598,7 @@ class ConfigWindow:
                                 )
                                 print("Show preview.png")
                             except:
-                                theme_preview = Image.open("res/docs/no-preview.png")
+                                theme_preview = Image.open("res/themes/no-preview.png")
                                 print("Show no-preview.png")
                             theme_data = get_theme_data(self.theme_cb.get())
                             print("display.lcd.SetOrientation")
@@ -649,7 +659,7 @@ class ConfigWindow:
                     "res/themes/" + self.theme_cb.get() + "/preview.png"
                 )
             except:
-                theme_preview = Image.open("res/docs/no-preview.png")
+                theme_preview = Image.open("res/themes/no-preview.png")
             finally:
                 if theme_preview.width > theme_preview.height:
                     theme_preview = theme_preview.resize(
@@ -755,6 +765,11 @@ class ConfigWindow:
         except:
             self.cpu_fan_cb.current(0)
 
+        try:
+            self.free_off_bool_var.set(self.config["display"].get("FREE_OFF",False))
+        except:
+            self.free_off_bool_var.set(False)
+
         # Reload content on screen
         self.on_model_change()
         self.on_theme_change()
@@ -787,36 +802,10 @@ class ConfigWindow:
             k for k, v in reverse_map.items() if v == self.orient_cb.get()
         ][0]
         self.config["display"]["BRIGHTNESS"] = int(self.brightness_slider.get())
-
+        self.config["display"]["FREE_OFF"] = self.free_off_bool_var.get()
+        
         with open("config.yaml", "w", encoding="utf-8") as file:
             ruamel.yaml.YAML().dump(self.config, file)
-
-    def set_config_values(self):
-        self.config["config"]["THEME"] = self.theme_cb.get()
-        self.config["config"]["HW_SENSORS"] = [
-            k for k, v in hw_lib_map.items() if v == self.hwlib_cb.get()
-        ][0]
-        if self.eth_cb.current() == 0:
-            self.config["config"]["ETH"] = ""
-        else:
-            self.config["config"]["ETH"] = self.eth_cb.get()
-        if self.wl_cb.current() == 0:
-            self.config["config"]["WLO"] = ""
-        else:
-            self.config["config"]["WLO"] = self.wl_cb.get()
-        if self.com_cb.current() == 0:
-            self.config["config"]["COM_PORT"] = "AUTO"
-        else:
-            self.config["config"]["COM_PORT"] = self.com_cb.get()
-        if self.cpu_fan_cb.current() == 0:
-            self.config["config"]["CPU_FAN"] = "AUTO"
-        else:
-            self.config["config"]["CPU_FAN"] = self.cpu_fan_cb.get().split(" ")[0]
-        self.config["display"]["REVISION"] = model_to_revision_map[self.model_cb.get()]
-        self.config["display"]["DISPLAY_REVERSE"] = [
-            k for k, v in reverse_map.items() if v == self.orient_cb.get()
-        ][0]
-        self.config["display"]["BRIGHTNESS"] = int(self.brightness_slider.get())
 
     def on_theme_change(self, e=None):
         self.load_theme_preview()

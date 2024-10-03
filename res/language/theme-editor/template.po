@@ -103,7 +103,14 @@ msgstr ""
 msgid "Zone: X={}, Y={}, width={} height={}"
 msgstr ""
 
-#: .\theme-editor.py:1381
-msgid "X={}, Y={} (click and drag to draw a zone)"
+msgid "You need to create a new folder called Photos \nand place your pictures in it."
 msgstr ""
 
+msgid "If you want to add more image,\nchange the dynamic_x name first"
+msgstr ""
+
+msgid "If you want to add more text,\nchange the TEXT_EXAMPLE name first"
+msgstr ""
+
+msgid "If you want to add more image,\nchange the BACKGROUND name first"
+msgstr ""

@@ -762,13 +762,20 @@ class theme_editor:
         self.theme_tree_selection = None
         self.theme_tree_selection_last = None
 
-    def editor_set_free(self):
+    def editor_set_free(self,text_show = None):
         self.editor.destroy()
         self.editor = tkinter.Frame(self.main)
-        self.label_top = tkinter.Label(
+
+        label_top = tkinter.Label(
             self.editor, text=_("Waiting selection"), font=("Arial", 12, "bold")
         )
-        self.label_top.grid(row=0, column=0, columnspan=10, sticky="w")
+        label_top.grid(row=0, column=0, columnspan=10, sticky="w")
+
+        if text_show != None:
+            label_tips = ttk.Label(self.editor, text="")
+            label_tips["text"] = text_show
+            label_tips.grid(row=1, column=0, columnspan=10, sticky="w")
+
         self.editor.place(
             x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
             y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN - 50 + 100,
@@ -1064,11 +1071,12 @@ class theme_editor:
                     config_value = self.theme_tree_item_get_config_value(
                         config.THEME_DATA_EDIT, self.theme_tree_selection
                     )
+                    selection_item_text = self.theme_tree.item(
+                        self.theme_tree_selection, "text"
+                    )
                     if not isinstance(config_value, dict):
-                        item_text = self.theme_tree.item(
-                            self.theme_tree_selection, "text"
-                        )
-                        title = item_text.split(": ")[0]
+                        
+                        title = selection_item_text.split(": ")[0]
 
                         if length == 2 and title == "PATH":
                             self.editor_set_free()
@@ -1087,16 +1095,24 @@ class theme_editor:
                                 or parent_text == "static_text"
                                 or parent_text == "dynamic_images"
                             ):
-                                item_text = self.theme_tree.item(
-                                    self.theme_tree_selection, "text"
-                                )
                                 self.editor_display_dict(
-                                    self.theme_tree_selection, item_text
+                                    self.theme_tree_selection, selection_item_text
                                 )
                             else:
-                                self.editor_set_free()
+                                tip_show = None
+                                if selection_item_text == "photo_album":
+                                    tip_show = _("You need to create a new folder called Photos \nand place your pictures in it.")
+                                elif selection_item_text == "dynamic_images":
+                                    tip_show = _("If you want to add more image,\nchange the dynamic_x name first")
+                                elif selection_item_text == "static_text":
+                                    tip_show = _("If you want to add more text,\nchange the TEXT_EXAMPLE name first")
+                                elif selection_item_text == "static_images":
+                                    tip_show = _("If you want to add more image,\nchange the BACKGROUND name first")
+                                self.editor_set_free(tip_show)
                         else:
                             self.editor_set_free()
+                else:
+                    self.editor_set_free()
         else:
             self.theme_tree_selection_last = None
             self.editor_set_free()
@@ -1107,6 +1123,7 @@ class theme_editor:
             + "x"
             + str(display.lcd.get_height() + 4 * self.RGB_LED_MARGIN + 40 + 100)
         )
+
         self.viewer.place(
             x=0,
             y=0,
@@ -1461,9 +1478,7 @@ class theme_editor:
         else:
             # Display click coordinates
             self.label_coord.config(
-                text=(
-                    _("X={}, Y={} (click and drag to draw a zone)") + " (R,G,B)={}"
-                ).format(
+                text=("X={}, Y={}" + " (R,G,B)={}").format(
                     self.x0,
                     self.y0,
                     display.lcd.screen_image.getpixel((self.x0, self.y0)),
@@ -1472,7 +1487,6 @@ class theme_editor:
 
     def on_zone_click(self, event):
         self.label_zone.place_forget()
-
 
 if __name__ == "__main__":
     lang, encoding = locale.getlocale()

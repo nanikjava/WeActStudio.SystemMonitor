@@ -213,3 +213,5 @@ msgstr ""
 msgid "display other config is running !"
 msgstr ""
 
+msgid "Free Off(3 min)"
+msgstr ""
