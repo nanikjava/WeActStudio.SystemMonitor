@@ -84,16 +84,10 @@ class LcdComm_WeAct_A(LcdComm):
         pass
 
     def Reset(self):
-        self.Clear()
+        pass
 
     def Clear(self):
-        color = 0x0000
-        byteBuffer = bytearray(4)
-        byteBuffer[0] = Command.CMD_FULL
-        byteBuffer[1] = color & 0xFF
-        byteBuffer[2] = color >> 8 & 0xFF
-        byteBuffer[3] = Command.CMD_END
-        self.SendCommand(byteBuffer)
+        self.Full((0,0,0))
     
     def Full(self,color: Tuple[int, int, int] = (0, 0, 0)):
         R = color[0] >> 3
@@ -104,11 +98,22 @@ class LcdComm_WeAct_A(LcdComm):
         rgb = (R << 11) | (G << 5) | B
         line = struct.pack("<H", rgb)
 
-        byteBuffer = bytearray(4)
+        xe = self.get_width()
+        ye = self.get_height()
+        
+        byteBuffer = bytearray(12)
         byteBuffer[0] = Command.CMD_FULL
-        byteBuffer[1] = line[0]
-        byteBuffer[2] = line[1]
-        byteBuffer[3] = Command.CMD_END
+        byteBuffer[1] = 0
+        byteBuffer[2] = 0
+        byteBuffer[3] = 0
+        byteBuffer[4] = 0
+        byteBuffer[5] = (xe-1) & 0xff
+        byteBuffer[6] = (xe >> 8) & 0xff
+        byteBuffer[7] = (ye-1) & 0xff
+        byteBuffer[8] = (ye >> 8) & 0xff
+        byteBuffer[9] = line[0]
+        byteBuffer[10] = line[1]
+        byteBuffer[11] = Command.CMD_END
         self.SendCommand(byteBuffer)
 
     def ScreenOff(self):

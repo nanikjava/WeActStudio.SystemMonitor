@@ -9,21 +9,10 @@ STATS:
         MAX_VALUE: 100
         MIN_VALUE: 0
         SHOW: true
-        WIDTH: 110
-        X: 30
+        WIDTH: 122
+        X: 29
         Y: 89
       INTERVAL: 1
-      TEXT:
-        ALIGN: left
-        ANCHOR: lt
-        BACKGROUND_IMAGE: background.png
-        FONT: roboto-mono/RobotoMono-Bold.ttf
-        FONT_COLOR: 255, 255, 255
-        FONT_SIZE: 20
-        SHOW: false
-        SHOW_UNIT: false
-        X: 100
-        Y: 20
     TEMPERATURE:
       INTERVAL: 5
       TEXT:
@@ -72,8 +61,8 @@ STATS:
         MAX_VALUE: 100
         MIN_VALUE: 0
         SHOW: true
-        WIDTH: 113
-        X: 179
+        WIDTH: 122
+        X: 178
         Y: 89
     TEMPERATURE:
       TEXT:

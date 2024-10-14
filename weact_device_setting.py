@@ -374,11 +374,23 @@ class lcd_weact:
     def full(self, color: int):
         if color > 0xFFFF or color < 0:
             return False
-        byteBuffer = bytearray(4)
+        
+        xe = self.width
+        ye = self.height
+
+        byteBuffer = bytearray(12)
         byteBuffer[0] = Command.CMD_FULL
-        byteBuffer[1] = color & 0xFF
-        byteBuffer[2] = color >> 8 & 0xFF
-        byteBuffer[3] = Command.CMD_END
+        byteBuffer[1] = 0
+        byteBuffer[2] = 0
+        byteBuffer[3] = 0
+        byteBuffer[4] = 0
+        byteBuffer[5] = (xe-1) & 0xff
+        byteBuffer[6] = (xe >> 8) & 0xff
+        byteBuffer[7] = (ye-1) & 0xff
+        byteBuffer[8] = (ye >> 8) & 0xff
+        byteBuffer[9] = color & 0xFF
+        byteBuffer[10] = color >> 8 & 0xFF
+        byteBuffer[11] = Command.CMD_END
         return self.write_cmd(byteBuffer)
 
     def set_xy_address(self, xs: int, ys: int, xe: int, ye: int):
@@ -723,8 +735,8 @@ class tk_gui:
                         (320, 480),
                         0x000000
                     )
-            lcd.show_text(10,320,"Hello World !",(255,255,255),20,'left',None,image)
-            lcd.show_text(10,350,"Hello WeAct Studio !",(255,255,255),20,'left',None,image)
+            lcd.show_text(10,320,_("Hello World !"),(255,255,255),20,'left',None,image)
+            lcd.show_text(10,350,_("Hello WeAct Studio !"),(255,255,255),20,'left',None,image)
 
     def device_show_image_landscape(self):
         if self.device_connected == True:

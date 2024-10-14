@@ -76,11 +76,14 @@ class Display:
         # Send initialization commands
         self.lcd.InitializeComm()
 
-        # Turn on display, set brightness and LEDs for supported HW
-        self.turn_on()
-
         # Set orientation
         self.lcd.SetOrientation(_get_theme_orientation())
+
+        # Clear Lcd
+        self.lcd.Clear()
+
+        # Turn on display, set brightness and LEDs for supported HW
+        self.turn_on()
 
     def turn_on(self):
         # Turn screen on in case it was turned off previously

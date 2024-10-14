@@ -69,6 +69,25 @@ static_text:
    ALIGN: left  # left / center / right
    ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
 
+dynamic_texts:
+  SHOW: False
+  BACKGROUND_COLOR: 0, 0, 0
+  BACKGROUND_IMAGE: background.png
+  # If you want to add more image, change the dynamic_x name first
+  dynamic_x:
+    ID: -1
+    INTERVAL_100mS: 10
+    X: 0
+    Y: 0
+    WIDTH: 0
+    HEIGHT: 0
+    TEXT: Hello World
+    FONT: geforce/GeForce-Bold.ttf
+    FONT_SIZE: 20
+    FONT_COLOR: 0, 0, 0
+    ALIGN: left  # left / center / right
+    ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+
 dynamic_images:
   SHOW: False
   BACKGROUND_COLOR: 0, 0, 0

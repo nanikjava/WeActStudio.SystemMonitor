@@ -243,6 +243,9 @@ STATS:
         
 dynamic_images:
   SHOW: False
-  
+
+dynamic_texts:
+  SHOW: False
+
 photo_album:
   SHOW: False

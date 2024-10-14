@@ -9,7 +9,7 @@ STATS:
         MAX_VALUE: 100
         MIN_VALUE: 0
         SHOW: true
-        WIDTH: 115
+        WIDTH: 122
         X: 30
         Y: 90
       INTERVAL: 1
@@ -63,7 +63,7 @@ STATS:
         MAX_VALUE: 100
         MIN_VALUE: 0
         SHOW: true
-        WIDTH: 115
+        WIDTH: 122
         X: 174
         Y: 90
     TEMPERATURE:

@@ -432,7 +432,7 @@ class theme_editor:
             "", "end", text=self.theme_file
         )
 
-        order = ["author", "display", "static_images", "static_text", "dynamic_images", "photo_album"]
+        order = ["author", "display", "static_images", "static_text", "dynamic_images","dynamic_texts", "photo_album"]
         sorted_d = dict_tools.sort_dict_by_order(config.THEME_DATA_EDIT, order)
         import copy
 
@@ -620,7 +620,7 @@ class theme_editor:
     def on_theme_tree_add_item(self, config_dict, item_key, item_value):
         config_dict[item_key] = item_value
 
-        order = ["author", "display", "static_images", "static_text", "dynamic_images", "photo_album"]
+        order = ["author", "display", "static_images", "static_text", "dynamic_images", "dynamic_texts", "photo_album"]
         sorted_d = dict_tools.sort_dict_by_order(config_dict, order)
         import copy
 
@@ -711,6 +711,14 @@ class theme_editor:
                                 elif (
                                     selection_length == 3
                                     and parent_text == "dynamic_images"
+                                ):
+                                    theme_example = config.THEME_EXAMPLE[parent_text][
+                                        "dynamic_x"
+                                    ]
+                                    s = True
+                                elif (
+                                    selection_length == 3
+                                    and parent_text == "dynamic_texts"
                                 ):
                                     theme_example = config.THEME_EXAMPLE[parent_text][
                                         "dynamic_x"
@@ -1094,6 +1102,7 @@ class theme_editor:
                                 parent_text == "static_images"
                                 or parent_text == "static_text"
                                 or parent_text == "dynamic_images"
+                                or parent_text == "dynamic_texts"
                             ):
                                 self.editor_display_dict(
                                     self.theme_tree_selection, selection_item_text
@@ -1104,6 +1113,8 @@ class theme_editor:
                                     tip_show = _("You need to create a new folder called Photos \nand place your pictures in it.")
                                 elif selection_item_text == "dynamic_images":
                                     tip_show = _("If you want to add more image,\nchange the dynamic_x name first")
+                                elif selection_item_text == "dynamic_texts":
+                                    tip_show = _("If you want to add more text,\nchange the dynamic_x name first")
                                 elif selection_item_text == "static_text":
                                     tip_show = _("If you want to add more text,\nchange the TEXT_EXAMPLE name first")
                                 elif selection_item_text == "static_images":
@@ -1249,6 +1260,7 @@ class theme_editor:
         error_text = ""
         try:
             import library.dynamic_images as dynamic_images
+            import library.dynamic_texts as dynamic_texts
             import library.photo_album as photo_album
 
             if need_refresh == True:
@@ -1318,18 +1330,23 @@ class theme_editor:
                     stats.LcdSensor.humidness()
             
                 dynamic_images.dynamic_images.init()
-
+                dynamic_texts.dynamic_texts.init()
                 photo_album.photo_album.init()
 
+            need_refresh_img = False
+            
             if dynamic_images.dynamic_images.handle():
-                self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)
-                self.viewer_picture.config(image=self.display_image)
-
+                need_refresh_img = True
+            if dynamic_texts.dynamic_texts.handle():
+                need_refresh_img = True
             if config.THEME_DATA["photo_album"].get("INTERVAL", 0) > 0:
                 if self.main_refresh_tick % (config.THEME_DATA["photo_album"].get("INTERVAL", 0) * 10) == 0:
                     if photo_album.photo_album.handle():
-                        self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)
-                        self.viewer_picture.config(image=self.display_image)
+                        need_refresh_img = True
+            
+            if need_refresh_img == True:
+                self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)
+                self.viewer_picture.config(image=self.display_image)
             
         except Exception as e:
             self.logger_error_message(error_text + ": " + str(e))

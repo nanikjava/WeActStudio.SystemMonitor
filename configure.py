@@ -689,28 +689,38 @@ class ConfigWindow:
                 self.theme_author.place(x=10, y=self.theme_preview_img.height() + 15)
 
     def load_config_values(self):
-        with open("config.yaml", "rt", encoding="utf8") as stream:
-            self.config, ind, bsi = ruamel.yaml.util.load_yaml_guess_indent(stream)
+        try:
+            with open("config.yaml", "rt", encoding="utf8") as stream:
+                self.config, ind, bsi = ruamel.yaml.util.load_yaml_guess_indent(stream)
+        except:
+            self.config = {}
 
         # Check if theme is valid
-        if get_theme_data(self.config["config"]["THEME"]) is None:
-            # Theme from config.yaml is not valid: use first theme available default size 320x480
+        config = self.config.get("config",None)
+        if config is None:
+            print("Config not found!!")
+            self.config["config"] = {}
             self.config["config"]["THEME"] = get_themes(SIZE_1)[0]
-
+        else:
+            theme = config.get("THEME",None)
+            if theme is None:
+                # Theme from config.yaml is not valid: use first theme available default size 320x480
+                self.config["config"]["THEME"] = get_themes(SIZE_1)[0]
+        
         try:
-            self.theme_cb.set(self.config["config"]["THEME"])
+            self.theme_cb.set(config.get("THEME",None))
         except:
             self.theme_cb.set("")
 
         self.load_theme_preview()
 
         try:
-            self.hwlib_cb.set(hw_lib_map[self.config["config"]["HW_SENSORS"]])
+            self.hwlib_cb.set(hw_lib_map[config.get("HW_SENSORS","LHM")])
         except:
             self.hwlib_cb.current(0)
 
         try:
-            if self.config["config"]["ETH"] == "":
+            if config.get("ETH","") == "":
                 self.eth_cb.current(0)
             else:
                 self.eth_cb.set(self.config["config"]["ETH"])
@@ -718,7 +728,7 @@ class ConfigWindow:
             self.eth_cb.current(0)
 
         try:
-            if self.config["config"]["WLO"] == "":
+            if config.get("WLO","") == "":
                 self.wl_cb.current(0)
             else:
                 self.wl_cb.set(self.config["config"]["WLO"])
@@ -726,7 +736,7 @@ class ConfigWindow:
             self.wl_cb.current(0)
 
         try:
-            if self.config["config"]["COM_PORT"] == "AUTO":
+            if config.get("COM_PORT","AUTO") == "AUTO":
                 self.com_cb.current(0)
             else:
                 self.com_cb.set(self.config["config"]["COM_PORT"])
@@ -741,8 +751,12 @@ class ConfigWindow:
             self.size_select_label["text"] = SIZE_1
 
         # Guess model from revision and size
-        revision = self.config["display"]["REVISION"]
+        display = self.config.get("display",None)
+        if display is None:
+            print("display config not found!!")
+            self.config["display"] = {}
         try:
+            revision = self.config["display"]["REVISION"]
             self.model_cb.set(revision_to_model_map[revision])
         except:
             self.model_cb.current(0)
