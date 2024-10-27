@@ -117,3 +117,6 @@ msgstr ""
 
 msgid "If you want to add more image,\nchange the BACKGROUND name first"
 msgstr ""
+
+msgid "Theme dir"
+msgstr ""

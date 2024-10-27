@@ -36,9 +36,9 @@ def load_yaml(configfile):
 
 PATH = sys.path[0]
 CONFIG_DATA = load_yaml("config.yaml")
-THEME_DEFAULT = load_yaml("res/themes/default.yaml")
-THEME_SETTING = load_yaml("res/themes/theme_setting.yaml")
-THEME_EXAMPLE = load_yaml("res/themes/theme_example.yaml")
+THEME_DEFAULT = load_yaml("res/configs/default.yaml")
+THEME_SETTING = load_yaml("res/configs/theme_setting.yaml")
+THEME_EXAMPLE = load_yaml("res/configs/theme_example.yaml")
 THEME_DATA = None
 THEME_DATA_EDIT = None
 

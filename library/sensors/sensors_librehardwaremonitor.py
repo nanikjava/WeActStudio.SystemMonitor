@@ -424,22 +424,22 @@ class Memory(sensors.Memory):
         return math.nan
 
     @staticmethod
-    def virtual_used() -> int:  # In bytes
+    def virtual_used() -> int:  # In Mbytes
         memory = get_hw_and_update(Hardware.HardwareType.Memory)
         for sensor in memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Used") and sensor.Value is not None:
-                return int(sensor.Value * 1000000000.0)
+                return int(sensor.Value * 1024)
 
         return 0
 
     @staticmethod
-    def virtual_free() -> int:  # In bytes
+    def virtual_free() -> int:  # In Mbytes
         memory = get_hw_and_update(Hardware.HardwareType.Memory)
         for sensor in memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Available") and sensor.Value is not None:
-                return int(sensor.Value * 1000000000.0)
+                return int(sensor.Value * 1024)
 
         return 0
 

@@ -119,7 +119,7 @@ class LcdComm_WeAct_A(LcdComm):
     def ScreenOff(self):
         self.SetBrightness(0)
         self.SetSensorReportTime(0)
-        # self.Free()
+        self.Free()
 
     def ScreenOn(self):
         self.SetBrightness(self.brightness)
@@ -197,11 +197,13 @@ class LcdComm_WeAct_A(LcdComm):
         if image.size[0] > self.get_width():
             image_width = self.get_width()
 
-        assert x <= self.get_width(), "Image X coordinate must be <= display width"
-        assert y <= self.get_height(), "Image Y coordinate must be <= display height"
+        assert x <= self.get_width(), f"Display Image X {x} coordinate must be <= display width {self.get_width()}"
+        assert y <= self.get_height(), f"Display Image Y {y} coordinate must be <= display height {self.get_height()}"
         assert image_height > 0, "Image height must be > 0"
         assert image_width > 0, "Image width must be > 0"
-
+        assert x + image_width <= self.get_width(), f'Display Bitmap width+x exceeds display width {self.get_width()}'
+        assert y + image_height <= self.get_height(), f'Display Bitmap height+y exceeds display height {self.get_height()}'
+        
         pix = image.load()
         line = bytes()
 

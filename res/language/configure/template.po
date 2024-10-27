@@ -198,11 +198,11 @@ msgid "Error input: "
 msgstr ""
 
 #: .\configure.py:986
-msgid "Delete Theme"
+msgid "Delete theme"
 msgstr ""
 
 #: .\configure.py:1008
-msgid "Delete Theme: "
+msgid "Delete theme: "
 msgstr ""
 
 #: .\configure.py:1043
@@ -214,4 +214,10 @@ msgid "display other config is running !"
 msgstr ""
 
 msgid "Free Off(3 min)"
+msgstr ""
+
+msgid "Theme Dir"
+msgstr ""
+
+msgid "Copy theme"
 msgstr ""

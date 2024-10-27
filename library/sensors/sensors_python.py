@@ -390,7 +390,10 @@ class GpuAmd(sensors.Gpu):
             pyamdgpuinfo.detect_gpus()
             return pyamdgpuinfo.get_gpu(0).query_sclk() / 1000000
         elif pyadl:
-            return pyadl.ADLManager.getInstance().getDevices()[0].getCurrentEngineClock()
+            try:
+                return pyadl.ADLManager.getInstance().getDevices()[0].getCurrentEngineClock()
+            except:
+                return math.nan
         else:
             return math.nan
 
@@ -423,20 +426,24 @@ class Memory(sensors.Memory):
             return math.nan
 
     @staticmethod
-    def virtual_used() -> int:  # In bytes
+    def virtual_used() -> int:  # In Mbytes
         try:
             # Do not use psutil.virtual_memory().used: from https://psutil.readthedocs.io/en/latest/#memory
             # "It is calculated differently depending on the platform and designed for informational purposes only"
-            return psutil.virtual_memory().total - psutil.virtual_memory().available
+            virtual_used_t = psutil.virtual_memory().total - psutil.virtual_memory().available
+            virtual_used_t = int(virtual_used_t / 1024 / 1024)
+            return virtual_used_t
         except:
             return -1
 
     @staticmethod
-    def virtual_free() -> int:  # In bytes
+    def virtual_free() -> int:  # In Mbytes
         try:
             # Do not use psutil.virtual_memory().free: from https://psutil.readthedocs.io/en/latest/#memory
             # "note that this doesn’t reflect the actual memory available (use available instead)."
-            return psutil.virtual_memory().available
+            virtual_free_t = psutil.virtual_memory().available
+            virtual_free_t = int(virtual_free_t / 1024 / 1024)
+            return virtual_free_t
         except:
             return -1
 

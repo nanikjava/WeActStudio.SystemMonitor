@@ -223,10 +223,10 @@ class LcdComm(ABC):
 
     def DisplayBitmap2(self, bitmap_path: str, x: int = 0, y: int = 0, max_width: int = 0, max_height: int = 0,align: str = 'left'):
         
-        assert x <= self.get_width(), 'Display Image X coordinate must be <= display width'
-        assert y <= self.get_height(), 'Display Image Y coordinate must be <= display height'
-        assert x + max_width <= self.get_width(), f'Display Bitmap max width exceeds display width {self.get_width()}'
-        assert y + max_height <= self.get_height(), f'Display Bitmap max height exceeds display height {self.get_height()}'
+        assert x <= self.get_width(), f'Display Image X {x} coordinate must be <= display width {self.get_width()}'
+        assert y <= self.get_height(), f'Display Image Y {y} coordinate must be <= display height {self.get_height()}'
+        assert x + max_width <= self.get_width(), f'Display Bitmap max_width+x exceeds display width {self.get_width()}'
+        assert y + max_height <= self.get_height(), f'Display Bitmap max_height+y exceeds display height {self.get_height()}'
 
         image = self.open_image(bitmap_path,max_width,max_height)
 
@@ -636,8 +636,6 @@ class LcdComm(ABC):
     # Load image from the filesystem, or get from the cache if it has already been loaded previously
     def open_image(self, bitmap_path: str,max_width: int=0,max_height:int=0) -> Image:
         if bitmap_path not in self.image_cache:
-            logger.debug("Bitmap " + bitmap_path + " is now loaded in the cache")
-
             image = Image.open(bitmap_path)
             if max_width > 0 and max_height > 0:
                 width_set = max_width
@@ -650,7 +648,10 @@ class LcdComm(ABC):
                     ratio = height_set / image.height  
                     width = int(image.width * ratio)  
                     image = image.resize((width, height_set), Image.LANCZOS) 
-
+            else:
+                assert image.width >= self.get_width(), "Bitmap " + bitmap_path + f' width {image.width} exceeds display width {self.get_width()}'
+                assert image.height >= self.get_height(), "Bitmap " + bitmap_path + f' height {image.height} exceeds display height {self.get_height()}'
+            logger.debug("Bitmap " + bitmap_path + " is now loaded in the cache")
             self.image_cache[bitmap_path] = image
         return copy.copy(self.image_cache[bitmap_path])
     
@@ -671,10 +672,10 @@ class LcdComm(ABC):
             width = display_image.size[0]
             height = display_image.size[1]
             
-        assert x <= self.get_width(), 'Display Image X coordinate must be <= display width'
-        assert y <= self.get_height(), 'Display Image Y coordinate must be <= display height'
-        assert x + width <= self.get_width(), 'Display Image width exceeds display width'
-        assert y + height <= self.get_height(), 'Display Image height exceeds display height'
+        assert x <= self.get_width(), f'Display Image X {x} coordinate must be <= display width {self.get_width()}'
+        assert y <= self.get_height(), f'Display Image Y {y} coordinate must be <= display height {self.get_height()}'
+        assert x + width <= self.get_width(), f'Display Image width+x exceeds display width {self.get_width()}'
+        assert y + height <= self.get_height(), f'Display Image height+y exceeds display height {self.get_height()}'
 
         if isinstance(background_color, str):
             background_color = tuple(map(int, background_color.split(', ')))
@@ -709,10 +710,10 @@ class LcdComm(ABC):
             width = display_image.size[0]
             height = display_image.size[1]
             
-        assert x <= self.get_width(), 'Display Image X coordinate must be <= display width'
-        assert y <= self.get_height(), 'Display Image Y coordinate must be <= display height'
-        assert x + max_width <= self.get_width(), 'Display Image width exceeds display width'
-        assert y + max_height <= self.get_height(), 'Display Image height exceeds display height'
+        assert x <= self.get_width(), f'Display Image X {x} coordinate must be <= display width {self.get_width()}'
+        assert y <= self.get_height(), f'Display Image Y {y} coordinate must be <= display height {self.get_height()}'
+        assert x + max_width <= self.get_width(), f'Display Bitmap max_width+x exceeds display width {self.get_width()}'
+        assert y + max_height <= self.get_height(), f'Display Bitmap max_height+y exceeds display height {self.get_height()}'
 
         if isinstance(background_color, str):
             background_color = tuple(map(int, background_color.split(', ')))

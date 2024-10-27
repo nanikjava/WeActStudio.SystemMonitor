@@ -105,19 +105,32 @@ class Display:
     def display_static_images(self):
         if config.THEME_DATA.get('static_images', False):
             for image in config.THEME_DATA['static_images']:
-                logger.debug(f"Drawing Image: {image}")
+                logger.debug(f"Drawing Static Image: {image}")
+
+                width=config.THEME_DATA['static_images'][image].get("WIDTH", 0)
+                height=config.THEME_DATA['static_images'][image].get("HEIGHT", 0)
+                x=config.THEME_DATA['static_images'][image].get("X", 0)
+                y=config.THEME_DATA['static_images'][image].get("Y", 0)
+                bitmap_path=config.THEME_DATA['PATH'] + config.THEME_DATA['static_images'][image].get("PATH")
+                assert x <= self.lcd.get_width(), f"{bitmap_path} Image X {x} coordinate must be <= display width {self.lcd.get_width()}"
+                assert y <= self.lcd.get_height(), f"{bitmap_path} Image Y {y} coordinate must be <= display height {self.lcd.get_height()}"
+                assert height > 0, "Image height must be > 0"
+                assert width > 0, "Image width must be > 0"
+                assert x + width <= self.lcd.get_width(), f'{bitmap_path} Bitmap width+x exceeds display width {self.lcd.get_width()}'
+                assert y + height <= self.lcd.get_height(), f'{bitmap_path} Bitmap height+y exceeds display height {self.lcd.get_height()}'
+
                 self.lcd.DisplayBitmap(
-                    bitmap_path=config.THEME_DATA['PATH'] + config.THEME_DATA['static_images'][image].get("PATH"),
-                    x=config.THEME_DATA['static_images'][image].get("X", 0),
-                    y=config.THEME_DATA['static_images'][image].get("Y", 0),
-                    width=config.THEME_DATA['static_images'][image].get("WIDTH", 0),
-                    height=config.THEME_DATA['static_images'][image].get("HEIGHT", 0)
+                    bitmap_path=bitmap_path,
+                    x=x,
+                    y=y,
+                    width=width,
+                    height=height
                 )
 
     def display_static_text(self):
         if config.THEME_DATA.get('static_text', False):
             for text in config.THEME_DATA['static_text']:
-                logger.debug(f"Drawing Text: {text}")
+                logger.debug(f"Drawing Static Text: {text}")
                 self.lcd.DisplayText(
                     text=config.THEME_DATA['static_text'][text].get("TEXT"),
                     x=config.THEME_DATA['static_text'][text].get("X", 0),
@@ -139,6 +152,7 @@ class Display:
         error = True
         if config.THEME_DATA.get('STATS', False):
             if config.THEME_DATA['STATS'].get('LCD_SENSOR', False):
+                logger.debug(f"Initialize LCD Sensor")
                 temp_interval = 0
                 humid_interval = 0
                 time_set = 0
@@ -160,7 +174,7 @@ class Display:
                     if temp_interval > 0:
                         time_set = temp_interval
                 if time_set > 0:
-                    logger.debug(f'Set LCD_SENSOR Report Time {time_set}s')
+                    logger.debug(f'Set LCD Sensor Report Time {time_set}s')
                     self.lcd.SetSensorReportTime(time_set*1000)
                     error = False
         if error == True:

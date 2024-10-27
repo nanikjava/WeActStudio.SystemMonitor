@@ -23,8 +23,8 @@ def list_theme_pic():
                 ):
                     if len(root) > len(config.THEME_DATA_EDIT["PATH"]):
                         root_path = root[len(config.THEME_DATA_EDIT["PATH"]) :]
-                        if root_path.startswith("Photos\\") or root_path == "Photos":
-                            path = root[len(config.THEME_DATA_EDIT["PATH"]) :] + "\\" + file
+                        if root_path.startswith("Photos\\") or root_path.startswith("Photos/") or root_path == "Photos":
+                            path = root[len(config.THEME_DATA_EDIT["PATH"]) :] + "/" + file
                             pic.append(get_theme_file_path(path))
                     # else:
                     #     pic.append(file)

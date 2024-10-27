@@ -6,30 +6,30 @@ STATS:
         ANCHOR: lm
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_COLOR: 255, 255, 255
-        FONT_SIZE: 15
+        FONT_SIZE: 20
         FORMAT: short
         HEIGHT: 0
         SHOW: true
         WIDTH: 0
         X: 10
-        Y: 470
+        Y: 305
     HOUR:
       TEXT:
         ALIGN: left
         ANCHOR: lm
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_COLOR: 255, 255, 255
-        FONT_SIZE: 15
+        FONT_SIZE: 20
         FORMAT: medium
         HEIGHT: 0
         SHOW: true
         WIDTH: 0
-        X: 108
-        Y: 470
+        X: 148
+        Y: 305
     INTERVAL: 1
   LCD_SENSOR:
     HUMIDNESS:
@@ -41,15 +41,15 @@ STATS:
         BACKGROUND_IMAGE: background.png
         FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
         FONT_COLOR: 255, 255, 255
-        FONT_SIZE: 15
+        FONT_SIZE: 20
         HEIGHT: 0
         MINI_SIZE: 0
         SHOW: true
         SHOW_UNIT: true
         UNIT_ML: false
         WIDTH: 0
-        X: 255
-        Y: 470
+        X: 390
+        Y: 305
     TEMPERATURE:
       INTERVAL: 5
       TEXT:
@@ -59,35 +59,36 @@ STATS:
         BACKGROUND_IMAGE: background.png
         FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
         FONT_COLOR: 255, 255, 255
-        FONT_SIZE: 15
+        FONT_SIZE: 20
         HEIGHT: 0
         MINI_SIZE: 0
         SHOW: true
         SHOW_UNIT: true
         UNIT_ML: false
         WIDTH: 0
-        X: 190
-        Y: 470
-author: '@WeActStudio'
+        X: 300
+        Y: 305
+author: '@your_GitHub_username'
 display:
-  DISPLAY_ORIENTATION: portrait
-  DISPLAY_RGB_LED: 0, 0, 0
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_RGB_LED: 0, 255, 128
   DISPLAY_SIZE: 320x480
 photo_album:
   ALIGN: center
-  AUTO_REFRESH: true
+  AUTO_REFRESH: false
   BACKGROUND_COLOR: 0, 0, 0
+  BACKGROUND_IMAGE: background.png
   INTERVAL: 10
-  MAX_HEIGHT: 455
-  MAX_WIDTH: 0
+  MAX_HEIGHT: 290
+  MAX_WIDTH: 480
   SHOW: true
   SHOW_RANDOM: false
   X: 0
   Y: 0
 static_images:
-  background:
-    HEIGHT: 480
+  BACKGROUND:
+    HEIGHT: 320
     PATH: background.png
-    WIDTH: 320
+    WIDTH: 480
     X: 0
     Y: 0

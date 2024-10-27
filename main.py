@@ -45,7 +45,7 @@ try:
     from PIL import Image
     from tkinter import messagebox
     import tkinter as tk
-
+    from pynput import keyboard, mouse
     if platform.system() == 'Windows':
         import win32api
         import win32con
@@ -56,8 +56,7 @@ try:
     except:
         pass
 except:
-    print(
-        "[ERROR] Python dependencies not installed. Please follow start guide: https://github.com/mathoudebine/turing-smart-screen-python/wiki/System-monitor-:-how-to-start")
+    print("[ERROR] Python dependencies not installed.")
     try:
         sys.exit(0)
     except:
@@ -81,17 +80,37 @@ lang.install(domain)
 _ = lang.gettext
 
 import library.utils as utils
+import time
+LOCKFILE = os.path.join(os.path.dirname(__file__), os.path.basename(__file__)+".lock")
+if utils.app_is_running(LOCKFILE):
+    print("Error: Another instance of the program is already running.")
+    utils.show_messagebox("Error: Another instance of the program is already running.",_("WeAct Studio System Monitor Configuration"),3000)
+    time.sleep(3)
+    try:
+        sys.exit(0)
+    except:
+        os._exit(0)
+else:
+    utils.app_set_running(LOCKFILE)
+
+def app_clean():
+    global LOCKFILE
+    utils.app_end_running(LOCKFILE)
+def app_exit():
+    try:
+        sys.exit(0)
+    except:
+        os._exit(0)
 
 # Show Start Frame
 main = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor'),delay=0)
+time.sleep(1)
 
 from library.log import logger
 import library.scheduler as scheduler
 from library.display import display
 from library.display import get_config_display_free_off
 from library.display import get_config_display_brightness
-
-from pynput import keyboard, mouse
 
 # Start ...
 
@@ -161,10 +180,8 @@ def stop():
         keyboard_listener.stop()  
         mouse_listener.stop()
     # We force the exit to avoid waiting for other scheduled tasks: they may have a long delay!
-    try:
-        sys.exit(0)
-    except:
-        os._exit(0)
+    app_clean()
+    app_exit()
 
 def clean_stop(tray_icon=None):
     utils.show_messagebox(message=_('Exit') + " ...",title=_('WeAct Studio System Monitor'),delay=5000)
@@ -178,6 +195,9 @@ def on_signal_caught(signum, frame=None):
 
 def start_configure():
     subprocess.Popen(("python",os.path.join(os.getcwd(), "configure.py")), shell=True)
+
+def start_main():
+    subprocess.Popen(("python",os.path.join(os.getcwd(), "main.py")), shell=True)
 
 def on_configure_tray(tray_icon, item):
     logger.info("Configure from tray icon")
@@ -253,9 +273,12 @@ if platform.system() == "Windows":
             if wParam == win32con.PBT_APMSUSPEND:
                 logger.info("Computer is going to sleep, display will turn off")
                 display.turn_off()
+                scheduler.STOPPING = True
             elif wParam == win32con.PBT_APMRESUMEAUTOMATIC:
                 logger.info("Computer is resuming from sleep, display will turn on")
-                display_init()
+                app_clean()
+                start_main()
+                app_exit()
         else:
             # For any other events, the program will stop
             logger.info("Program will now exit")
@@ -322,7 +345,7 @@ if tray_icon and platform.system() == "Darwin":  # macOS-specific
     retry_connect_count = 0
     while True:
         tick  = tick + 1
-        if step ==0 :
+        if step == 0 :
             if tick > 4:
                 tick = 0
                 if display.lcd.lcd_serial.is_open == False:
@@ -350,12 +373,9 @@ if tray_icon and platform.system() == "Darwin":  # macOS-specific
                         clean_stop(tray_icon)
         elif step == 3:
             logger.debug('Re-init Display')
-            scheduler.STOPPING = False
-            display_init()
-            scheduler_init()
-            step = 0
-            tick = 0
-            retry_connect_count = 0
+            app_clean()
+            start_main()
+            app_exit()
 
         if get_config_display_free_off() == True:
             display_free_off_tick = display_free_off_tick + 1
@@ -421,6 +441,10 @@ elif platform.system() == "Windows":  # Windows-specific
                             scheduler.STOPPING = True
                             logger.debug('scheduler stopping')
                             step = 1
+                    else:
+                        messagebox.showerror(_("Error"), _("Error: ") + f'No COM Port Find')
+                        start_configure()
+                        clean_stop(tray_icon)
             elif step == 1:
                 if scheduler.is_queue_empty() or tick > 10:
                     tick = 0
@@ -442,12 +466,9 @@ elif platform.system() == "Windows":  # Windows-specific
                             clean_stop(tray_icon)
             elif step == 3:
                 logger.debug('Re-init Display')
-                scheduler.STOPPING = False
-                display_init()
-                scheduler_init()
-                step = 0
-                tick = 0
-                retry_connect_count = 0
+                app_clean()
+                start_main()
+                app_exit()
             
             if get_config_display_free_off() == True:
                 display_free_off_tick = display_free_off_tick + 1

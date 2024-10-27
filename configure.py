@@ -41,6 +41,7 @@ try:
     import tkinter
     from tkinter import messagebox
     from PIL import ImageTk
+    from pathlib import Path
 except:
     try:
         sys.exit(0)
@@ -78,6 +79,28 @@ else:
 lang = gettext.translation(domain, localedir, languages=[language], fallback=True)
 lang.install(domain)
 _ = lang.gettext
+
+import library.utils as utils
+import time
+LOCKFILE = os.path.join(os.path.dirname(__file__), os.path.basename(__file__)+".lock")
+if utils.app_is_running(LOCKFILE):
+    print("Error: Another instance of the program is already running.")
+    utils.show_messagebox("Error: Another instance of the program is already running.",_("WeAct Studio System Monitor Configuration"),3000)
+    time.sleep(3)
+    try:
+        sys.exit(0)
+    except:
+        os._exit(0)
+else:
+    utils.app_set_running(LOCKFILE)
+
+def app_exit():
+    global LOCKFILE
+    utils.app_end_running(LOCKFILE)
+    try:
+        sys.exit(0)
+    except:
+        os._exit(0)
 
 from library.sensors.sensors_python import sensors_fans, is_cpu_fan
 from library.lcd.lcd_comm import Orientation
@@ -236,7 +259,7 @@ class ConfigWindow:
             text=model_to_size_map[WEACT_A_MODEL],
             font=("Arial", 12, "bold"),
         )
-        self.size_select_label.place(x=510, y=76, width=250)
+        self.size_select_label.place(x=500, y=72, width=250)
 
         self.com_label = ttk.Label(self.window, text=_("COM port"))
         self.com_label.place(x=320, y=115)
@@ -381,6 +404,20 @@ class ConfigWindow:
         )
         self.delete_theme_btn.place(x=30, y=540, height=50, width=130)
 
+        self.theme_dir_btn = ttk.Button(
+            self.window,
+            text=_("Theme dir"),
+            command=lambda: self.on_theme_dir_click(),
+        )
+        self.theme_dir_btn.place(x=30, y=480, height=50, width=130)
+
+        self.copy_theme_btn = ttk.Button(
+            self.window,
+            text=_("Copy theme"),
+            command=lambda: self.on_copy_theme_editor_click(),
+        )
+        self.copy_theme_btn.place(x=170, y=480, height=50, width=130)
+
         if platform.system() == "Windows":
             import ctypes
             from library import schedule_service
@@ -472,10 +509,7 @@ class ConfigWindow:
             self.closing_confirm_frame.grab_release()
             self.closing_confirm_frame.destroy()
             self.window.destroy()
-            try:
-                sys.exit(0)
-            except:
-                os._exit(0)
+            app_exit()
 
         cancel_button = ttk.Button(
             self.closing_confirm_frame, text=_("NO"), command=on_closing_confirm_frame_no
@@ -493,10 +527,7 @@ class ConfigWindow:
             self.closing_confirm_frame.destroy()
             subprocess.Popen(("python", os.path.join(os.getcwd(), "main.py")), shell=True)
             self.window.destroy()
-            try:
-                sys.exit(0)
-            except:
-                os._exit(0)
+            app_exit()
 
         ok_button = ttk.Button(
             self.closing_confirm_frame, text=_("OK"), command=on_closing_confirm_frame_ok
@@ -528,6 +559,9 @@ class ConfigWindow:
 
     def window_refresh(self):
         if self.live_display_bool_var.get() == True:
+            self.model_cb['state'] = "disabled"
+            self.com_cb['state'] = "disabled"
+            self.com_refresh_button['state'] = "disabled"
             # check setting change
             if self.display_orientation_last != self.orient_cb.get():
                 self.display_orientation_last = self.orient_cb.get()
@@ -598,7 +632,7 @@ class ConfigWindow:
                                 )
                                 print("Show preview.png")
                             except:
-                                theme_preview = Image.open("res/themes/no-preview.png")
+                                theme_preview = Image.open("res/configs/no-preview.png")
                                 print("Show no-preview.png")
                             theme_data = get_theme_data(self.theme_cb.get())
                             print("display.lcd.SetOrientation")
@@ -641,6 +675,9 @@ class ConfigWindow:
                     messagebox.showerror(_("Error"), _("error: ") + f'{e}')
                     self.live_display_bool_var.set(False)
         else:
+            self.model_cb['state'] = "readonly"
+            self.com_cb['state'] = "readonly"
+            self.com_refresh_button['state'] = "normal"
             if self.display_init == True:
                 self.display_off()
                 self.display_init = False
@@ -659,7 +696,7 @@ class ConfigWindow:
                     "res/themes/" + self.theme_cb.get() + "/preview.png"
                 )
             except:
-                theme_preview = Image.open("res/themes/no-preview.png")
+                theme_preview = Image.open("res/configs/no-preview.png")
             finally:
                 if theme_preview.width > theme_preview.height:
                     theme_preview = theme_preview.resize(
@@ -826,7 +863,7 @@ class ConfigWindow:
 
     def on_new_theme_editor_click(self):
         self.new_theme_editor = tkinter.Toplevel(self.window)
-        self.new_theme_editor.title(_("New Theme"))
+        self.new_theme_editor.title(_("New theme"))
         main_window_x = self.window.winfo_x()
         main_window_y = self.window.winfo_y()
         main_window_width = self.window.winfo_width()
@@ -884,7 +921,7 @@ class ConfigWindow:
         self.new_theme_editor.grab_release()
         self.new_theme_editor.destroy()
 
-    def list_theme_name(self):
+    def list_theme_dir(self):
         current_directory = "res/themes/"
         entries = os.listdir(current_directory)
         folders = [
@@ -897,7 +934,7 @@ class ConfigWindow:
     def validate_entry(self, P):
         import re
 
-        pattern = r"^[a-zA-Z0-9_\- ]+$"
+        pattern = r"^[a-zA-Z0-9_\- .]+$"
         if re.match(pattern, P):
             return True
         else:
@@ -906,7 +943,7 @@ class ConfigWindow:
     def new_theme_editor_entry_change(self, event=None):
         content = self.new_theme_editor_entry.get()
         if self.validate_entry(content):
-            if content in self.list_theme_name():
+            if content in self.list_theme_dir():
                 self.new_theme_editor_label["text"] = _("Theme name already exists.")
                 self.new_theme_editor_label["foreground"] = "red"
                 self.new_theme_editor_ok_button.state(["disabled"])
@@ -922,6 +959,7 @@ class ConfigWindow:
 
     def on_new_theme_editor_button_ok(self):
         current_directory = "res/themes/"
+        configs_directory = "res/configs/"
         theme_name = self.new_theme_editor_entry.get()
         new_dir = current_directory + theme_name + "/"
         try:
@@ -945,7 +983,7 @@ class ConfigWindow:
                 else:
                     template_name = "theme_template_800x480.yaml"
             dst_name = "theme.yaml"
-            src_file = current_directory + template_name
+            src_file = configs_directory + template_name
             dst_file = new_dir + dst_name
             try:
                 shutil.copy2(src_file, dst_file)
@@ -992,13 +1030,13 @@ class ConfigWindow:
 
     def on_delete_theme_click(self):
         self.delete_theme_frame = tkinter.Toplevel(self.window)
-        self.delete_theme_frame.title(_("Delete Theme"))
+        self.delete_theme_frame.title(_("Delete theme"))
         main_window_x = self.window.winfo_x()
         main_window_y = self.window.winfo_y()
         main_window_width = self.window.winfo_width()
         main_window_height = self.window.winfo_height()
-        width = 300
-        height = 100
+        width = 350
+        height = 120
         x = main_window_x + (main_window_width // 2) - (width // 2)
         y = main_window_y + (main_window_height // 2) - (height // 2)
         self.delete_theme_frame.geometry(f"{width}x{height}+{x}+{y}")
@@ -1014,7 +1052,7 @@ class ConfigWindow:
         self.delete_theme_frame.grab_set()
 
         self.delete_theme_label = ttk.Label(
-            self.delete_theme_frame, text=_("Delete Theme: ") + f"{self.theme_cb.get()} ?"
+            self.delete_theme_frame, text=_("Delete theme: ") + f"{self.theme_cb.get()} ?",wraplength = 340
         )
         self.delete_theme_label.pack(
             side=tkinter.TOP, padx=5, pady=10, anchor=tkinter.W
@@ -1061,6 +1099,106 @@ class ConfigWindow:
             ),
             shell=True,
         )
+
+    def on_theme_dir_click(self):
+        dir_path = Path("res/themes/" + self.theme_cb.get())
+        if dir_path.exists():
+            if platform.system() == "Windows":  
+                os.startfile(str(dir_path))  
+            elif platform.system() == "Darwin":  # macOS  
+                os.system(f'open "{dir_path}"')  
+            else:  # Linux  
+                os.system(f'xdg-open "{dir_path}"')
+
+    def on_copy_theme_editor_click(self):
+        self.copy_theme_editor = tkinter.Toplevel(self.window)
+        self.copy_theme_editor.title(_("Copy theme"))
+        main_window_x = self.window.winfo_x()
+        main_window_y = self.window.winfo_y()
+        main_window_width = self.window.winfo_width()
+        main_window_height = self.window.winfo_height()
+        width = 300
+        height = 150
+        x = main_window_x + (main_window_width // 2) - (width // 2)
+        y = main_window_y + (main_window_height // 2) - (height // 2)
+        self.copy_theme_editor.geometry(f"{width}x{height}+{x}+{y}")
+        self.copy_theme_editor.protocol(
+            "WM_DELETE_WINDOW", self.on_copy_theme_editor_closing
+        )
+        self.copy_theme_editor.resizable(False, False)
+        self.copy_theme_editor.grab_set()
+        self.copy_theme_editor_label = ttk.Label(self.copy_theme_editor, text=_("Name"))
+        self.copy_theme_editor_label.pack(
+            side=tkinter.TOP, padx=10, pady=10, anchor=tkinter.W
+        )
+
+        self.copy_theme_editor_entry = ttk.Entry(self.copy_theme_editor)
+        self.copy_theme_editor_entry.pack(fill=tkinter.X, expand=True, padx=10)
+        self.copy_theme_editor_entry.bind(
+            "<KeyRelease>", self.copy_theme_editor_entry_change
+        )
+
+        cancel_button = ttk.Button(
+            self.copy_theme_editor,
+            text=_("Cancel"),
+            command=self.on_copy_theme_editor_closing,
+        )
+        cancel_button.pack(side=tkinter.RIGHT, padx=10, pady=10)
+
+        self.copy_theme_editor_ok_button = ttk.Button(
+            self.copy_theme_editor, text="OK", command=self.on_copy_theme_editor_button_ok
+        )
+        self.copy_theme_editor_ok_button.pack(side=tkinter.RIGHT, padx=5, pady=10)
+        self.copy_theme_editor_ok_button.state(["disabled"])
+
+        self.copy_theme_editor_entry.insert(0,self.theme_cb.get()+'_0')
+        self.copy_theme_editor_entry_change()
+        self.copy_theme_editor.focus_force()
+
+    def on_copy_theme_editor_closing(self):
+        self.copy_theme_editor.grab_release()
+        self.copy_theme_editor.destroy()
+
+    def copy_theme_editor_entry_change(self, event=None):
+        content = self.copy_theme_editor_entry.get()
+        if self.validate_entry(content):
+            if content in self.list_theme_dir():
+                self.copy_theme_editor_label["text"] = _("Theme name already exists.")
+                self.copy_theme_editor_label["foreground"] = "red"
+                self.copy_theme_editor_ok_button.state(["disabled"])
+            else:
+                self.copy_theme_editor_ok_button.state(["!disabled"])
+                self.copy_theme_editor_label["text"] = _("Name")
+                self.copy_theme_editor_label["foreground"] = "black"
+        else:
+            self.copy_theme_editor_ok_button.state(["disabled"])
+            self.copy_theme_editor_label["text"] = _("Error input: ") + r"^[a-zA-Z0-9_\- ]+$"
+            self.copy_theme_editor_label["foreground"] = "red"
+            pass
+
+    def on_copy_theme_editor_button_ok(self):
+        current_directory = "res/themes/"
+        src_dir = current_directory + self.theme_cb.get()  + "/"
+        dst_dir = current_directory + self.copy_theme_editor_entry.get() + "/"
+        
+        # copy theme
+        try:
+            shutil.copytree(src_dir, dst_dir)
+            print(f"Directory '{src_dir}' copy to '{dst_dir}'")
+        except FileNotFoundError:
+            messagebox.showerror(_("Error"), f"Source '{src_dir}' no found")
+            self.copy_theme_editor.destroy()
+            return
+        except Exception as e:
+            messagebox.showerror(_("Error"), f"Error: {e}")
+            self.copy_theme_editor.destroy()
+            return
+        # save theme change
+        self.on_model_change()
+        self.theme_cb.set(self.copy_theme_editor_entry.get())
+        self.save_config_values()
+        self.on_theme_editor_click()
+        self.copy_theme_editor.destroy()
 
     def on_save_click(self):
         self.save_config_values()
@@ -1190,3 +1328,4 @@ class ConfigWindow:
 if __name__ == "__main__":
     configurator = ConfigWindow()
     configurator.run()
+    app_exit()

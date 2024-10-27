@@ -81,12 +81,12 @@ class Memory(sensors.Memory):
         return random.uniform(0, 100)
 
     @staticmethod
-    def virtual_used() -> int:  # In bytes
-        return random.randint(300000000, 16000000000)
+    def virtual_used() -> int:  # In Mbytes
+        return random.randint(3000, 16000)
 
     @staticmethod
-    def virtual_free() -> int:  # In bytes
-        return random.randint(300000000, 16000000000)
+    def virtual_free() -> int:  # In Mbytes
+        return random.randint(3000, 16000)
 
 
 class Disk(sensors.Disk):

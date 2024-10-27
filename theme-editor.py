@@ -46,6 +46,7 @@ from tkinter import colorchooser
 from tkinter import scrolledtext
 from tkinter import messagebox
 from PIL import ImageTk
+from pathlib import Path
 
 if len(sys.argv) != 2:
     print("Usage :")
@@ -134,7 +135,7 @@ class file_tools:
                     or file_l.endswith(".bmp")
                 ):
                     if len(root) > len(config.THEME_DATA_EDIT["PATH"]):
-                        pic.append(root[len(config.THEME_DATA_EDIT["PATH"]) :] + "/" + file)
+                        pic.append(root[len(config.THEME_DATA_EDIT["PATH"]) :] + "\\" + file)
                     else:
                         pic.append(file)
         return pic
@@ -204,10 +205,10 @@ class theme_editor:
         self.logger.debug("Using theme file " + self.theme_file)
 
         # Open theme in default editor. You can also open the file manually in another program
-        self.logger.debug(
-            "Opening theme file in your default editor. If it does not work, open it manually in the "
-            "editor of your choice"
-        )
+        # self.logger.debug(
+        #     "Opening theme file in your default editor. If it does not work, open it manually in the "
+        #     "editor of your choice"
+        # )
         # if platform.system() == 'Darwin':  # macOS
         #     subprocess.call(('open', "./" + self.theme_file))
         # elif platform.system() == 'Windows':  # Windows
@@ -331,6 +332,13 @@ class theme_editor:
         )
         button_image.pack(side="left")
 
+        button_open_theme_dir = ttk.Button(
+            self.file_frame,
+            text=_("Theme Dir"),
+            command=self.on_file_open_theme_dir_button_press,
+        )
+        button_open_theme_dir.pack(side="left")
+
     def on_file_save_button_press(self):
         self.logger.info("Start Save THEME_DATA_EDIT To File")
         config.save_to_file(config.THEME_DATA_EDIT)
@@ -356,6 +364,16 @@ class theme_editor:
             ("python", os.path.join(os.getcwd(), "image_gif2png_scaler_tool.py")),
             shell=True,
         )
+
+    def on_file_open_theme_dir_button_press(self):
+        dir_path = Path(config.THEME_DATA_EDIT["PATH"])
+        if dir_path.exists():
+            if platform.system() == "Windows":  
+                os.startfile(str(dir_path))  
+            elif platform.system() == "Darwin":  # macOS  
+                os.system(f'open "{dir_path}"')  
+            else:  # Linux  
+                os.system(f'xdg-open "{dir_path}"')
 
     def logger_frame_init(self):
         self.logger_frame = tkinter.Frame(self.main)
@@ -1280,34 +1298,34 @@ class theme_editor:
 
                 if config.THEME_DATA["STATS"]["CPU"]["PERCENTAGE"].get("INTERVAL", 0) > 0:
                     error_text = "CPU percentage"
-                    stats.CPU.percentage()
+                    stats.CPU.percentage(True)
                 if config.THEME_DATA["STATS"]["CPU"]["FREQUENCY"].get("INTERVAL", 0) > 0:
                     error_text = "CPU frequency"
-                    stats.CPU.frequency()
+                    stats.CPU.frequency(True)
                 if config.THEME_DATA["STATS"]["CPU"]["LOAD"].get("INTERVAL", 0) > 0:
                     error_text = "CPU load"
                     stats.CPU.load()
                 if config.THEME_DATA["STATS"]["CPU"]["TEMPERATURE"].get("INTERVAL", 0) > 0:
                     error_text = "CPU temperature"
-                    stats.CPU.temperature()
+                    stats.CPU.temperature(True)
                 if config.THEME_DATA["STATS"]["CPU"]["FAN_SPEED"].get("INTERVAL", 0) > 0:
                     error_text = "CPU fan_speed"
-                    stats.CPU.fan_speed()
+                    stats.CPU.fan_speed(True)
                 if config.THEME_DATA["STATS"]["GPU"].get("INTERVAL", 0) > 0:
                     error_text = "Gpu stats"
-                    stats.Gpu.stats()
+                    stats.Gpu.stats(True)
                 if config.THEME_DATA["STATS"]["MEMORY"].get("INTERVAL", 0) > 0:
                     error_text = "Memory stats"
-                    stats.Memory.stats()
+                    stats.Memory.stats(True)
                 if config.THEME_DATA["STATS"]["DISK"].get("INTERVAL", 0) > 0:
                     error_text = "Disk stats"
-                    stats.Disk.stats()
+                    stats.Disk.stats(True)
                 if config.THEME_DATA["STATS"]["NET"].get("INTERVAL", 0) > 0:
                     error_text = "Net stats"
                     stats.Net.stats()
                 if config.THEME_DATA["STATS"]["DATE"].get("INTERVAL", 0) > 0:
                     error_text = "Date stats"
-                    stats.Date.stats()
+                    stats.Date.stats(True)
                 if config.THEME_DATA["STATS"]["UPTIME"].get("INTERVAL", 0) > 0:
                     error_text = "SystemUptime stats"
                     stats.SystemUptime.stats()
@@ -1321,13 +1339,13 @@ class theme_editor:
                     > 0
                 ):
                     error_text = "LcdSensor temperature"
-                    stats.LcdSensor.temperature()
+                    stats.LcdSensor.temperature(True)
                 if (
                     config.THEME_DATA["STATS"]["LCD_SENSOR"]["HUMIDNESS"].get("INTERVAL", 0)
                     > 0
                 ):
                     error_text = "LcdSensor humidness"
-                    stats.LcdSensor.humidness()
+                    stats.LcdSensor.humidness(True)
             
                 dynamic_images.dynamic_images.init()
                 dynamic_texts.dynamic_texts.init()
@@ -1347,7 +1365,9 @@ class theme_editor:
             if need_refresh_img == True:
                 self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)
                 self.viewer_picture.config(image=self.display_image)
-            
+        except AssertionError as e:
+            self.logger_error_message(error_text + ": " + str(e))
+            traceback.print_exc()
         except Exception as e:
             self.logger_error_message(error_text + ": " + str(e))
             traceback.print_exc()

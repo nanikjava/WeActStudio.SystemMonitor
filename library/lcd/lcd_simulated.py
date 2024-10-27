@@ -136,10 +136,12 @@ class LcdSimulated(LcdComm):
         if image.size[0] > self.get_width():
             image_width = self.get_width()
 
-        assert x <= self.get_width(), 'Image X coordinate must be <= display width'
+        assert x <= self.get_width(), f'Display Image X {x} coordinate must be <= display width {self.get_width()}'
         assert y <= self.get_height(), 'Image Y coordinate must be <= display height'
         assert image_height > 0, 'Image height must be > 0'
         assert image_width > 0, 'Image width must be > 0'
+        assert x + image_width <= self.get_width(), f'Display Bitmap width exceeds display width {self.get_width()}'
+        assert y + image_height <= self.get_height(), f'Display Bitmap height exceeds display height {self.get_height()}'
 
         with self.update_queue_mutex:
             self.screen_image.paste(image, (x, y))

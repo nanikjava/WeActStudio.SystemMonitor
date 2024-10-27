@@ -2,9 +2,9 @@ import os
 import sys
 try:
     import tkinter as tk
+    import psutil
 except:
-    print(
-        "[ERROR] Python dependencies not installed. Please follow start guide: https://github.com/mathoudebine/turing-smart-screen-python/wiki/System-monitor-:-how-to-start")
+    print("[ERROR] Python dependencies not installed.")
     try:
         sys.exit(0)
     except:
@@ -14,6 +14,7 @@ def show_messagebox(message, title="", delay=3000):
     main = tk.Tk()
 
     main.title(title)
+    main.iconphoto(True, tk.PhotoImage(file="res/icons/logo.png"))
 
     screen_width = main.winfo_screenwidth()  
     screen_height = main.winfo_screenheight()  
@@ -40,3 +41,23 @@ def show_messagebox(message, title="", delay=3000):
         main.after(delay, lambda: (main.destroy() if not main.winfo_viewable() else None))
 
     return main
+
+def app_is_running(lockfile):  
+    if os.path.exists(lockfile):  
+        pid = int(open(lockfile).read().strip())  
+        try:  
+            p = psutil.Process(pid)  
+            p.is_running()
+        except psutil.NoSuchProcess:
+            # PID doesn't exist anymore, so we can safely delete the lockfile and proceed  
+            os.remove(lockfile)    
+            return False  
+        return True
+    return False
+
+def app_set_running(lockfile):
+    with open(lockfile, 'w') as f:  
+        f.write(str(os.getpid()))
+
+def app_end_running(lockfile):
+    os.remove(lockfile)
