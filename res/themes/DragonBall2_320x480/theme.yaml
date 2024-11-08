@@ -1,0 +1,166 @@
+STATS:
+  CPU:
+    PERCENTAGE:
+      GRAPH:
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 0, 0, 255
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 135
+        X: 12
+        Y: 120
+      INTERVAL: 1
+    TEMPERATURE:
+      INTERVAL: 5
+      TEXT:
+        ALIGN: left
+        ANCHOR: lt
+        BACKGROUND_IMAGE: background.png
+        FONT: generale-mono/GeneraleMonoA.ttf
+        FONT_COLOR: 0, 0, 0
+        FONT_SIZE: 35
+        MINI_SIZE: 2
+        SHOW: true
+        SHOW_UNIT: false
+        UNIT_ML: false
+        X: 32
+        Y: 55
+  DATE:
+    DAY:
+      TEXT:
+        ALIGN: center
+        ANCHOR: mt
+        BACKGROUND_IMAGE: background.png
+        FONT: generale-mono/GeneraleMonoA.ttf
+        FONT_COLOR: 0, 0, 0
+        FONT_SIZE: 14
+        FORMAT: short
+        HEIGHT: 15
+        SHOW: true
+        WIDTH: 110
+        X: 205
+        Y: 10
+    HOUR:
+      TEXT:
+        ALIGN: center
+        ANCHOR: mt
+        BACKGROUND_IMAGE: background.png
+        FONT: generale-mono/GeneraleMonoA.ttf
+        FONT_COLOR: 0, 0, 0
+        FONT_SIZE: 20
+        FORMAT: short
+        HEIGHT: 22
+        SHOW: true
+        WIDTH: 80
+        X: 220
+        Y: 30
+    INTERVAL: 1
+  DISK:
+    INTERVAL: 10
+    USED:
+      PERCENT_TEXT:
+        ALIGN: center
+        ANCHOR: mt
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: generale-mono/GeneraleMonoA.ttf
+        FONT_COLOR: 255, 227, 140
+        FONT_SIZE: 26
+        HEIGHT: 0
+        MINI_SIZE: 2
+        SHOW: true
+        SHOW_UNIT: false
+        UNIT_ML: false
+        WIDTH: 0
+        X: 150
+        Y: 28
+  GPU:
+    INTERVAL: 1
+    PERCENTAGE:
+      GRAPH:
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 0, 0, 255
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 115
+        X: 355
+        Y: 190
+    TEMPERATURE:
+      TEXT:
+        ALIGN: left
+        ANCHOR: rt
+        BACKGROUND_IMAGE: background.png
+        FONT: generale-mono/GeneraleMonoA.ttf
+        FONT_COLOR: 0, 0, 0
+        FONT_SIZE: 35
+        MINI_SIZE: 2
+        SHOW: true
+        SHOW_UNIT: false
+        UNIT_ML: false
+        X: 458
+        Y: 250
+  MEMORY:
+    INTERVAL: 5
+    VIRTUAL:
+      GRAPH:
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 0, 0, 255
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 110
+        X: 150
+        Y: 275
+      PERCENT_TEXT:
+        ALIGN: right
+        ANCHOR: rt
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: generale-mono/GeneraleMonoA.ttf
+        FONT_COLOR: 0, 0, 0
+        FONT_SIZE: 26
+        HEIGHT: 0
+        MINI_SIZE: 2
+        SHOW: true
+        SHOW_UNIT: false
+        UNIT_ML: false
+        WIDTH: 0
+        X: 215
+        Y: 232
+author: '@WeActStudio'
+display:
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_RGB_LED: 0, 0, 0
+  DISPLAY_SIZE: 320x480
+static_images:
+  background:
+    BACKGROUND_IMAGE: background.png
+    HEIGHT: 320
+    PATH: theme_res_148330.png
+    WIDTH: 480
+    X: 0
+    Y: 0
+static_text:
+  TEXT_EXAMPLE:
+    ALIGN: left
+    ANCHOR: mt
+    BACKGROUND_IMAGE: background.png
+    FONT: generale-mono/GeneraleMonoA.ttf
+    FONT_COLOR: 225, 223, 140
+    FONT_SIZE: 20
+    HEIGHT: 0
+    TEXT: --
+    WIDTH: 0
+    X: 183
+    Y: 90

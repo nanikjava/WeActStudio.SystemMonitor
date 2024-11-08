@@ -103,7 +103,7 @@ def app_exit():
         os._exit(0)
 
 # Show Start Frame
-main = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor'),delay=0)
+main = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor'),delay=10000)
 time.sleep(1)
 
 from library.log import logger

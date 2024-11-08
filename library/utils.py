@@ -14,7 +14,6 @@ def show_messagebox(message, title="", delay=3000):
     main = tk.Tk()
 
     main.title(title)
-    main.iconphoto(True, tk.PhotoImage(file="res/icons/logo.png"))
 
     screen_width = main.winfo_screenwidth()  
     screen_height = main.winfo_screenheight()  

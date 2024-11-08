@@ -115,7 +115,7 @@ msgstr ""
 msgid "If you want to add more text,\nchange the TEXT_EXAMPLE name first"
 msgstr ""
 
-msgid "If you want to add more image,\nchange the BACKGROUND name first"
+msgid "If you want to add more image,\nchange the IMAGE_EXAMPLE name first"
 msgstr ""
 
 msgid "Theme dir"

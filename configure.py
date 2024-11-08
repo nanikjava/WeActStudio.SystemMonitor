@@ -559,6 +559,12 @@ class ConfigWindow:
 
     def window_refresh(self):
         if self.live_display_bool_var.get() == True:
+            if self.theme_editor_process != None:
+                if self.theme_editor_process.poll() == None:
+                    messagebox.showerror(_("Error"), _("theme editor is running !"))
+                    self.live_display_bool_var.set(False)
+                    self.window.after(self.window_after_time, self.window_refresh)
+                    return
             self.model_cb['state'] = "disabled"
             self.com_cb['state'] = "disabled"
             self.com_refresh_button['state'] = "disabled"
@@ -862,6 +868,10 @@ class ConfigWindow:
         self.load_theme_preview()
 
     def on_new_theme_editor_click(self):
+        if self.theme_editor_process != None:
+            if self.theme_editor_process.poll() == None:
+                messagebox.showerror(_("Error"), _("theme editor is running !"))
+                return
         self.new_theme_editor = tkinter.Toplevel(self.window)
         self.new_theme_editor.title(_("New theme"))
         main_window_x = self.window.winfo_x()
@@ -1029,6 +1039,10 @@ class ConfigWindow:
             return
 
     def on_delete_theme_click(self):
+        if self.theme_editor_process != None:
+            if self.theme_editor_process.poll() == None:
+                messagebox.showerror(_("Error"), _("theme editor is running !"))
+                return
         self.delete_theme_frame = tkinter.Toplevel(self.window)
         self.delete_theme_frame.title(_("Delete theme"))
         main_window_x = self.window.winfo_x()
@@ -1111,6 +1125,10 @@ class ConfigWindow:
                 os.system(f'xdg-open "{dir_path}"')
 
     def on_copy_theme_editor_click(self):
+        if self.theme_editor_process != None:
+            if self.theme_editor_process.poll() == None:
+                messagebox.showerror(_("Error"), _("theme editor is running !"))
+                return
         self.copy_theme_editor = tkinter.Toplevel(self.window)
         self.copy_theme_editor.title(_("Copy theme"))
         main_window_x = self.window.winfo_x()
@@ -1201,6 +1219,10 @@ class ConfigWindow:
         self.copy_theme_editor.destroy()
 
     def on_save_click(self):
+        if self.theme_editor_process != None:
+            if self.theme_editor_process.poll() == None:
+                messagebox.showerror(_("Error"), _("theme editor is running !"))
+                return
         self.save_config_values()
 
     def on_display_other_config_click(self):
@@ -1219,6 +1241,10 @@ class ConfigWindow:
         )
 
     def on_saverun_click(self):
+        if self.theme_editor_process != None:
+            if self.theme_editor_process.poll() == None:
+                messagebox.showerror(_("Error"), _("theme editor is running !"))
+                return
         if self.display_init == True:
             self.display_off()
             self.display_init = False

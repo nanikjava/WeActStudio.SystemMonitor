@@ -649,8 +649,8 @@ class LcdComm(ABC):
                     width = int(image.width * ratio)  
                     image = image.resize((width, height_set), Image.LANCZOS) 
             else:
-                assert image.width >= self.get_width(), "Bitmap " + bitmap_path + f' width {image.width} exceeds display width {self.get_width()}'
-                assert image.height >= self.get_height(), "Bitmap " + bitmap_path + f' height {image.height} exceeds display height {self.get_height()}'
+                assert image.width <= self.get_width(), "Bitmap " + bitmap_path + f' width {image.width} exceeds display width {self.get_width()}'
+                assert image.height <= self.get_height(), "Bitmap " + bitmap_path + f' height {image.height} exceeds display height {self.get_height()}'
             logger.debug("Bitmap " + bitmap_path + " is now loaded in the cache")
             self.image_cache[bitmap_path] = image
         return copy.copy(self.image_cache[bitmap_path])

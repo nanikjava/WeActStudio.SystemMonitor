@@ -111,7 +111,10 @@ class Display:
                 height=config.THEME_DATA['static_images'][image].get("HEIGHT", 0)
                 x=config.THEME_DATA['static_images'][image].get("X", 0)
                 y=config.THEME_DATA['static_images'][image].get("Y", 0)
-                bitmap_path=config.THEME_DATA['PATH'] + config.THEME_DATA['static_images'][image].get("PATH")
+                bitmap_path = _get_full_path(config.THEME_DATA['PATH'],config.THEME_DATA['static_images'][image].get("PATH",None))
+                background_image = _get_full_path(config.THEME_DATA['PATH'],config.THEME_DATA['static_images'][image].get("BACKGROUND_IMAGE",None))
+                background_color = config.THEME_DATA['static_images'][image].get("BACKGROUND_COLOR", (0, 0, 0))
+
                 assert x <= self.lcd.get_width(), f"{bitmap_path} Image X {x} coordinate must be <= display width {self.lcd.get_width()}"
                 assert y <= self.lcd.get_height(), f"{bitmap_path} Image Y {y} coordinate must be <= display height {self.lcd.get_height()}"
                 assert height > 0, "Image height must be > 0"
@@ -119,13 +122,21 @@ class Display:
                 assert x + width <= self.lcd.get_width(), f'{bitmap_path} Bitmap width+x exceeds display width {self.lcd.get_width()}'
                 assert y + height <= self.lcd.get_height(), f'{bitmap_path} Bitmap height+y exceeds display height {self.lcd.get_height()}'
 
-                self.lcd.DisplayBitmap(
-                    bitmap_path=bitmap_path,
+                # self.lcd.DisplayBitmap(
+                #     bitmap_path=bitmap_path,
+                #     x=x,
+                #     y=y,
+                #     width=width,
+                #     height=height
+                # )
+                self.lcd.DisplayImage2(
                     x=x,
                     y=y,
-                    width=width,
-                    height=height
-                )
+                    max_width=width,
+                    max_height=height,
+                    image=bitmap_path,
+                    background_color=background_color,
+                    background_image=background_image)
 
     def display_static_text(self):
         if config.THEME_DATA.get('static_text', False):

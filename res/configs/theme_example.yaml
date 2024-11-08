@@ -30,8 +30,10 @@ static_images:
   #   WIDTH:
   #   HEIGHT:
   # If you want to add more image, change the BACKGROUND name first
-  BACKGROUND:
-    PATH: background.png
+  IMAGE_EXAMPLE:
+    PATH: image.png
+    BACKGROUND_COLOR: 0, 0, 0
+    BACKGROUND_IMAGE: background.png
     X: 0
     Y: 0
     WIDTH: 320
@@ -141,8 +143,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -171,7 +173,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -217,8 +218,8 @@ STATS:
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 50, 50, 50
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -247,7 +248,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -294,8 +294,8 @@ STATS:
           FONT_COLOR: 200, 200, 200
           BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       FIVE:
         TEXT:
           SHOW: False
@@ -315,8 +315,8 @@ STATS:
           FONT_COLOR: 200, 200, 200
           BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       FIFTEEN:
         TEXT:
           SHOW: False
@@ -336,8 +336,8 @@ STATS:
           FONT_COLOR: 200, 200, 200
           BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     TEMPERATURE:
       # In seconds. Longer intervals cause this to refresh more slowly.
       # Setting to lower values will display near real time data,
@@ -361,8 +361,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -391,7 +391,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -437,8 +436,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -467,7 +466,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -525,7 +523,6 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -550,8 +547,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -597,7 +594,6 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -622,8 +618,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -659,8 +655,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     MEMORY_TOTAL:
       TEXT:
         SHOW: False
@@ -680,8 +676,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     TEMPERATURE:
       TEXT:
         SHOW: False
@@ -701,8 +697,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -731,7 +727,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -773,8 +768,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -803,7 +798,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -845,8 +839,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -875,7 +869,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -917,8 +910,8 @@ STATS:
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 50, 50, 50
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -947,7 +940,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -1004,7 +996,6 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -1056,7 +1047,6 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -1097,8 +1087,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       FREE:
         SHOW: FALSE
         SHOW_UNIT: True
@@ -1117,8 +1107,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       TOTAL:
         SHOW: FALSE
         SHOW_UNIT: True
@@ -1137,8 +1127,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       PERCENT_TEXT:
         SHOW: False
         SHOW_UNIT: True
@@ -1157,15 +1147,15 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   DISK:
     INTERVAL: 10
     USED:
       GRAPH:
         SHOW: False
         X: 115
-        Y: 357
+        Y: 100
         WIDTH: 178
         HEIGHT: 13
         MIN_VALUE: 0
@@ -1190,7 +1180,6 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -1231,8 +1220,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       PERCENT_TEXT:
         SHOW: False
         SHOW_UNIT: True
@@ -1251,8 +1240,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     TOTAL:
       TEXT:
         SHOW: False
@@ -1272,8 +1261,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     FREE:
       TEXT:
         SHOW: False
@@ -1293,8 +1282,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   NET:
     INTERVAL: 1
     WLO:
@@ -1318,8 +1307,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1355,8 +1344,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       DOWNLOAD:
         TEXT:
           SHOW: FALSE
@@ -1376,8 +1365,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1413,8 +1402,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     ETH:
       UPLOAD:
         TEXT:
@@ -1435,8 +1424,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1472,8 +1461,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       DOWNLOAD:
         TEXT:
           SHOW: FALSE
@@ -1493,8 +1482,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1530,8 +1519,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   DATE:
     # For time display, it is recommended not to change the interval: keep to 1
     INTERVAL: 1
@@ -1552,8 +1541,8 @@ STATS:
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     HOUR: # Format (12/24h, timezone translations) will match your computer locale
       TEXT:
         FORMAT: short # short (6:48 PM) / medium (6:48:53 PM) / long (6:48:53 PM UTC) / full (6:48:53 PM Coordinated Universal Time) / custom pattern e.g. "HH:mm:ss zzz" (6:48:53 EDT)
@@ -1571,8 +1560,8 @@ STATS:
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   UPTIME:
     # For seconds display, it is recommended not to change the interval: keep to 1
     INTERVAL: 1
@@ -1592,8 +1581,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     FORMATTED:  # Uptime as formatted string with days e.g. "49 days, 16:47:16"
       TEXT:
         SHOW: FALSE
@@ -1610,8 +1599,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   LCD_SENSOR:
     TEMPERATURE:
       # In seconds. Longer intervals cause this to refresh more slowly.
@@ -1637,7 +1626,7 @@ STATS:
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -1666,7 +1655,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
@@ -1713,7 +1701,7 @@ STATS:
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -1742,7 +1730,6 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
         MINI_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13

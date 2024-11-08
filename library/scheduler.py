@@ -205,7 +205,7 @@ def get_queue_size() -> int:
     return config.update_queue.qsize()
 
 @async_job("LcdRx_Handler")
-@schedule(timedelta(milliseconds=250).total_seconds())
+@schedule(timedelta(milliseconds=(250 if (config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE'].get("INTERVAL", 0) != 0) or (config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS'].get("INTERVAL", 0) != 0) else 0)).total_seconds())
 def LcdRxHandler():
     stats.LcdSensor.handle()
 

@@ -35,7 +35,7 @@ STATS:
         FONT: SourceHanSansCN/SourceHanSansCN-Bold.otf
         FONT_COLOR: 255, 255, 255
         FONT_SIZE: 15
-        FORMAT: medium
+        FORMAT: short
         SHOW: true
         X: 400
         Y: 282

@@ -59,7 +59,7 @@ class LcdSimulated(LcdComm):
                  update_queue: queue.Queue = None):
         self.tmp = BytesIO()  
         LcdComm.__init__(self, com_port, display_width, display_height, update_queue)
-        self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (255, 255, 255))
+        self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (0, 0, 0))
         self.screen_image.save(self.tmp, "PNG")
         shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
         self.orientation = Orientation.PORTRAIT
@@ -106,14 +106,14 @@ class LcdSimulated(LcdComm):
     def SetBrightness(self, level: int = 25):
         pass
 
-    def SetBackplateLedColor(self, led_color: Tuple[int, int, int] = (255, 255, 255)):
+    def SetBackplateLedColor(self, led_color: Tuple[int, int, int] = (0, 0, 0)):
         pass
 
     def SetOrientation(self, orientation: Orientation = Orientation.PORTRAIT):
         self.orientation = orientation
         # Just draw the screen again with the new width/height based on orientation
         with self.update_queue_mutex:
-            self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (255, 255, 255))
+            self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (0, 0, 0))
             self.screen_image.save(self.tmp, "PNG")
             shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
 

@@ -708,6 +708,7 @@ class theme_editor:
                             show_add_menu = True
                             s = False
                             parent_item = self.theme_tree.parent(selection[0])
+                            parent_text = None
                             if parent_item != "":
                                 parent_text = self.theme_tree.item(parent_item, "text")
                                 if (
@@ -715,7 +716,7 @@ class theme_editor:
                                     and parent_text == "static_images"
                                 ):
                                     theme_example = config.THEME_EXAMPLE[parent_text][
-                                        "BACKGROUND"
+                                        "IMAGE_EXAMPLE"
                                     ]
                                     s = True
                                 elif (
@@ -758,7 +759,13 @@ class theme_editor:
 
                                 for key in theme_example_keys:
                                     if key not in theme_edit_keys:
-                                        item_value = copy.deepcopy(theme_example[key])
+                                        if selection_length >= 2:
+                                            item_value = copy.deepcopy(theme_example[key])
+                                        elif selection_length == 1 and key != "STATS":
+                                            item_value = copy.deepcopy(theme_example[key])
+                                        else:
+                                            item_value = dict()
+
                                         if show_add_menu:
                                             show_add_menu = False
                                             add_menu = tkinter.Menu(
@@ -1136,7 +1143,7 @@ class theme_editor:
                                 elif selection_item_text == "static_text":
                                     tip_show = _("If you want to add more text,\nchange the TEXT_EXAMPLE name first")
                                 elif selection_item_text == "static_images":
-                                    tip_show = _("If you want to add more image,\nchange the BACKGROUND name first")
+                                    tip_show = _("If you want to add more image,\nchange the IMAGE_EXAMPLE name first")
                                 self.editor_set_free(tip_show)
                         else:
                             self.editor_set_free()

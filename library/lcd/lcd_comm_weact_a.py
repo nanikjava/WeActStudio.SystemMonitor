@@ -222,6 +222,7 @@ class LcdComm_WeAct_A(LcdComm):
         byteBuffer[8] = y1 >> 8 & 0xFF
         byteBuffer[9] = Command.CMD_END
 
+        line_to_send_size = self.get_width() * 4
         # Lock queue mutex then queue all the requests for the image data
         with self.update_queue_mutex:
             self.SendLine(byteBuffer)
@@ -237,7 +238,7 @@ class LcdComm_WeAct_A(LcdComm):
                     line += struct.pack("<H", rgb)
 
                 # Send image data by multiple of "display width" bytes
-                if len(line) >= self.get_width() * 32:
+                if len(line) >= line_to_send_size:
                     self.SendLine(line)
                     line = bytes()
 

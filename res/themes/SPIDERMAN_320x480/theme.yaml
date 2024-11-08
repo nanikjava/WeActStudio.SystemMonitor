@@ -1,0 +1,224 @@
+STATS:
+  CPU:
+    FREQUENCY:
+      INTERVAL: 5
+      TEXT:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 50, 50, 50
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 22
+        HEIGHT: 24
+        MINI_SIZE: 1
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        WIDTH: 100
+        X: 80
+        Y: 75
+    PERCENTAGE:
+      GRAPH:
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 0, 0, 255
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 110
+        X: 360
+        Y: 165
+      INTERVAL: 1
+      TEXT:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 28
+        HEIGHT: 30
+        MINI_SIZE: 0
+        SHOW: true
+        SHOW_UNIT: false
+        UNIT_ML: false
+        WIDTH: 60
+        X: 75
+        Y: 12
+    TEMPERATURE:
+      INTERVAL: 5
+      TEXT:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 22
+        HEIGHT: 24
+        MINI_SIZE: 1
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        WIDTH: 60
+        X: 75
+        Y: 53
+  DISK:
+    INTERVAL: 10
+    USED:
+      GRAPH:
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 0, 0, 255
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 110
+        X: 360
+        Y: 300
+  GPU:
+    INTERVAL: 1
+    MEMORY_USED:
+      TEXT:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 22
+        HEIGHT: 24
+        MINI_SIZE: 1
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        WIDTH: 90
+        X: 70
+        Y: 275
+    PERCENTAGE:
+      GRAPH:
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 0, 0, 255
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 110
+        X: 360
+        Y: 255
+      TEXT:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 28
+        HEIGHT: 30
+        MINI_SIZE: 1
+        SHOW: true
+        SHOW_UNIT: false
+        UNIT_ML: false
+        WIDTH: 60
+        X: 75
+        Y: 212
+    TEMPERATURE:
+      TEXT:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 22
+        HEIGHT: 24
+        MINI_SIZE: 1
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        WIDTH: 60
+        X: 75
+        Y: 254
+  MEMORY:
+    INTERVAL: 5
+    VIRTUAL:
+      FREE:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 22
+        HEIGHT: 24
+        MINI_SIZE: 1
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        WIDTH: 90
+        X: 70
+        Y: 175
+      GRAPH:
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        BAR_COLOR: 0, 0, 255
+        BAR_OUTLINE: false
+        HEIGHT: 13
+        MAX_VALUE: 100
+        MIN_VALUE: 0
+        SHOW: true
+        WIDTH: 110
+        X: 360
+        Y: 210
+      PERCENT_TEXT:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 28
+        HEIGHT: 30
+        MINI_SIZE: 1
+        SHOW: true
+        SHOW_UNIT: false
+        UNIT_ML: false
+        WIDTH: 60
+        X: 75
+        Y: 112
+      USED:
+        ALIGN: right
+        ANCHOR: mm
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        FONT: geforce/GeForce-Bold.ttf
+        FONT_COLOR: 233, 214, 214
+        FONT_SIZE: 22
+        HEIGHT: 24
+        MINI_SIZE: 1
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        WIDTH: 90
+        X: 75
+        Y: 154
+author: '@WeActStudio'
+display:
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_RGB_LED: 0, 0, 0
+  DISPLAY_SIZE: 320x480
+static_images:
+  IMAGE_EXAMPLE:
+    BACKGROUND_IMAGE: background.png
+    HEIGHT: 320
+    PATH: theme_res_279411.png
+    WIDTH: 480
+    X: 0
+    Y: 0
