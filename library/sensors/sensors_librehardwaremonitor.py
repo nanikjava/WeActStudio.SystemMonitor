@@ -534,13 +534,10 @@ class Net(sensors.Net):
 class Volume(sensors.Volume):
     @staticmethod
     def volume_percent() -> int:
-        if platform.system() == 'Windows':
-            from comtypes import CLSCTX_ALL
-            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-            devices = AudioUtilities.GetSpeakers()
-            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-            volume = interface.QueryInterface(IAudioEndpointVolume)
-            vl = volume.GetMasterVolumeLevelScalar() * 100
-            return round(vl)
-        else:
-            return 0
+        from comtypes import CLSCTX_ALL
+        from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+        devices = AudioUtilities.GetSpeakers()
+        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+        volume = interface.QueryInterface(IAudioEndpointVolume)
+        vl = volume.GetMasterVolumeLevelScalar() * 100
+        return round(vl)

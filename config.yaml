@@ -8,7 +8,7 @@ config:
 
   # Theme to use (located in res/themes)
   # Use the name of the folder as value
-  THEME: Pikachu_theme_320x480
+  THEME: 3.5inchTheme2
 
   # Hardware sensors reading
   # Choose the appropriate method for reading your hardware sensors:
@@ -16,7 +16,7 @@ config:
   # - LHM            use LibreHardwareMonitor library to read hardware sensors (Windows only - NEEDS ADMIN RIGHTS)
   # - STUB / STATIC  use random/static data instead of real hardware sensors
   # - AUTO           use the best method based on your OS: Windows OS will use LHM, other OS will use Python libraries
-  HW_SENSORS: PYTHON
+  HW_SENSORS: LHM
 
   # Network interfaces
   # Linux/MacOS interfaces are named "eth0", "wlan0", "wlp1s0", "enp2s0"...
@@ -42,7 +42,7 @@ display:
   # Display Brightness
   # Set this as the desired %, 0 being completely dark and 100 being max brightness
   # Warning: revision A display can get hot at high brightness!
-  BRIGHTNESS: 100
+  BRIGHTNESS: 10
 
   FREE_OFF: false
 
