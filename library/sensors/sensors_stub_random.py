@@ -109,3 +109,9 @@ class Net(sensors.Net):
         int, int, int, int]:  # up rate (B/s), uploaded (B), dl rate (B/s), downloaded (B)
         return random.randint(1000000, 999000000), random.randint(1000000, 999000000), random.randint(
             1000000, 999000000), random.randint(1000000, 999000000)
+
+
+class Volume(sensors.Volume):
+    @staticmethod
+    def volume_percent() -> int:
+        return random.randint(0, 100)

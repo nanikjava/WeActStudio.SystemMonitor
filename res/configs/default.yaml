@@ -219,6 +219,14 @@ STATS:
         SHOW: False
   CUSTOM:
     INTERVAL: 0
+  VOLUME:
+    INTERVAL: 0
+    GRAPH:
+      SHOW: False
+    RADIAL:
+      SHOW: False
+    PERCENT_TEXT:
+      SHOW: False
   LCD_SENSOR:
     TEMPERATURE:
       INTERVAL: 0

@@ -1339,12 +1339,10 @@ class theme_editor:
                 if config.THEME_DATA["STATS"]["CUSTOM"].get("INTERVAL", 0) > 0:
                     error_text = "Custom stats"
                     stats.Custom.stats()
-                if (
-                    config.THEME_DATA["STATS"]["LCD_SENSOR"]["TEMPERATURE"].get(
-                        "INTERVAL", 0
-                    )
-                    > 0
-                ):
+                if config.THEME_DATA["STATS"]["VOLUME"].get("INTERVAL", 0) > 0:
+                    error_text = "Volume stats"
+                    stats.Volume.stats(True)
+                if (config.THEME_DATA["STATS"]["LCD_SENSOR"]["TEMPERATURE"].get("INTERVAL", 0) > 0):
                     error_text = "LcdSensor temperature"
                     stats.LcdSensor.temperature(True)
                 if (

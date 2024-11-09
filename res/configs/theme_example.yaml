@@ -1601,6 +1601,62 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+  VOLUME:
+    INTERVAL: 2
+    GRAPH:
+      SHOW: False
+      X: 115
+      Y: 100
+      WIDTH: 178
+      HEIGHT: 13
+      MIN_VALUE: 0
+      MAX_VALUE: 100
+      BAR_COLOR: 255, 0, 0
+      BAR_OUTLINE: False
+      BACKGROUND_COLOR: 0, 0, 0
+      BACKGROUND_IMAGE: background.png
+    RADIAL:
+      SHOW: False
+      X: 141
+      Y: 275
+      RADIUS: 28
+      WIDTH: 8
+      MIN_VALUE: 0
+      MAX_VALUE: 100
+      ANGLE_START: 110
+      ANGLE_END: 70
+      ANGLE_STEPS: 1
+      ANGLE_SEP: 25
+      CLOCKWISE: True
+      BAR_COLOR: 255, 0, 0
+      SHOW_TEXT: True
+      SHOW_UNIT: True
+      MINI_SIZE: 0
+      FONT: roboto-mono/RobotoMono-Bold.ttf
+      FONT_SIZE: 13
+      FONT_COLOR: 200, 200, 200
+      BACKGROUND_COLOR: 0, 0, 0
+      BACKGROUND_IMAGE: background.png
+    PERCENT_TEXT:
+      SHOW: False
+      SHOW_UNIT: True
+      UNIT_ML: FALSE
+      MINI_SIZE: 0
+      X: 46
+      Y: 202
+      # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
+      # To avoid this use one of these 2 methods (or both):
+      #   - either use a monospaced font (fonts with "mono" in name, see res/fonts/ for available fonts)
+      #   - or force a static width/height for the text field. Be sure to have enough space for the longest value that can be displayed (e.g. "100%" for a percentage)
+      WIDTH: 0   # Uncomment to force a static width
+      HEIGHT: 0   # Uncomment to force static height
+      FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+      FONT_SIZE: 23
+      FONT_COLOR: 255, 255, 255
+      BACKGROUND_COLOR: 0, 0, 0
+      BACKGROUND_IMAGE: background.png
+      ALIGN: right  # left / center / right
+      ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   LCD_SENSOR:
     TEMPERATURE:
       # In seconds. Longer intervals cause this to refresh more slowly.

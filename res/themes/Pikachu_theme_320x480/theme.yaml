@@ -125,6 +125,24 @@ STATS:
         WIDTH: 0
         X: 86
         Y: 288
+  VOLUME:
+    INTERVAL: 2
+    PERCENT_TEXT:
+      ALIGN: right
+      ANCHOR: rm
+      BACKGROUND_COLOR: 0, 0, 0
+      BACKGROUND_IMAGE: background.png
+      FONT: generale-mono/GeneraleMonoA.ttf
+      FONT_COLOR: 0, 0, 0
+      FONT_SIZE: 18
+      HEIGHT: 0
+      MINI_SIZE: 0
+      SHOW: true
+      SHOW_UNIT: false
+      UNIT_ML: false
+      WIDTH: 0
+      X: 95
+      Y: 210
 author: '@WeActStudio'
 display:
   DISPLAY_ORIENTATION: landscape
@@ -137,17 +155,3 @@ static_images:
     WIDTH: 480
     X: 0
     Y: 0
-static_text:
-  TEXT_EXAMPLE:
-    ALIGN: left
-    ANCHOR: lt
-    BACKGROUND_COLOR: 255, 255, 255
-    BACKGROUND_IMAGE: background.png
-    FONT: geforce/GeForce-Bold.ttf
-    FONT_COLOR: 0, 0, 0
-    FONT_SIZE: 20
-    HEIGHT: 0
-    TEXT: --
-    WIDTH: 0
-    X: 67
-    Y: 208

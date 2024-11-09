@@ -138,6 +138,24 @@ STATS:
         WIDTH: 0
         X: 215
         Y: 232
+  VOLUME:
+    INTERVAL: 2
+    PERCENT_TEXT:
+      ALIGN: right
+      ANCHOR: rm
+      BACKGROUND_COLOR: 0, 0, 0
+      BACKGROUND_IMAGE: background.png
+      FONT: generale-mono/GeneraleMonoA.ttf
+      FONT_COLOR: 255, 227, 140
+      FONT_SIZE: 26
+      HEIGHT: 0
+      MINI_SIZE: 0
+      SHOW: true
+      SHOW_UNIT: false
+      UNIT_ML: false
+      WIDTH: 0
+      X: 220
+      Y: 95
 author: '@WeActStudio'
 display:
   DISPLAY_ORIENTATION: landscape
@@ -151,16 +169,3 @@ static_images:
     WIDTH: 480
     X: 0
     Y: 0
-static_text:
-  TEXT_EXAMPLE:
-    ALIGN: left
-    ANCHOR: mt
-    BACKGROUND_IMAGE: background.png
-    FONT: generale-mono/GeneraleMonoA.ttf
-    FONT_COLOR: 225, 223, 140
-    FONT_SIZE: 20
-    HEIGHT: 0
-    TEXT: --
-    WIDTH: 0
-    X: 183
-    Y: 90

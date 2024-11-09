@@ -124,3 +124,9 @@ class Net(sensors.Net):
     def stats(if_name, interval) -> Tuple[
         int, int, int, int]:  # up rate (B/s), uploaded (B), dl rate (B/s), downloaded (B)
         return NETWORK_SPEED_BYTES, NETWORK_SPEED_BYTES, NETWORK_SPEED_BYTES, NETWORK_SPEED_BYTES
+
+
+class Volume(sensors.Volume):
+    @staticmethod
+    def volume_percent() -> int:
+        return int(PERCENTAGE_SENSOR_VALUE)

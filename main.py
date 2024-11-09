@@ -245,6 +245,7 @@ def scheduler_init():
     scheduler.DateStats()
     scheduler.SystemUptimeStats()
     scheduler.CustomStats()
+    scheduler.VolumeStats()
     scheduler.LcdSensorTemperature()
     scheduler.LcdSensorHumidness()
     scheduler.QueueHandler()

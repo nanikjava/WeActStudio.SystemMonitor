@@ -123,3 +123,9 @@ class Net(ABC):
     def stats(if_name, interval) -> Tuple[
         int, int, int, int]:  # up rate (B/s), uploaded (B), dl rate (B/s), downloaded (B)
         pass
+
+class Volume(ABC):
+    @staticmethod
+    @abstractmethod
+    def volume_percent() -> int:
+        pass

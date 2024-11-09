@@ -170,6 +170,12 @@ def CustomStats():
     # print("Refresh custom stats")
     stats.Custom.stats()
 
+@async_job("Volume_Stats")
+@schedule(timedelta(seconds=config.THEME_DATA['STATS']['VOLUME'].get("INTERVAL", 0)).total_seconds())
+def VolumeStats():
+    # logger.debug("Refresh volume stats")
+    stats.Volume.stats()
+
 @async_job("LcdSensor_Temperature")
 @schedule(timedelta(seconds=config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE'].get("INTERVAL", 0)).total_seconds())
 def LcdSensorTemperature():

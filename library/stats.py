@@ -940,6 +940,20 @@ class Custom:
                 theme_data = config.THEME_DATA['STATS']['CUSTOM'][custom_stat].get("LINE_GRAPH", None)
                 if theme_data is not None and last_values is not None:
                     display_themed_line_graph(theme_data=theme_data, values=last_values)
+                    
+class Volume:
+    last_volume_percent = -1
+    @classmethod
+    def stats(cls,forced_refresh = False):
+        volume_theme_data = config.THEME_DATA['STATS']['VOLUME']
+
+        volume_percent = sensors.Volume.volume_percent()
+
+        if volume_percent != cls.last_volume_percent or forced_refresh:
+            cls.last_volume_percent = volume_percent
+            display_themed_progress_bar(volume_theme_data['GRAPH'], volume_percent)
+            display_themed_percent_radial_bar(volume_theme_data['RADIAL'], volume_percent)
+            display_themed_percent_value(volume_theme_data['PERCENT_TEXT'], volume_percent)
 
 class LcdSensor:
     last_values_temperature = []

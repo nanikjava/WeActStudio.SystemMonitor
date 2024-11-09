@@ -325,8 +325,8 @@ class Gpu(sensors.Gpu):
                 if sensor.SensorType == Hardware.SensorType.Factor and "FPS" in str(
                         sensor.Name) and sensor.Value is not None:
                     # If a reading returns a value <= 0, returns old value instead
-                    if int(sensor.Value) > 0:
-                        cls.prev_fps = int(sensor.Value)
+                    if round(sensor.Value) > 0:
+                        cls.prev_fps = round(sensor.Value)
                     return cls.prev_fps
         except:
             pass
@@ -390,16 +390,16 @@ class Memory(sensors.Memory):
         for sensor in memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Virtual Memory Used") and sensor.Value is not None:
-                virtual_mem_used = int(sensor.Value)
+                virtual_mem_used = round(sensor.Value)
             elif sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Used") and sensor.Value is not None:
-                mem_used = int(sensor.Value)
+                mem_used = round(sensor.Value)
             elif sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Virtual Memory Available") and sensor.Value is not None:
-                virtual_mem_available = int(sensor.Value)
+                virtual_mem_available = round(sensor.Value)
             elif sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Available") and sensor.Value is not None:
-                mem_available = int(sensor.Value)
+                mem_available = round(sensor.Value)
 
         # Compute swap stats from virtual / physical memory stats
         swap_used = virtual_mem_used - mem_used
@@ -429,7 +429,7 @@ class Memory(sensors.Memory):
         for sensor in memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Used") and sensor.Value is not None:
-                return int(sensor.Value * 1024)
+                return round(sensor.Value * 1024)
 
         return 0
 
@@ -439,7 +439,7 @@ class Memory(sensors.Memory):
         for sensor in memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Available") and sensor.Value is not None:
-                return int(sensor.Value * 1024)
+                return round(sensor.Value * 1024)
 
         return 0
 
@@ -492,9 +492,9 @@ class Disk(sensors.Disk):
                 temperature = float(sensor.Value)
             elif sensor.SensorType == Hardware.SensorType.Throughput:
                 if str(sensor.Name) == "Read Rate" and sensor.Value is not None:
-                    read_rate = int(sensor.Value)
+                    read_rate = round(sensor.Value)
                 elif str(sensor.Name) == "Write Rate" and sensor.Value is not None:
-                    write_rate = int(sensor.Value)
+                    write_rate = round(sensor.Value)
             elif sensor.SensorType == Hardware.SensorType.Load:
                 if str(sensor.Name) == "Used Space":
                     used_space = float(sensor.Value)
@@ -517,15 +517,30 @@ class Net(sensors.Net):
                 for sensor in net_if.Sensors:
                     if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                             "Data Uploaded") and sensor.Value is not None:
-                        uploaded = int(sensor.Value * 1000000000.0)
+                        uploaded = round(sensor.Value * 1000000000.0)
                     elif sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                             "Data Downloaded") and sensor.Value is not None:
-                        downloaded = int(sensor.Value * 1000000000.0)
+                        downloaded = round(sensor.Value * 1000000000.0)
                     elif sensor.SensorType == Hardware.SensorType.Throughput and str(sensor.Name).startswith(
                             "Upload Speed") and sensor.Value is not None:
-                        upload_rate = int(sensor.Value)
+                        upload_rate = round(sensor.Value)
                     elif sensor.SensorType == Hardware.SensorType.Throughput and str(sensor.Name).startswith(
                             "Download Speed") and sensor.Value is not None:
-                        download_rate = int(sensor.Value)
+                        download_rate = round(sensor.Value)
 
         return upload_rate, uploaded, download_rate, downloaded
+
+
+class Volume(sensors.Volume):
+    @staticmethod
+    def volume_percent() -> int:
+        if platform.system() == 'Windows':
+            from comtypes import CLSCTX_ALL
+            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            devices = AudioUtilities.GetSpeakers()
+            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+            volume = interface.QueryInterface(IAudioEndpointVolume)
+            vl = volume.GetMasterVolumeLevelScalar() * 100
+            return round(vl)
+        else:
+            return 0

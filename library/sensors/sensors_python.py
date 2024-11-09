@@ -431,7 +431,7 @@ class Memory(sensors.Memory):
             # Do not use psutil.virtual_memory().used: from https://psutil.readthedocs.io/en/latest/#memory
             # "It is calculated differently depending on the platform and designed for informational purposes only"
             virtual_used_t = psutil.virtual_memory().total - psutil.virtual_memory().available
-            virtual_used_t = int(virtual_used_t / 1024 / 1024)
+            virtual_used_t = round(virtual_used_t / 1024 / 1024)
             return virtual_used_t
         except:
             return -1
@@ -442,7 +442,7 @@ class Memory(sensors.Memory):
             # Do not use psutil.virtual_memory().free: from https://psutil.readthedocs.io/en/latest/#memory
             # "note that this doesn’t reflect the actual memory available (use available instead)."
             virtual_free_t = psutil.virtual_memory().available
-            virtual_free_t = int(virtual_free_t / 1024 / 1024)
+            virtual_free_t = round(virtual_free_t / 1024 / 1024)
             return virtual_free_t
         except:
             return -1
@@ -515,3 +515,18 @@ class Net(sensors.Net):
             return upload_rate, uploaded, download_rate, downloaded
         except:
             return -1, -1, -1, -1
+
+    
+class Volume(sensors.Volume):
+    @staticmethod
+    def volume_percent() -> int:
+        if platform.system() == 'Windows':
+            from comtypes import CLSCTX_ALL
+            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+            devices = AudioUtilities.GetSpeakers()
+            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+            volume = interface.QueryInterface(IAudioEndpointVolume)
+            vl = volume.GetMasterVolumeLevelScalar() * 100
+            return round(vl)
+        else:
+            return 0
