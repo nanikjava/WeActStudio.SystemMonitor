@@ -374,6 +374,7 @@ if tray_icon and platform.system() == "Darwin":  # macOS-specific
                         clean_stop(tray_icon)
         elif step == 3:
             logger.debug('Re-init Display')
+            display.lcd.lcd_serial.close()
             app_clean()
             start_main()
             app_exit()
@@ -467,6 +468,7 @@ elif platform.system() == "Windows":  # Windows-specific
                             clean_stop(tray_icon)
             elif step == 3:
                 logger.debug('Re-init Display')
+                display.lcd.lcd_serial.close()
                 app_clean()
                 start_main()
                 app_exit()

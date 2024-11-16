@@ -100,6 +100,7 @@ class lcd_weact:
                 self.port_name = i[0]
                 break
         if self.port_name != "":
+            time.sleep(1)
             return self.open()
         return False
 
@@ -350,7 +351,7 @@ class lcd_weact:
             return None
 
     def set_device_humiture_report_time(self, time_ms: int):
-        if time_ms > 0xFFFF or time_ms < 500:
+        if time_ms > 0xFFFF or (time_ms < 500 and time_ms != 0):
             return False
         byteBuffer = bytearray(4)
         byteBuffer[0] = Command.CMD_ENABLE_HUMITURE_REPORT
@@ -777,8 +778,11 @@ class tk_gui:
             lcd.show_text(250,230,_("Hello WeAct Studio !"),(255,255,255),20,'left',None,image)
 
     def on_closing(self):
-        self.lcd.set_device_free()
-        self.lcd.close()
+        if self.lcd.port != None:
+            if self.lcd.port.is_open == True:
+                self.lcd.set_device_humiture_report_time(0)
+                self.lcd.set_device_free()
+                self.lcd.close()
         try:
             sys.exit(0)
         except:
@@ -842,6 +846,7 @@ class tk_gui:
                             lcd.show_text(250,290,_("Humidness: ")+'{:.2f}'.format(humidness/100,2)+"%",(255,255,255),20,'left',None,image)
             except:
                 traceback.print_exc()
+                self.lcd.close()
                 device_state = _("Device Unconnected !")
                 self.device_connected = False
                 self.device_state_string.set(device_state)
