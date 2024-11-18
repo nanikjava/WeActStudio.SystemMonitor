@@ -781,6 +781,7 @@ class tk_gui:
         if self.lcd.port != None:
             if self.lcd.port.is_open == True:
                 self.lcd.set_device_humiture_report_time(0)
+                self.lcd.set_device_brightness(0,500)
                 self.lcd.set_device_free()
                 self.lcd.close()
         try:
