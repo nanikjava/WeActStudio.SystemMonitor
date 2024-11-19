@@ -69,7 +69,7 @@ print(f"Language: {lang}, Encoding: {encoding}")
 localedir = os.path.join(
     os.path.dirname(__file__), "res\\language\\main"
 ) 
-if encoding == "936":
+if lang.startswith("Chinese"):
     language = "zh"
     domain = "zh"
 else:

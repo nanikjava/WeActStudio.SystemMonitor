@@ -233,8 +233,8 @@ if __name__ == "__main__":
     print(f"Language: {lang}, Encoding: {encoding}")
     localedir = os.path.join(
         os.path.dirname(__file__), "res\\language\\image_scaler_tool"
-    )  # 替换为你的.mo文件所在的目录
-    if encoding == "936":
+    )
+    if lang.startswith("Chinese"):
         language = "zh"
         domain = "zh"
     else:
