@@ -1219,11 +1219,12 @@ class theme_editor:
             and os.path.getmtime(self.theme_file) > self.last_edit_time
         ):
             self.theme_file_change = True
+            self.main_refresh_tick = 0
         else:
             self.theme_file_change = False
 
-        self.main_refresh_tick = self.main_refresh_tick + 1
         self.refresh_theme()
+        self.main_refresh_tick = self.main_refresh_tick + 1
 
         if self.theme_file_change == True or self.theme_refresh == True:
 

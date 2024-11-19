@@ -46,6 +46,7 @@ class photo_album:
     interval = 3
     theme_pic_list = []
     theme_pic_id = 0
+    first_run = True
     @classmethod
     def init(cls):
         cls.show = False
@@ -54,6 +55,7 @@ class photo_album:
         cls.show_sequential = True
         cls.align = 'left'
         cls.auto_refresh = False
+        cls.first_run = True
         if config.THEME_DATA.get('photo_album', False):
             cls.theme_data = config.THEME_DATA['photo_album']
             cls.show = cls.theme_data.get("SHOW", False)
@@ -82,10 +84,12 @@ class photo_album:
         refresh = False
         if cls.theme_data_ok:
 
-            if config.update_queue.qsize() > 50:
+            if config.update_queue.qsize() > 50 and cls.first_run == False:
                 print(f"serial queue overload: {config.update_queue.qsize()}")
                 return refresh
-            
+            else:
+                cls.first_run = False
+                
             if cls.auto_refresh == True:
                 cls.theme_pic_list = list_theme_pic()
 
