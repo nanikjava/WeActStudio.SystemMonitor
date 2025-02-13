@@ -43,11 +43,12 @@ def show_messagebox(message, title="", delay=3000):
 
 def app_is_running(lockfile):  
     if os.path.exists(lockfile):  
-        pid = int(open(lockfile).read().strip())  
+        value = open(lockfile).read().strip()
         try:  
+            pid = int(value)  
             p = psutil.Process(pid)  
             p.is_running()
-        except psutil.NoSuchProcess:
+        except:
             # PID doesn't exist anymore, so we can safely delete the lockfile and proceed  
             os.remove(lockfile)    
             return False  

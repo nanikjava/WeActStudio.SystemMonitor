@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import mimetypes
-import shutil
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import BytesIO
 
@@ -37,20 +35,19 @@ class SimulatedLcdWebServer(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(bytes("<img src=\"" + SCREENSHOT_FILE + "\" id=\"myImage\" />", "utf-8"))
+            self.wfile.write(bytes("<img src=\"" + "image" + "\" id=\"myImage\" />", "utf-8"))
             self.wfile.write(bytes("<script>", "utf-8"))
             self.wfile.write(bytes("setInterval(function() {", "utf-8"))
             self.wfile.write(bytes("    var myImageElement = document.getElementById('myImage');", "utf-8"))
-            self.wfile.write(bytes("    myImageElement.src = '" + SCREENSHOT_FILE + "?rand=' + Math.random();", "utf-8"))
+            self.wfile.write(bytes("    myImageElement.src = '" + "image" + "?rand=' + Math.random();", "utf-8"))
             self.wfile.write(bytes("}, 250);", "utf-8"))
             self.wfile.write(bytes("</script>", "utf-8"))
-        elif self.path.startswith("/" + SCREENSHOT_FILE):
-            imgfile = open(SCREENSHOT_FILE, 'rb').read()
-            mimetype = mimetypes.MimeTypes().guess_type(SCREENSHOT_FILE)[0]
+        elif self.path.startswith("/" + "image"):
             self.send_response(200)
-            self.send_header('Content-type', mimetype)
+            self.send_header('Content-type', 'image/png')
             self.end_headers()
-            self.wfile.write(imgfile)
+            SCREENSHOT_FILE.seek(0)
+            self.wfile.write(SCREENSHOT_FILE.getvalue())
 
 
 # Simulated display: write on a file instead of serial port
@@ -61,7 +58,8 @@ class LcdSimulated(LcdComm):
         LcdComm.__init__(self, com_port, display_width, display_height, update_queue)
         self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (0, 0, 0))
         self.screen_image.save(self.tmp, "PNG")
-        shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
+        self.tmp.seek(0)
+        self.screen_image.save(SCREENSHOT_FILE, "PNG")
         self.orientation = Orientation.PORTRAIT
 
         try:
@@ -95,7 +93,8 @@ class LcdSimulated(LcdComm):
         with self.update_queue_mutex:
             self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), color)
             self.screen_image.save(self.tmp, "PNG")
-            shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
+            self.tmp.seek(0)
+            self.screen_image.save(SCREENSHOT_FILE, "PNG")
 
     def ScreenOff(self):
         pass
@@ -115,7 +114,8 @@ class LcdSimulated(LcdComm):
         with self.update_queue_mutex:
             self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (0, 0, 0))
             self.screen_image.save(self.tmp, "PNG")
-            shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
+            self.tmp.seek(0)
+            self.screen_image.save(SCREENSHOT_FILE, "PNG")
 
     def DisplayPILImage(
             self,
@@ -146,4 +146,5 @@ class LcdSimulated(LcdComm):
         with self.update_queue_mutex:
             self.screen_image.paste(image, (x, y))
             self.screen_image.save(self.tmp, "PNG")
-            shutil.copyfileobj(self.tmp, SCREENSHOT_FILE)
+            self.tmp.seek(0)
+            self.screen_image.save(SCREENSHOT_FILE, "PNG")

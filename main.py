@@ -152,6 +152,17 @@ locale.setlocale(locale.LC_ALL, '')
 
 logger.debug("Using Python %s" % sys.version)
 
+def wait_for_empty_queue(timeout: int = 5):
+        # Waiting for all pending request to be sent to display
+        logger.info(f"Waiting for {scheduler.get_queue_size()} pending request to be sent to display ({timeout}s max)...")
+
+        wait_time = 0
+        while not scheduler.is_queue_empty() and wait_time < timeout:
+            time.sleep(0.1)
+            wait_time = wait_time + 0.1
+
+        logger.debug("(Waited %.1fs)" % wait_time)
+
 def clean(tray_icon=None):
     # Remove tray icon just before exit
     if tray_icon:
@@ -165,14 +176,7 @@ def clean(tray_icon=None):
     scheduler.STOPPING = True
 
     # Allow 5 seconds max. delay in case scheduler is not responding
-    wait_time = 5
-    logger.info(f"Waiting for {scheduler.get_queue_size()} pending request to be sent to display ({wait_time}s max)...")
-
-    while not scheduler.is_queue_empty() and wait_time > 0:
-        time.sleep(0.1)
-        wait_time = wait_time - 0.1
-
-    logger.debug("(%.1fs)" % (5 - wait_time))
+    wait_for_empty_queue(5)
 
 def stop():
     global keyboard_listener,mouse_listener
@@ -217,10 +221,14 @@ def on_clean_exit(*args):
 
 def display_init():
     # Initialize the display
+    logger.info("Initialize display")
     display.initialize_display()
 
     # Initialize lcd sensor
     display.initialize_sensor()
+
+    # Start serial queue handler
+    scheduler.QueueHandler()
 
     # Create all static images
     display.display_static_images()
@@ -229,33 +237,54 @@ def display_init():
     display.display_static_text()
 
 def scheduler_init():
+    # Start sensor scheduled reading. Avoid starting them all at the same time to optimize load
+    logger.info("Starting system monitor")
     # Run our jobs that update data
     import library.stats as stats
 
     scheduler.CPUPercentage()
+    time.sleep(0.15)
     scheduler.CPUFrequency()
+    time.sleep(0.15)
     scheduler.CPULoad()
+    time.sleep(0.15)
     scheduler.CPUTemperature()
+    time.sleep(0.15)
     scheduler.CPUFanSpeed()
+    time.sleep(0.15)
     if stats.Gpu.is_available():
         scheduler.GpuStats()
+    time.sleep(0.15)
     scheduler.MemoryStats()
+    time.sleep(0.15)
     scheduler.DiskStats()
+    time.sleep(0.15)
     scheduler.NetStats()
+    time.sleep(0.15)
     scheduler.DateStats()
+    time.sleep(0.15)
     scheduler.SystemUptimeStats()
+    time.sleep(0.15)
     scheduler.CustomStats()
+    time.sleep(0.15)
     scheduler.VolumeStats()
+    time.sleep(0.15)
     scheduler.LcdSensorTemperature()
+    time.sleep(0.15)
     scheduler.LcdSensorHumidness()
-    scheduler.QueueHandler()
+    time.sleep(0.15)
     scheduler.LcdRxHandler()
+    time.sleep(0.15)
     scheduler.dynamic_images_Init()
+    time.sleep(0.15)
     scheduler.dynamic_images_Handler()
+    time.sleep(0.15)
     scheduler.dynamic_texts_Init()
     scheduler.dynamic_texts_Handler()
+    time.sleep(0.15)
     scheduler.photo_album_Init()
     scheduler.photo_album_Handler()
+    time.sleep(0.15)
 
 if platform.system() == "Windows":
     def on_win32_ctrl_event(event):
@@ -322,6 +351,7 @@ if platform.system() == "Windows":
 
 try:
     display_init()
+    wait_for_empty_queue(10)
     scheduler_init()
 except Exception as e:
     messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
@@ -345,56 +375,57 @@ if tray_icon and platform.system() == "Darwin":  # macOS-specific
     step = 0
     retry_connect_count = 0
     while True:
-        tick  = tick + 1
-        if step == 0 :
-            if tick > 4:
-                tick = 0
-                if display.lcd.lcd_serial.is_open == False:
-                    scheduler.STOPPING = True
-                    logger.debug('scheduler stopping')
-                    step = 1
-        elif step == 1:
-            if scheduler.is_queue_empty() or tick > 10:
-                tick = 0
-                step = 2
-        elif step == 2:
-            if tick > 6:
-                tick = 0
-                try:
-                    display.lcd.lcd_serial.open()
-                    logger.debug('Re-open Serial Successful')
-                    step = 3
-                except Exception as e:
-                    retry_connect_count = retry_connect_count + 1
-                    logger.debug('Re-open Serial Fail')
-                    if retry_connect_count >= 20:
-                        logger.error(f'Re-open Serial Fail Count {retry_connect_count}')
-                        messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
-                        start_configure()
-                        clean_stop(tray_icon)
-        elif step == 3:
-            logger.debug('Re-init Display')
-            display.lcd.lcd_serial.close()
-            app_clean()
-            start_main()
-            app_exit()
+        if not display.is_LcdSimulated:
+            tick  = tick + 1
+            if step == 0 :
+                if tick > 4:
+                    tick = 0
+                    if display.lcd.lcd_serial.is_open == False:
+                        scheduler.STOPPING = True
+                        logger.debug('scheduler stopping')
+                        step = 1
+            elif step == 1:
+                if scheduler.is_queue_empty() or tick > 10:
+                    tick = 0
+                    step = 2
+            elif step == 2:
+                if tick > 6:
+                    tick = 0
+                    try:
+                        display.lcd.lcd_serial.open()
+                        logger.debug('Re-open Serial Successful')
+                        step = 3
+                    except Exception as e:
+                        retry_connect_count = retry_connect_count + 1
+                        logger.debug('Re-open Serial Fail')
+                        if retry_connect_count >= 20:
+                            logger.error(f'Re-open Serial Fail Count {retry_connect_count}')
+                            messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
+                            start_configure()
+                            clean_stop(tray_icon)
+            elif step == 3:
+                logger.debug('Re-init Display')
+                display.lcd.lcd_serial.close()
+                app_clean()
+                start_main()
+                app_exit()
 
-        if get_config_display_free_off() == True:
-            display_free_off_tick = display_free_off_tick + 1
-            if activity == False:
-                if display_free_off_tick > IDLE_THRESHOLD * 2:
+            if get_config_display_free_off() == True:
+                display_free_off_tick = display_free_off_tick + 1
+                if activity == False:
+                    if display_free_off_tick > IDLE_THRESHOLD * 2:
+                        display_free_off_tick = 0
+                        if display_off == False:
+                            display.lcd.SetBrightness(0)
+                            logger.info('display off')
+                            display_off = True
+                else:
+                    activity = False
                     display_free_off_tick = 0
-                    if display_off == False:
-                        display.lcd.SetBrightness(0)
-                        logger.info('display off')
-                        display_off = True
-            else:
-                activity = False
-                display_free_off_tick = 0
-                if display_off == True:
-                    display.lcd.SetBrightness(get_config_display_brightness())
-                    logger.info('display on')
-                    display_off = False
+                    if display_off == True:
+                        display.lcd.SetBrightness(get_config_display_brightness())
+                        logger.info('display on')
+                        display_off = False
 
         time.sleep(0.5)
 
@@ -434,61 +465,62 @@ elif platform.system() == "Windows":  # Windows-specific
             # Receive and dispatch window messages
             win32gui.PumpWaitingMessages()
 
-            tick  = tick + 1
-            if step ==0 :
-                if tick > 4:
-                    tick = 0
-                    if display.lcd.lcd_serial != None:
-                        if display.lcd.lcd_serial.is_open == False:
-                            scheduler.STOPPING = True
-                            logger.debug('scheduler stopping')
-                            step = 1
-                    else:
-                        messagebox.showerror(_("Error"), _("Error: ") + f'No COM Port Find')
-                        start_configure()
-                        clean_stop(tray_icon)
-            elif step == 1:
-                if scheduler.is_queue_empty() or tick > 10:
-                    tick = 0
-                    step = 2
-            elif step == 2:
-                if tick > 6:
-                    tick = 0
-                    try:
-                        display.lcd.lcd_serial.open()
-                        logger.debug('Re-open Serial Successful')
-                        step = 3
-                    except Exception as e:
-                        retry_connect_count = retry_connect_count + 1
-                        logger.debug('Re-open Serial Fail')
-                        if retry_connect_count >= 20:
-                            logger.error(f'Re-open Serial Fail Count {retry_connect_count}')
-                            messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
+            if not display.is_LcdSimulated:
+                tick  = tick + 1
+                if step ==0 :
+                    if tick > 4:
+                        tick = 0
+                        if display.lcd.lcd_serial != None:
+                            if display.lcd.lcd_serial.is_open == False:
+                                scheduler.STOPPING = True
+                                logger.debug('scheduler stopping')
+                                step = 1
+                        else:
+                            messagebox.showerror(_("Error"), _("Error: ") + f'No COM Port Find')
                             start_configure()
                             clean_stop(tray_icon)
-            elif step == 3:
-                logger.debug('Re-init Display')
-                display.lcd.lcd_serial.close()
-                app_clean()
-                start_main()
-                app_exit()
-            
-            if get_config_display_free_off() == True:
-                display_free_off_tick = display_free_off_tick + 1
-                if activity == False:
-                    if display_free_off_tick > IDLE_THRESHOLD * 2:
+                elif step == 1:
+                    if scheduler.is_queue_empty() or tick > 10:
+                        tick = 0
+                        step = 2
+                elif step == 2:
+                    if tick > 6:
+                        tick = 0
+                        try:
+                            display.lcd.lcd_serial.open()
+                            logger.debug('Re-open Serial Successful')
+                            step = 3
+                        except Exception as e:
+                            retry_connect_count = retry_connect_count + 1
+                            logger.debug('Re-open Serial Fail')
+                            if retry_connect_count >= 20:
+                                logger.error(f'Re-open Serial Fail Count {retry_connect_count}')
+                                messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
+                                start_configure()
+                                clean_stop(tray_icon)
+                elif step == 3:
+                    logger.debug('Re-init Display')
+                    display.lcd.lcd_serial.close()
+                    app_clean()
+                    start_main()
+                    app_exit()
+                
+                if get_config_display_free_off() == True:
+                    display_free_off_tick = display_free_off_tick + 1
+                    if activity == False:
+                        if display_free_off_tick > IDLE_THRESHOLD * 2:
+                            display_free_off_tick = 0
+                            if display_off == False:
+                                display.lcd.SetBrightness(0)
+                                logger.info('display off')
+                                display_off = True
+                    else:
+                        activity = False
                         display_free_off_tick = 0
-                        if display_off == False:
-                            display.lcd.SetBrightness(0)
-                            logger.info('display off')
-                            display_off = True
-                else:
-                    activity = False
-                    display_free_off_tick = 0
-                    if display_off == True:
-                        display.lcd.SetBrightness(get_config_display_brightness())
-                        logger.info('display on')
-                        display_off = False
+                        if display_off == True:
+                            display.lcd.SetBrightness(get_config_display_brightness())
+                            logger.info('display on')
+                            display_off = False
 
             time.sleep(0.5)
 

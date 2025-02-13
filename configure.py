@@ -681,9 +681,11 @@ class ConfigWindow:
                     messagebox.showerror(_("Error"), _("error: ") + f'{e}')
                     self.live_display_bool_var.set(False)
         else:
-            self.model_cb['state'] = "readonly"
-            self.com_cb['state'] = "readonly"
-            self.com_refresh_button['state'] = "normal"
+            model = self.model_cb.get()
+            if "Simulated" not in model:
+                self.model_cb['state'] = "readonly"
+                self.com_cb['state'] = "readonly"
+                self.com_refresh_button['state'] = "normal"
             if self.display_init == True:
                 self.display_off()
                 self.display_init = False

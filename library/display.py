@@ -57,15 +57,19 @@ def get_config_display_brightness() -> int:
 class Display:
     def __init__(self):
         self.lcd = None
+        self.is_LcdSimulated = False
         if config.CONFIG_DATA["display"]["REVISION"] == "A_320x480":
             self.lcd = LcdComm_WeAct_A(com_port=config.CONFIG_DATA['config']['COM_PORT'],
                                    update_queue=config.update_queue)
+            self.is_LcdSimulated = False
         elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU_320x480":
             self.lcd = LcdSimulated(display_width=320,
                                     display_height=480)
+            self.is_LcdSimulated = True
         elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU_480x800":
             self.lcd = LcdSimulated(display_width=480,
                                     display_height=800)
+            self.is_LcdSimulated = True
         else:
             logger.error("Unknown display revision '", config.CONFIG_DATA["display"]["REVISION"], "'")
 

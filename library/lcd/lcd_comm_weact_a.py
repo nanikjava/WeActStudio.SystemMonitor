@@ -6,7 +6,7 @@ from serial.tools.list_ports import comports
 
 from library.lcd.lcd_comm import *
 from library.log import logger
-
+from library.lcd import serialize
 
 class Command(IntEnum):
     CMD_WHO_AM_I = 0x81  # Establish communication before driving the screen
@@ -223,25 +223,12 @@ class LcdComm_WeAct_A(LcdComm):
         byteBuffer[9] = Command.CMD_END
 
         line_to_send_size = self.get_width() * 4
+
+        rgb565le = serialize.image_to_RGB565(image,'little')
+
         # Lock queue mutex then queue all the requests for the image data
         with self.update_queue_mutex:
             self.SendLine(byteBuffer)
-            for h in range(image_height):
-                for w in range(image_width):
-                    R = pix[w, h][0] >> 3
-                    G = pix[w, h][1] >> 2
-                    B = pix[w, h][2] >> 3
-
-                    # Color information is 0bRRRRRGGGGGGBBBBB
-                    # Encode in Little-Endian
-                    rgb = (R << 11) | (G << 5) | B
-                    line += struct.pack("<H", rgb)
-
-                # Send image data by multiple of "display width" bytes
-                if len(line) >= line_to_send_size:
-                    self.SendLine(line)
-                    line = bytes()
-
-            # Write last line if needed
-            if len(line) > 0:
-                self.SendLine(line)
+            for chunk in serialize.chunked(rgb565le,line_to_send_size):
+                self.SendLine(chunk)
+                

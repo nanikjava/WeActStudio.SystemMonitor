@@ -181,7 +181,7 @@ class Cpu(sensors.Cpu):
                 return float(sensor.Value)
 
         logger.error("CPU load cannot be read")
-        return math.nan
+        return -1
 
     @staticmethod
     def frequency() -> float:
@@ -456,7 +456,7 @@ class Disk(sensors.Disk):
                 usage = usage + psutil.disk_usage(disk.device).percent
             return usage / len(disks) # return all used space among all disks
         except:
-            return math.nan
+            return -1
 
     @staticmethod
     def disk_used() -> int:  # In bytes
