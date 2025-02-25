@@ -11,7 +11,7 @@ STATS:
         FONT_COLOR: 0, 0, 0
         FONT_SIZE: 22
         HEIGHT: 0
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         SHOW: true
         SHOW_UNIT: false
         UNIT_ML: false
@@ -47,7 +47,7 @@ STATS:
         FONT_COLOR: 0, 0, 0
         FONT_SIZE: 22
         HEIGHT: 0
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         SHOW: true
         SHOW_UNIT: false
         UNIT_ML: false
@@ -63,7 +63,7 @@ STATS:
         FONT_COLOR: 0, 0, 0
         FONT_SIZE: 20
         HEIGHT: 0
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         SHOW: true
         SHOW_UNIT: true
         UNIT_ML: false
@@ -82,7 +82,7 @@ STATS:
         FONT_COLOR: 0, 0, 0
         FONT_SIZE: 22
         HEIGHT: 0
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         SHOW: true
         SHOW_UNIT: false
         UNIT_ML: false
@@ -99,7 +99,7 @@ STATS:
         FONT_COLOR: 0, 0, 0
         FONT_SIZE: 22
         HEIGHT: 0
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         SHOW: true
         SHOW_UNIT: true
         UNIT_ML: false
@@ -118,7 +118,7 @@ STATS:
         FONT_COLOR: 0, 0, 0
         FONT_SIZE: 23
         HEIGHT: 0
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         SHOW: true
         SHOW_UNIT: false
         UNIT_ML: false
@@ -136,7 +136,7 @@ STATS:
       FONT_COLOR: 0, 0, 0
       FONT_SIZE: 18
       HEIGHT: 0
-      MINI_SIZE: 0
+      MIN_SIZE: 0
       SHOW: true
       SHOW_UNIT: false
       UNIT_ML: false

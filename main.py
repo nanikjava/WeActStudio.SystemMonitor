@@ -27,7 +27,7 @@
 import os
 import sys
 sys.path.append(os.path.dirname(__file__))
-MIN_PYTHON = (3, 8)
+MIN_PYTHON = (3, 9)
 if sys.version_info < MIN_PYTHON:
     print("[ERROR] Python %s.%s or later is required." % MIN_PYTHON)
     try:
@@ -63,21 +63,8 @@ except:
         os._exit(0)
 
 # Loading Language
-import locale,gettext
-lang, encoding = locale.getlocale()
-print(f"Language: {lang}, Encoding: {encoding}")
-localedir = os.path.join(
-    os.path.dirname(__file__), "res\\language\\main"
-) 
-if lang.startswith("Chinese"):
-    language = "zh"
-    domain = "zh"
-else:
-    language = "en"
-    domain = "en"
-lang = gettext.translation(domain, localedir, languages=[language], fallback=True)
-lang.install(domain)
-_ = lang.gettext
+from library.utils import set_language
+_ = set_language(__file__)
 
 import library.utils as utils
 import time

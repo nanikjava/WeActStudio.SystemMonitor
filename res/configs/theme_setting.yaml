@@ -38,3 +38,6 @@ FORMAT:
   full: full
   yyyy.MM.dd: yyyy.MM.dd
 
+BAR_DECORATION: 
+  Ellipse: Ellipse
+  Normal: ''

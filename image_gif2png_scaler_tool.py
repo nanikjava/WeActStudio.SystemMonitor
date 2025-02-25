@@ -229,18 +229,10 @@ class ImageScaler:
             messagebox.showerror("Error", str(e))  
   
 if __name__ == "__main__":  
-    lang, encoding = locale.getlocale()
-    print(f"Language: {lang}, Encoding: {encoding}")
-    localedir = os.path.join(
-        os.path.dirname(__file__), "res\\language\\image_scaler_tool"
-    )
-    if lang.startswith("Chinese"):
-        language = "zh"
-        domain = "zh"
-    else:
-        language = "en"
-        domain = "en"
-    lang = gettext.translation(domain, localedir, languages=[language], fallback=True)
-    lang.install(domain)
-    _ = lang.gettext
+    # Loading Language
+    import sys
+    sys.path.append(os.path.dirname(__file__))
+    from library.utils import set_language 
+    _ = set_language(os.path.dirname(__file__)+'\\image_scaler_tool')
+
     app = ImageScaler()  

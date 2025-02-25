@@ -94,10 +94,12 @@ def display_themed_value(theme_data, value, min_size=0, unit=''):
         return
 
     # overridable MIN_SIZE from theme with backward compatibility
-    min_size_t = theme_data.get("MINI_SIZE", min_size)
+    min_size_t = theme_data.get("MIN_SIZE", min_size)
+    mini_size_t = theme_data.get("MINI_SIZE", min_size)
     if min_size_t != 0:
         min_size = min_size_t
-
+    elif mini_size_t != 0:
+        min_size = mini_size_t
     text = f"{{:>{min_size}}}".format(value)
     anchor = theme_data.get("ANCHOR", "lt")
     if theme_data.get("SHOW_UNIT", True) and unit:
@@ -192,7 +194,12 @@ def display_themed_radial_bar(theme_data, value, min_size=0, unit='', custom_tex
         font_size=theme_data.get("FONT_SIZE", 10),
         font_color=theme_data.get("FONT_COLOR", (0, 0, 0)),
         background_color=theme_data.get("BACKGROUND_COLOR", (0, 0, 0)),
-        background_image=get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None))
+        background_image=get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None)),
+        custom_bbox=theme_data.get("CUSTOM_BBOX", (0, 0, 0, 0)),
+        text_offset=theme_data.get("TEXT_OFFSET", (0, 0)),
+        bar_background_color = theme_data.get("BAR_BACKGROUND_COLOR", (0, 0, 0)),
+        draw_bar_background = theme_data.get("DRAW_BAR_BACKGROUND", False),
+        bar_decoration = theme_data.get("BAR_DECORATION", "")
     )
 
 
@@ -233,6 +240,8 @@ def display_themed_line_graph(theme_data, values):
         line_width=theme_data.get("LINE_WIDTH", 2),
         graph_axis=theme_data.get("AXIS", False),
         axis_color=theme_data.get("AXIS_COLOR", line_color),  # If no color specified, use line color for axis
+        axis_font=theme_data.get("AXIS_FONT", "roboto/Roboto-Black.ttf"),
+        axis_font_size=theme_data.get("AXIS_FONT_SIZE", 10),
         background_color=theme_data.get("BACKGROUND_COLOR", (0, 0, 0)),
         background_image=get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None))
     )

@@ -179,7 +179,7 @@ class LcdComm_WeAct_A(LcdComm):
 
     def DisplayPILImage(
         self,
-        image: Image,
+        image: Image.Image,
         x: int = 0,
         y: int = 0,
         image_width: int = 0,
@@ -203,9 +203,6 @@ class LcdComm_WeAct_A(LcdComm):
         assert image_width > 0, "Image width must be > 0"
         assert x + image_width <= self.get_width(), f'Display Bitmap width+x exceeds display width {self.get_width()}'
         assert y + image_height <= self.get_height(), f'Display Bitmap height+y exceeds display height {self.get_height()}'
-        
-        pix = image.load()
-        line = bytes()
 
         (x0, y0) = (x, y)
         (x1, y1) = (x + image_width - 1, y + image_height - 1)

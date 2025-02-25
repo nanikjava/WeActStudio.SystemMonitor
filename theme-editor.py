@@ -700,7 +700,7 @@ class theme_editor:
 
                             if can_add_delete:
                                 popup_menu.add_command(
-                                    label="Delete",
+                                    label=_("Delete"),
                                     command=self.on_theme_tree_delete_item,
                                 )
 
@@ -772,7 +772,7 @@ class theme_editor:
                                                 popup_menu, tearoff=0
                                             )
                                             popup_menu.add_cascade(
-                                                label="Add", menu=add_menu
+                                                label=_("Add"), menu=add_menu
                                             )
 
                                         add_menu.add_command(
@@ -1532,19 +1532,8 @@ class theme_editor:
         self.label_zone.place_forget()
 
 if __name__ == "__main__":
-    lang, encoding = locale.getlocale()
-    print(f"Language: {lang}, Encoding: {encoding}")
-    localedir = os.path.join(
-        os.path.dirname(__file__), "res\\language\\theme-editor"
-    )
-    if lang.startswith("Chinese"):
-        language = "zh"
-        domain = "zh"
-    else:
-        language = "en"
-        domain = "en"
-    lang = gettext.translation(domain, localedir, languages=[language], fallback=True)
-    lang.install(domain)
-    _ = lang.gettext
+    # Loading Language
+    from library.utils import set_language
+    _ = set_language(__file__)
 
     te = theme_editor()

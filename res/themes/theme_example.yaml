@@ -30,8 +30,10 @@ static_images:
   #   WIDTH:
   #   HEIGHT:
   # If you want to add more image, change the BACKGROUND name first
-  BACKGROUND:
-    PATH: background.png
+  IMAGE_EXAMPLE:
+    PATH: image.png
+    BACKGROUND_COLOR: 0, 0, 0
+    BACKGROUND_IMAGE: background.png
     X: 0
     Y: 0
     WIDTH: 320
@@ -127,7 +129,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 100
         Y: 20
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -141,8 +143,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -171,13 +173,17 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -192,6 +198,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     FREQUENCY:
@@ -203,7 +211,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 100
         Y: 87
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -217,8 +225,8 @@ STATS:
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 50, 50, 50
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -247,13 +255,17 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -268,6 +280,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     LOAD:
@@ -280,7 +294,7 @@ STATS:
           SHOW: False
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 110
           Y: 106
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -294,14 +308,14 @@ STATS:
           FONT_COLOR: 200, 200, 200
           BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       FIVE:
         TEXT:
           SHOW: False
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 183
           Y: 106
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -315,14 +329,14 @@ STATS:
           FONT_COLOR: 200, 200, 200
           BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       FIFTEEN:
         TEXT:
           SHOW: False
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 265
           Y: 106
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -336,8 +350,8 @@ STATS:
           FONT_COLOR: 200, 200, 200
           BACKGROUND_COLOR: 50, 50, 50
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     TEMPERATURE:
       # In seconds. Longer intervals cause this to refresh more slowly.
       # Setting to lower values will display near real time data,
@@ -347,7 +361,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 154
         Y: 13
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -361,8 +375,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -391,13 +405,17 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -412,6 +430,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     FAN_SPEED:
@@ -423,7 +443,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 154
         Y: 13
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -437,8 +457,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -467,13 +487,17 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -488,6 +512,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
   GPU:
@@ -525,18 +551,22 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 250
         Y: 140
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -550,8 +580,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -566,6 +596,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     MEMORY_PERCENT:
@@ -597,18 +629,22 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 204
         Y: 195
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -622,8 +658,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -638,6 +674,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     MEMORY_USED:
@@ -645,7 +683,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 204
         Y: 195
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -659,14 +697,14 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     MEMORY_TOTAL:
       TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 204
         Y: 195
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -680,14 +718,14 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     TEMPERATURE:
       TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 154
         Y: 13
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -701,8 +739,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -731,13 +769,17 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -752,6 +794,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     FPS:
@@ -759,7 +803,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 154
         Y: 13
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -773,8 +817,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -803,13 +847,17 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -824,6 +872,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     FAN_SPEED:
@@ -831,7 +881,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 154
         Y: 13
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -845,8 +895,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -875,13 +925,17 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -896,6 +950,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     FREQUENCY:
@@ -903,7 +959,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 100
         Y: 87
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -917,8 +973,8 @@ STATS:
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 50, 50, 50
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -947,13 +1003,17 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -968,6 +1028,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
   MEMORY:
@@ -1004,13 +1066,17 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -1025,6 +1091,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     VIRTUAL:
@@ -1056,13 +1124,17 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -1077,13 +1149,15 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
       USED:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 204
         Y: 290
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1097,13 +1171,13 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       FREE:
         SHOW: FALSE
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 182
         Y: 129
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1117,13 +1191,13 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       TOTAL:
         SHOW: FALSE
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 182
         Y: 129
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1137,13 +1211,13 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       PERCENT_TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 250
         Y: 240
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1157,15 +1231,15 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   DISK:
     INTERVAL: 10
     USED:
       GRAPH:
         SHOW: False
         X: 115
-        Y: 357
+        Y: 100
         WIDTH: 178
         HEIGHT: 13
         MIN_VALUE: 0
@@ -1190,13 +1264,17 @@ STATS:
         BAR_COLOR: 255, 0, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: [0, 0, 160, 80]
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -1211,13 +1289,15 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
       TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 204
         Y: 205
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1231,13 +1311,13 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       PERCENT_TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 46
         Y: 202
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1251,14 +1331,14 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     TOTAL:
       TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 204
         Y: 375
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1272,14 +1352,14 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     FREE:
       TEXT:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 204
         Y: 435
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1293,8 +1373,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   NET:
     INTERVAL: 1
     WLO:
@@ -1303,7 +1383,7 @@ STATS:
           SHOW: FALSE
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           UNIT_ML: FALSE
           X: 4
           Y: 311
@@ -1318,8 +1398,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1334,6 +1414,8 @@ STATS:
           LINE_WIDTH: 2
           AXIS: True
           AXIS_COLOR: 255, 135, 0
+          AXIS_FONT: roboto/Roboto-Black.ttf
+          AXIS_FONT_SIZE: 10
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
       UPLOADED:
@@ -1341,7 +1423,7 @@ STATS:
           SHOW: FALSE
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 90
           Y: 311
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1355,14 +1437,14 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       DOWNLOAD:
         TEXT:
           SHOW: FALSE
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 4
           Y: 261
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1376,8 +1458,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1392,6 +1474,8 @@ STATS:
           LINE_WIDTH: 2
           AXIS: True
           AXIS_COLOR: 255, 135, 0
+          AXIS_FONT: roboto/Roboto-Black.ttf
+          AXIS_FONT_SIZE: 10
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
       DOWNLOADED:
@@ -1399,7 +1483,7 @@ STATS:
           SHOW: FALSE
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 90
           Y: 261
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1413,15 +1497,15 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     ETH:
       UPLOAD:
         TEXT:
           SHOW: FALSE
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 254
           Y: 311
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1435,8 +1519,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1451,6 +1535,8 @@ STATS:
           LINE_WIDTH: 2
           AXIS: True
           AXIS_COLOR: 255, 135, 0
+          AXIS_FONT: roboto/Roboto-Black.ttf
+          AXIS_FONT_SIZE: 10
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
       UPLOADED:
@@ -1458,7 +1544,7 @@ STATS:
           SHOW: FALSE
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 192
           Y: 311
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1472,14 +1558,14 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       DOWNLOAD:
         TEXT:
           SHOW: FALSE
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 254
           Y: 261
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1493,8 +1579,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1509,6 +1595,8 @@ STATS:
           LINE_WIDTH: 2
           AXIS: True
           AXIS_COLOR: 255, 135, 0
+          AXIS_FONT: roboto/Roboto-Black.ttf
+          AXIS_FONT_SIZE: 10
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
       DOWNLOADED:
@@ -1516,7 +1604,7 @@ STATS:
           SHOW: FALSE
           SHOW_UNIT: True
           UNIT_ML: FALSE
-          MINI_SIZE: 0
+          MIN_SIZE: 0
           X: 192
           Y: 261
           # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1530,8 +1618,8 @@ STATS:
           FONT_COLOR: 255, 255, 255
           BACKGROUND_COLOR: 0, 0, 0
           BACKGROUND_IMAGE: background.png
-          ALIGN: left  # left / center / right
-          ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ALIGN: right  # left / center / right
+          ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   DATE:
     # For time display, it is recommended not to change the interval: keep to 1
     INTERVAL: 1
@@ -1552,8 +1640,8 @@ STATS:
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     HOUR: # Format (12/24h, timezone translations) will match your computer locale
       TEXT:
         FORMAT: short # short (6:48 PM) / medium (6:48:53 PM) / long (6:48:53 PM UTC) / full (6:48:53 PM Coordinated Universal Time) / custom pattern e.g. "HH:mm:ss zzz" (6:48:53 EDT)
@@ -1571,8 +1659,8 @@ STATS:
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   UPTIME:
     # For seconds display, it is recommended not to change the interval: keep to 1
     INTERVAL: 1
@@ -1592,8 +1680,8 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
     FORMATTED:  # Uptime as formatted string with days e.g. "49 days, 16:47:16"
       TEXT:
         SHOW: FALSE
@@ -1610,8 +1698,69 @@ STATS:
         FONT_COLOR: 255, 255, 255
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
-        ALIGN: left  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+  VOLUME:
+    INTERVAL: 2
+    GRAPH:
+      SHOW: False
+      X: 115
+      Y: 100
+      WIDTH: 178
+      HEIGHT: 13
+      MIN_VALUE: 0
+      MAX_VALUE: 100
+      BAR_COLOR: 255, 0, 0
+      BAR_OUTLINE: False
+      BACKGROUND_COLOR: 0, 0, 0
+      BACKGROUND_IMAGE: background.png
+    RADIAL:
+      SHOW: False
+      X: 141
+      Y: 275
+      RADIUS: 28
+      WIDTH: 8
+      MIN_VALUE: 0
+      MAX_VALUE: 100
+      ANGLE_START: 110
+      ANGLE_END: 70
+      ANGLE_STEPS: 1
+      ANGLE_SEP: 25
+      CLOCKWISE: True
+      BAR_COLOR: 255, 0, 0
+      SHOW_TEXT: True
+      SHOW_UNIT: True
+      MIN_SIZE: 0
+      FONT: roboto-mono/RobotoMono-Bold.ttf
+      FONT_SIZE: 13
+      FONT_COLOR: 200, 200, 200
+      BACKGROUND_COLOR: 0, 0, 0
+      BACKGROUND_IMAGE: background.png
+      CUSTOM_BBOX: [0, 0, 160, 80]
+      TEXT_OFFSET: [-10, -20]
+      BAR_BACKGROUND_COLOR: 0, 50, 0
+      DRAW_BAR_BACKGROUND: False
+      BAR_DECORATION: 
+    PERCENT_TEXT:
+      SHOW: False
+      SHOW_UNIT: True
+      UNIT_ML: FALSE
+      MIN_SIZE: 0
+      X: 46
+      Y: 202
+      # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
+      # To avoid this use one of these 2 methods (or both):
+      #   - either use a monospaced font (fonts with "mono" in name, see res/fonts/ for available fonts)
+      #   - or force a static width/height for the text field. Be sure to have enough space for the longest value that can be displayed (e.g. "100%" for a percentage)
+      WIDTH: 0   # Uncomment to force a static width
+      HEIGHT: 0   # Uncomment to force static height
+      FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+      FONT_SIZE: 23
+      FONT_COLOR: 255, 255, 255
+      BACKGROUND_COLOR: 0, 0, 0
+      BACKGROUND_IMAGE: background.png
+      ALIGN: right  # left / center / right
+      ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   LCD_SENSOR:
     TEMPERATURE:
       # In seconds. Longer intervals cause this to refresh more slowly.
@@ -1622,7 +1771,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 154
         Y: 13
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1637,7 +1786,7 @@ STATS:
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -1666,13 +1815,16 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -1687,6 +1839,8 @@ STATS:
         LINE_WIDTH: 2
         AXIS: True
         AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
     HUMIDNESS:
@@ -1698,7 +1852,7 @@ STATS:
         SHOW: False
         SHOW_UNIT: True
         UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         X: 154
         Y: 13
         # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
@@ -1713,7 +1867,7 @@ STATS:
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
-        ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
       GRAPH:
         SHOW: False
         X: 115
@@ -1742,13 +1896,16 @@ STATS:
         BAR_COLOR: 0, 255, 0
         SHOW_TEXT: True
         SHOW_UNIT: True
-        UNIT_ML: FALSE
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         FONT: roboto-mono/RobotoMono-Bold.ttf
         FONT_SIZE: 13
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
         BACKGROUND_IMAGE: background.png
+        TEXT_OFFSET: [-10, -20]
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: 
       LINE_GRAPH:
         SHOW: False
         X: 300

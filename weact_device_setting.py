@@ -7,7 +7,6 @@ import sys ,os
 from enum import IntEnum
 from PIL import Image, ImageDraw, ImageFont
 import struct
-
 import traceback
 
 
@@ -484,21 +483,9 @@ import tkinter
 from tkinter import ttk
 
 # Loading Language
-import locale,gettext
-lang, encoding = locale.getlocale()
-print(f"Language: {lang}, Encoding: {encoding}")
-localedir = os.path.join(
-    os.path.dirname(__file__), "res\\language\\weact_device_setting"
-) 
-if lang.startswith("Chinese"):
-    language = "zh"
-    domain = "zh"
-else:
-    language = "en"
-    domain = "en"
-lang = gettext.translation(domain, localedir, languages=[language], fallback=True)
-lang.install(domain)
-_ = lang.gettext
+sys.path.append(os.path.dirname(__file__))
+from library.utils import set_language
+_ = set_language(__file__)
 
 class tk_gui:
     def __init__(self, lcd: lcd_weact) -> None:
@@ -531,7 +518,7 @@ class tk_gui:
         device_refresh_button = ttk.Button(
             self.main_frame, text=_("Refresh"), command=self.on_refresh_device_open
         )
-        device_refresh_button.grid(row=0, column=2, sticky="W" + "E")
+        device_refresh_button.grid(row=0, column=2, padx=5, pady=5, sticky="W" + "E")
 
         orient_label = ttk.Label(self.main_frame, text=_("Orientation"))
         orient_label.grid(row=4, column=0, padx=5, pady=5, sticky="W")
@@ -592,7 +579,7 @@ class tk_gui:
         self.device_reset_button = ttk.Button(
             self.main_frame, text=_("Device Reset"), command=self.on_device_reset
         )
-        self.device_reset_button.grid(row=9, column=0, padx=5, sticky="W" + "E")
+        self.device_reset_button.grid(row=9, column=0, padx=5, pady=5, sticky="W" + "E")
 
         self.WHO_AM_I_string = tkinter.StringVar()
         self.WHO_AM_I_string.set("WHO_AM_I: ")

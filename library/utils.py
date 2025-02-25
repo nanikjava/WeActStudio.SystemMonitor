@@ -61,3 +61,67 @@ def app_set_running(lockfile):
 
 def app_end_running(lockfile):
     os.remove(lockfile)
+
+LANGUAGE_MAPPING = {
+    "Chinese": "zh",
+    "Chinese (Simplified)": "zh",
+    "English": "en",
+    "Japanese": "ja",
+    "French": "fr",
+    "German": "de",
+    "Spanish": "es",
+    "Russian": "ru",
+    "Portuguese": "pt",
+    "Italian": "it",
+    "Korean": "ko",
+    "Arabic": "ar",
+    "Hindi": "hi",
+    "Turkish": "tr",
+    "Dutch": "nl",
+    "Swedish": "sv",
+    "Polish": "pl",
+    "Thai": "th",
+    "Vietnamese": "vi",
+    "Greek": "el",
+    "Czech": "cs",
+    "Danish": "da",
+    "Finnish": "fi",
+    "Hebrew": "he",
+    "Hungarian": "hu",
+    "Indonesian": "id",
+    "Norwegian": "no",
+    "Romanian": "ro",
+    "Slovak": "sk",
+    "Ukrainian": "uk"
+}
+
+def get_language_code(language_name: str) -> str:
+    return LANGUAGE_MAPPING.get(language_name, "Unknown")
+
+import locale, gettext
+from library.utils import get_language_code
+
+def set_language(file_path):
+    lang, encoding = locale.getlocale()
+    lang = lang.split("_")
+    _file_name = os.path.basename(file_path)
+    file_name = os.path.splitext(_file_name)[0]
+    print(f"Language: {lang[0]}, Country: {lang[1]}, Encoding: {encoding}")
+    lang_set = get_language_code(lang[0])
+    localedir = os.path.join(os.path.dirname(file_path), f"res\\language\\{file_name}")
+    available_languages = []
+    if os.path.exists(localedir):
+        for item in os.listdir(localedir):
+            if os.path.isdir(os.path.join(localedir, item)):
+                available_languages.append(item)
+    if lang_set in available_languages:
+        print(f"Use language: {lang_set}")
+        language = lang_set
+        domain = lang_set
+    else:
+        print(f"No found language: {lang[0]}, use the default language: English")
+        language = "en"
+        domain = "en"
+    lang_translation = gettext.translation(domain, localedir, languages=[language], fallback=True)
+    lang_translation.install(domain)
+    return lang_translation.gettext

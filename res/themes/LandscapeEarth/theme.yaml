@@ -105,7 +105,7 @@ STATS:
         FONT_COLOR: 255, 255, 255
         FONT_SIZE: 16
         HEIGHT: 0
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         SHOW: true
         SHOW_UNIT: true
         UNIT_ML: false
@@ -123,7 +123,7 @@ STATS:
         FONT_COLOR: 255, 255, 255
         FONT_SIZE: 16
         HEIGHT: 0
-        MINI_SIZE: 0
+        MIN_SIZE: 0
         SHOW: true
         SHOW_UNIT: true
         UNIT_ML: false
