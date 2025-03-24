@@ -22,63 +22,92 @@
 import os
 import queue
 import sys
-
-import yaml
-
+from pathlib import Path
+# import yaml
+import ruamel.yaml
 from library.log import logger
 
-
 def load_yaml(configfile):
+    yaml = ruamel.yaml.YAML()
     with open(configfile, "rt", encoding='utf8') as stream:
-        yamlconfig = yaml.safe_load(stream)
+        yamlconfig = yaml.load(stream)
         return yamlconfig
 
+THEMES_DIR = None
+FONTS_DIR = None
+CONFIG_DIR = None
 
-PATH = sys.path[0]
-CONFIG_DATA = load_yaml("config.yaml")
-THEME_DEFAULT = load_yaml("res/configs/default.yaml")
-THEME_SETTING = load_yaml("res/configs/theme_setting.yaml")
-THEME_EXAMPLE = load_yaml("res/configs/theme_example.yaml")
+CONFIG_DATA = None
+THEME_DEFAULT = None
+THEME_SETTING = None
+THEME_EXAMPLE = None
 THEME_DATA = None
 THEME_DATA_EDIT = None
+
+CURRENT_THEME_PATH = None
+
+def load_config():
+    global CONFIG_DATA,THEMES_DIR,FONTS_DIR,CONFIG_DIR
+    global THEME_DEFAULT,THEME_SETTING,THEME_EXAMPLE
+    CONFIG_DIR = Path.cwd() / "res" / "configs"
+    try:
+        CONFIG_DATA = load_yaml(Path.cwd() / "config.yaml")
+
+        THEMES_DIR = Path(CONFIG_DATA['config']['THEMES_DIR'])
+        FONTS_DIR = Path(CONFIG_DATA['config']['FONTS_DIR'])
+        
+        THEME_DEFAULT = load_yaml(CONFIG_DIR / "default.yaml")
+        THEME_SETTING = load_yaml(CONFIG_DIR / "theme_setting.yaml")
+        THEME_EXAMPLE = load_yaml(CONFIG_DIR / "theme_example.yaml")
+        
+        logger.info("THEMES_DIR: %s" % str(THEMES_DIR))
+        logger.info("FONTS_DIR: %s" % str(FONTS_DIR))
+    except Exception as e:
+        logger.error('Load config:'+ str(e))
+        try:
+            sys.exit(0)
+        except:
+            os._exit(0)
 
 def copy_default(default, theme):
     """recursively supply default values into a dict of dicts of dicts ...."""
     for k, v in default.items():
         if k not in theme:
             theme[k] = v
-        if type(v) == type({}):
-            copy_default(default[k], theme[k])
+        if isinstance(v, dict):
+            if k not in theme:
+                theme[k] = {}
+            copy_default(v, theme[k])
 
 def load_theme_edit():
     global THEME_DATA_EDIT
     try:
-        theme_path = "res/themes/" + CONFIG_DATA['config']['THEME'] + "/"
-        logger.info("Loading edit theme %s from %s" % (CONFIG_DATA['config']['THEME'], theme_path + "theme.yaml"))
-        THEME_DATA_EDIT = load_yaml(theme_path + "theme.yaml")
-        THEME_DATA_EDIT['PATH'] = theme_path
+        theme_path = THEMES_DIR / CONFIG_DATA['config']['THEME']
+        logger.info("Loading edit theme %s from %s" % (CONFIG_DATA['config']['THEME'], theme_path / "theme.yaml"))
+        THEME_DATA_EDIT = load_yaml(theme_path / "theme.yaml")
+        THEME_DATA_EDIT['PATH'] = Path(CONFIG_DATA['config']['THEME'])
         THEME_SETTING['PATH'] = None
-    except:
-        logger.error("Theme not found or contains errors!")
+    except Exception as e:
+        logger.error('Load edit theme: ' + str(e))
         try:
             sys.exit(0)
         except:
             os._exit(0)
 
 def load_theme():
-    global THEME_DATA
+    global THEME_DATA,CURRENT_THEME_PATH
     try:
-        theme_path = "res/themes/" + CONFIG_DATA['config']['THEME'] + "/"
-        logger.info("Loading theme %s from %s" % (CONFIG_DATA['config']['THEME'], theme_path + "theme.yaml"))
-        THEME_DATA = load_yaml(theme_path + "theme.yaml")
-        THEME_DATA['PATH'] = theme_path
-    except:
-        logger.error("Theme not found or contains errors!")
+        theme_path = THEMES_DIR / CONFIG_DATA['config']['THEME']
+        logger.info("Loading theme %s from %s" % (CONFIG_DATA['config']['THEME'], theme_path / "theme.yaml"))
+        THEME_DATA = load_yaml(theme_path / "theme.yaml")
+        THEME_DATA['PATH'] = Path(CONFIG_DATA['config']['THEME'])
+        CURRENT_THEME_PATH = theme_path
+    except Exception as e:
+        logger.error('Load theme: ' + str(e))
         try:
             sys.exit(0)
         except:
             os._exit(0)
-
     copy_default(THEME_DEFAULT, THEME_DATA)
 
 def load_edit(edit):
@@ -88,13 +117,14 @@ def load_edit(edit):
     copy_default(THEME_DEFAULT, THEME_DATA)
 
 def save_to_file(edit):
-    theme_path = "res/themes/" + CONFIG_DATA['config']['THEME'] + "/"
-    yaml_path = theme_path + 'theme.yaml'
+    theme_path = THEMES_DIR / CONFIG_DATA['config']['THEME']
+    yaml_path = theme_path / 'theme.yaml'
     import copy
     save = copy.deepcopy(edit)
     del save['PATH']
+    yaml = ruamel.yaml.YAML()
     with open(yaml_path, 'w' ,encoding='utf-8') as file:  
-        yaml.dump(save, file, allow_unicode=True)
+        yaml.dump(save, file)
 
 def check_theme_compatible(display_size: str):
     global THEME_DATA
@@ -107,6 +137,23 @@ def check_theme_compatible(display_size: str):
         except:
             os._exit(0)
 
+def get_theme_file_path(name):
+    global CURRENT_THEME_PATH
+    if name:
+        return CURRENT_THEME_PATH / name
+    else:
+        return None
+
+def get_font_path(name):
+    global FONTS_DIR
+    if name:
+        return FONTS_DIR / name
+    else:
+        return Path("res/fonts/roboto-mono/RobotoMono-Regular.ttf")
+
+# Load config on import
+load_config()
+# Load theme edit on import
 load_theme_edit()
 # Load theme on import
 load_theme()

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2025-01-16 23:32+0800\n"
-"PO-Revision-Date: 2025-02-25 21:26+0800\n"
+"PO-Revision-Date: 2025-03-23 14:32+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -181,7 +181,7 @@ msgstr "Author: "
 
 #: .\configure.py:827
 msgid "Theme name already exists."
-msgstr "テーマ名がすでに使われています"
+msgstr "テーマ名がすでに使われています。"
 
 #: .\configure.py:788
 msgid "Cancel"
@@ -215,3 +215,63 @@ msgstr "テーマフォルダ"
 
 msgid "Copy theme"
 msgstr "テーマコピー"
+
+msgid "Ping & Weather"
+msgstr "Ping & 天気"
+
+msgid "Ping & Weather Configure"
+msgstr "Ping & 天気設定"
+
+msgid "Hostname / IP to ping"
+msgstr "Hostname / IP to ping"
+
+msgid "Weather forecast (OpenWeatherMap API)"
+msgstr "天気予報（OpenWeatherMap API）"
+
+msgid ""
+"To display weather forecast on themes that support it, you need an OpenWeatherMap API key.\n"
+"It use \"Current weather data api\": https://openweathermap.org/current .\n"
+"You will get 1,000 API calls per day for free. This program is configured to stay under this threshold (~300 calls/day)."
+msgstr ""
+"天気予報をサポートするテーマで表示するには、OpenWeatherMap APIキーが必要です。\n"
+"利用するには「Current weather data api」：https://openweathermap.org/current。\n"
+"1日1000件のAPI呼び出しが無料で可能です。プログラムはこの閾値以下(約300回/日)に設定されます。"
+
+msgid "Click here to Create an OpenWeatherMap Account."
+msgstr "こちらをクリックしてOpenWeatherMapアカウントを作成してください。"
+
+msgid "You can use online services to get your latitude/longitude e.g. latlong.net (click here)"
+msgstr "オンラインサービスを利用して緯度と経度を取得することができます。例えば、latlong.net（ここをクリック）です。"
+
+msgid "Latitude"
+msgstr "緯度"
+
+msgid "Longitude"
+msgstr "経度"
+
+msgid "Get via IP"
+msgstr "IPを介して取得"
+
+msgid "Units"
+msgstr "単位"
+
+msgid "Language"
+msgstr "言語"
+
+msgid "Test Ping"
+msgstr "テストPing"
+
+msgid "Test API"
+msgstr "テストAPI"
+
+msgid "Workspace Settings"
+msgstr "ワークスペースの設定"
+
+msgid "Themes Folder:"
+msgstr "テーマフォルダ:"
+
+msgid "Select Folder"
+msgstr "フォルダーを選択"
+
+msgid "Fonts Folder:"
+msgstr "フォントフォルダー:"

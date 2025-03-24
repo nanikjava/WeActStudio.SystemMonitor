@@ -64,7 +64,7 @@ msgid "Confirm"
 msgstr ""
 
 #: .\theme-editor.py:825
-msgid "Select the font in the res/fonts/"
+msgid "Select the font in the fonts_dir/"
 msgstr ""
 
 #: .\theme-editor.py:829

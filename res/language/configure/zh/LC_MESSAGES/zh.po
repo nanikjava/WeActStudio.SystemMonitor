@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2024-09-14 23:32+0800\n"
-"PO-Revision-Date: 2024-10-27 12:52+0800\n"
+"PO-Revision-Date: 2025-03-23 14:32+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -214,4 +214,62 @@ msgstr "主题目录"
 
 msgid "Copy theme"
 msgstr "复制主题"
+
+msgid "Ping & Weather"
+msgstr "Ping & 天气"
+
+msgid "Ping & Weather Configure"
+msgstr "Ping & 天气 配置"
+
+msgid "Hostname / IP to ping"
+msgstr "需要ping的主机名或IP地址"
+
+msgid "Weather forecast (OpenWeatherMap API)"
+msgstr "天气预报 (OpenWeatherMap API)"
+
+msgid "To display weather forecast on themes that support it, you need an OpenWeatherMap API key.\n"
+"It use \"Current weather data api\": https://openweathermap.org/current .\n"
+"You will get 1,000 API calls per day for free. This program is configured to stay under this threshold (~300 calls/day)."
+msgstr "要在支持它的主题上显示天气预报，你需要一个OpenWeatherMap API密钥。\n"
+"它使用\"Current weather data api\": https://openweathermap.org/current .\n"
+"你每天将免费获得1,000个API调用。这个程序被配置为保持在这个阈值以下（~300个调用/天）。"
+
+msgid "Click here to Create an OpenWeatherMap Account."
+msgstr "点击这里创建一个 OpenWeatherMap 帐户。"
+
+msgid "You can use online services to get your latitude/longitude e.g. latlong.net (click here)"
+msgstr "你可以使用在线服务获取你的经纬度，例如latlong.net（点击这里）"
+
+msgid "Latitude"
+msgstr "纬度"
+
+msgid "Longitude"
+msgstr "经度"
+
+msgid "Get via IP"
+msgstr "通过IP获取"
+
+msgid "Units"
+msgstr "单位"
+
+msgid "Language"
+msgstr "语言"
+
+msgid "Test Ping"
+msgstr "测试Ping"
+
+msgid "Test API"
+msgstr "测试API"
+
+msgid "Workspace Settings"
+msgstr "工作区设置"
+
+msgid "Themes Folder:"
+msgstr "主题目录:"
+
+msgid "Select Folder"
+msgstr "选择目录"
+
+msgid "Fonts Folder:"
+msgstr "字体目录:"
 

@@ -21,6 +21,7 @@ from io import BytesIO
 
 from library.lcd.lcd_comm import *
 
+screenshot_lock = threading.Lock()
 SCREENSHOT_FILE = BytesIO()  
 WEBSERVER_PORT = 5678
 
@@ -35,31 +36,79 @@ class SimulatedLcdWebServer(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(bytes("<img src=\"" + "image" + "\" id=\"myImage\" />", "utf-8"))
+            self.wfile.write(bytes("""
+            <style>
+                body {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    background-color: #f4f4f4;
+                }
+                #setBlackBtn {
+                    padding: 12px 24px;
+                    font-size: 16px;
+                    border: none;
+                    border-radius: 8px;
+                    background-color: #007BFF;
+                    color: white;
+                    cursor: pointer;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease;
+                }
+                #setBlackBtn:hover {
+                    background-color: #0056b3;
+                    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+                }
+            </style>
+            """, "utf-8"))
+            self.wfile.write(bytes("<body>", "utf-8"))
+            self.wfile.write(bytes("<img src=\"image\" id=\"myImage\" onerror=\"this.src=''; this.alt='Get Fail';\" />", "utf-8"))
+            self.wfile.write(bytes("<button id='setBlackBtn' style='margin-top: 20px;'>Set Background to Black</button>", "utf-8"))
             self.wfile.write(bytes("<script>", "utf-8"))
-            self.wfile.write(bytes("setInterval(function() {", "utf-8"))
-            self.wfile.write(bytes("    var myImageElement = document.getElementById('myImage');", "utf-8"))
-            self.wfile.write(bytes("    myImageElement.src = '" + "image" + "?rand=' + Math.random();", "utf-8"))
-            self.wfile.write(bytes("}, 250);", "utf-8"))
+            js_code = """
+            let isBlack = false;
+            const button = document.getElementById('setBlackBtn');
+            button.addEventListener('click', function() {
+                if (isBlack) {
+                    document.body.style.backgroundColor = 'white';
+                    isBlack = false;
+                    button.textContent = 'Set Background to Black';
+                } else {
+                    document.body.style.backgroundColor = 'black';
+                    isBlack = true;
+                    button.textContent = 'Set Background to White';
+                }
+            });
+            setInterval(function() {
+                var myImageElement = document.getElementById('myImage');
+                myImageElement.src = `image?rand=${Math.random()}`;
+            }, 250);
+            """
+            self.wfile.write(bytes(js_code, "utf-8"))
             self.wfile.write(bytes("</script>", "utf-8"))
+            self.wfile.write(bytes("</body>", "utf-8"))
         elif self.path.startswith("/" + "image"):
             self.send_response(200)
             self.send_header('Content-type', 'image/png')
             self.end_headers()
-            SCREENSHOT_FILE.seek(0)
-            self.wfile.write(SCREENSHOT_FILE.getvalue())
+            with screenshot_lock:
+                SCREENSHOT_FILE.seek(0)
+                self.wfile.write(SCREENSHOT_FILE.getvalue())
 
 
 # Simulated display: write on a file instead of serial port
 class LcdSimulated(LcdComm):
     def __init__(self, com_port: str = "AUTO", display_width: int = 320, display_height: int = 480,
                  update_queue: queue.Queue = None):
-        self.tmp = BytesIO()  
         LcdComm.__init__(self, com_port, display_width, display_height, update_queue)
         self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (0, 0, 0))
-        self.screen_image.save(self.tmp, "PNG")
-        self.tmp.seek(0)
-        self.screen_image.save(SCREENSHOT_FILE, "PNG")
+        with screenshot_lock:
+            SCREENSHOT_FILE.truncate(0)
+            SCREENSHOT_FILE.seek(0)
+            self.screen_image.save(SCREENSHOT_FILE, "PNG")
         self.orientation = Orientation.PORTRAIT
 
         try:
@@ -92,9 +141,10 @@ class LcdSimulated(LcdComm):
     def Full(self,color: Tuple[int, int, int] = (0, 0, 0)):
         with self.update_queue_mutex:
             self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), color)
-            self.screen_image.save(self.tmp, "PNG")
-            self.tmp.seek(0)
-            self.screen_image.save(SCREENSHOT_FILE, "PNG")
+            with screenshot_lock:
+                SCREENSHOT_FILE.truncate(0)
+                SCREENSHOT_FILE.seek(0)
+                self.screen_image.save(SCREENSHOT_FILE, "PNG")
 
     def ScreenOff(self):
         pass
@@ -113,13 +163,14 @@ class LcdSimulated(LcdComm):
         # Just draw the screen again with the new width/height based on orientation
         with self.update_queue_mutex:
             self.screen_image = Image.new("RGB", (self.get_width(), self.get_height()), (0, 0, 0))
-            self.screen_image.save(self.tmp, "PNG")
-            self.tmp.seek(0)
-            self.screen_image.save(SCREENSHOT_FILE, "PNG")
+            with screenshot_lock:
+                SCREENSHOT_FILE.truncate(0)
+                SCREENSHOT_FILE.seek(0)
+                self.screen_image.save(SCREENSHOT_FILE, "PNG")
 
     def DisplayPILImage(
             self,
-            image: Image,
+            image: Image.Image,
             x: int = 0, y: int = 0,
             image_width: int = 0,
             image_height: int = 0
@@ -144,7 +195,10 @@ class LcdSimulated(LcdComm):
         assert y + image_height <= self.get_height(), f'Display Bitmap height exceeds display height {self.get_height()}'
 
         with self.update_queue_mutex:
+            if image.mode != "RGB":
+                image = image.convert("RGB")
             self.screen_image.paste(image, (x, y))
-            self.screen_image.save(self.tmp, "PNG")
-            self.tmp.seek(0)
-            self.screen_image.save(SCREENSHOT_FILE, "PNG")
+            with screenshot_lock:
+                SCREENSHOT_FILE.truncate(0)
+                SCREENSHOT_FILE.seek(0)
+                self.screen_image.save(SCREENSHOT_FILE, "PNG")

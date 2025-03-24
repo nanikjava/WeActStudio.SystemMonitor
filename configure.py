@@ -40,9 +40,12 @@ try:
     import tkinter.ttk as ttk
     import tkinter
     from tkinter import messagebox
+    from tkinter import filedialog
     from PIL import ImageTk
     from pathlib import Path
+    import geocoder
 except:
+    print("[ERROR] Python dependencies not installed.")
     try:
         sys.exit(0)
     except:
@@ -58,6 +61,7 @@ try:
     from tktooltip import ToolTip
 
 except:
+    print("[ERROR] Python dependencies not installed.")
     try:
         sys.exit(0)
     except:
@@ -130,35 +134,51 @@ hw_lib_map = {
 }
 reverse_map = {False: _("Classic"), True: _("Reverse")}
 
-themes_dir = "res/themes"
+class get_theme:
+    def __init__(self, path):
+        self.path = path
 
+    def get_theme_data(self, name: str):
+        # Use Path object methods consistently
+        dir_path = self.path / name
+        # Check if it is a directory
+        if dir_path.is_dir():
+            # Check if a theme.yaml file exists
+            theme_path = dir_path / "theme.yaml"
+            if theme_path.is_file():
+                try:
+                    # Get display size from theme.yaml
+                    with theme_path.open("rt", encoding="utf8") as stream:
+                        theme_data, ind, bsi = ruamel.yaml.util.load_yaml_guess_indent(stream)
+                        return theme_data
+                except Exception as e:
+                    # You can add more specific exception handling as needed
+                    print(f"Error reading theme.yaml: {e}")
+        return None
 
-def get_theme_data(name: str):
-    dir = os.path.join(themes_dir, name)
-    # checking if it is a directory
-    if os.path.isdir(dir):
-        # Check if a theme.yaml file exists
-        theme = os.path.join(dir, "theme.yaml")
-        if os.path.isfile(theme):
-            # Get display size from theme.yaml
-            with open(theme, "rt", encoding="utf8") as stream:
-                theme_data, ind, bsi = ruamel.yaml.util.load_yaml_guess_indent(stream)
-                return theme_data
-    return None
+    def get_themes(self, size: str):
+        themes = []
+        themes_path = self.path
+        # Iterate over all items in the themes directory
+        for item in themes_path.iterdir():
+            if item.is_dir():
+                try:
+                    theme_data = self.get_theme_data(item.name)
+                    # Check if theme data exists and the display size matches
+                    if theme_data and theme_data["display"].get("DISPLAY_SIZE", SIZE_1) == size:
+                        themes.append(item.name)
+                except (KeyError, TypeError):
+                    # Handle cases where theme data is missing or malformed
+                    continue
+        return sorted(themes, key=str.casefold)
 
-
-def get_themes(size: str):
-    themes = []
-    for filename in os.listdir(themes_dir):
-        theme_data = get_theme_data(filename)
-        if theme_data and theme_data["display"].get("DISPLAY_SIZE", SIZE_1) == size:
-            themes.append(filename)
-    return sorted(themes, key=str.casefold)
-
-
-def get_theme_size(name: str) -> str:
-    theme_data = get_theme_data(name)
-    return theme_data["display"].get("DISPLAY_SIZE", SIZE_1)
+    def get_theme_size(self, name: str) -> str:
+        try:
+            theme_data = self.get_theme_data(name)
+            return theme_data["display"].get("DISPLAY_SIZE", SIZE_1)
+        except (KeyError, TypeError):
+            # Handle cases where theme data is missing or malformed
+            return None
 
 
 def get_com_ports():
@@ -198,7 +218,6 @@ def get_fans():
     )  # Add manual entry on top if auto-detection succeeded
     return fan_list
 
-
 class ConfigWindow:
     def __init__(self):
 
@@ -207,152 +226,160 @@ class ConfigWindow:
 
         self.window = tkinter.Tk()
         self.window.title(_("WeAct Studio System Monitor Configuration"))
-        self.window.geometry("770x600")
+        # self.window.geometry("770x600")
 
-        # When window gets focus again, reload theme preview in case it has been updated by theme editor
-        self.window.bind("<FocusIn>", self.on_theme_change)
-        self.window.after(0, self.on_fan_speed_update)
-        self.window.resizable(False, False)
-        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.window.iconphoto(True, tkinter.PhotoImage(file="res/icons/logo.png"))
         # Make TK look better with Sun Valley ttk theme
-        # sv_ttk.set_theme("light")
-
+        sv_ttk.set_theme("light")
+        
         self.theme_preview_img = None
-        self.theme_preview = ttk.Label(self.window)
-        self.theme_preview.place(x=10, y=10)
 
-        self.theme_author = ttk.Label(self.window)
+        # Theme preview
+        self.theme_preview_frame = tkinter.Frame(self.window)
+        self.theme_preview_frame.grid(row=0, column=0, rowspan=5, columnspan=2, padx=10, pady=10,sticky="n")
+        self.theme_preview = ttk.Label(self.theme_preview_frame)
+        self.theme_preview.grid(row=0, column=0, rowspan=4, columnspan=2, padx=5, pady=5)
+        self.theme_author = ttk.Label(self.theme_preview_frame)
+        self.theme_author.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="w")
+
+        # Display configuration
+        self.display_config_frame = tkinter.Frame(self.window)
+        self.display_config_frame.grid(row=0, column=2, columnspan=3, padx=10, pady=10,sticky="nw")
 
         sysmon_label = ttk.Label(
-            self.window, text=_("Display configuration"), font=("Arial", 13, "bold")
+            self.display_config_frame, text=_("Display configuration"), font=("Arial", 13, "bold")
         )
-        sysmon_label.place(x=320, y=5)
+        sysmon_label.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="w")
 
-        self.model_label = ttk.Label(self.window, text=_("Screen model"))
-        self.model_label.place(x=320, y=35)
+        self.model_label = ttk.Label(self.display_config_frame, text=_("Screen model"))
+        self.model_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
         self.model_cb = ttk.Combobox(
-            self.window,
+            self.display_config_frame,
             values=list(dict.fromkeys((revision_to_model_map.values()))),
             state="readonly",
         )
         self.model_cb.bind("<<ComboboxSelected>>", self.on_model_change)
-        self.model_cb.place(x=500, y=30, width=250)
+        self.model_cb.grid(row=1, column=1, columnspan=2, padx=5, pady=5, sticky="w"+"e")
 
-        self.size_label = ttk.Label(self.window, text=_("Screen size"))
-        self.size_label.place(x=320, y=75)
+        self.size_label = ttk.Label(self.display_config_frame, text=_("Screen size"))
+        self.size_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
         self.size_select_label = ttk.Label(
-            self.window,
+            self.display_config_frame,
             text=model_to_size_map[WEACT_A_MODEL],
             font=("Arial", 12, "bold"),
         )
-        self.size_select_label.place(x=500, y=72, width=250)
+        self.size_select_label.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="w")
 
-        self.com_label = ttk.Label(self.window, text=_("COM port"))
-        self.com_label.place(x=320, y=115)
+        self.com_label = ttk.Label(self.display_config_frame, text=_("COM port"))
+        self.com_label.grid(row=3, column=0, padx=5, pady=5, sticky="w")
         self.com_cb = ttk.Combobox(
-            self.window, values=get_com_ports(), state="readonly"
+            self.display_config_frame, values=get_com_ports(), state="readonly"
         )
-        self.com_cb.place(x=500, y=112, width=150)
+        self.com_cb.grid(row=3, column=1, padx=5, pady=5, sticky="w"+"e")
         self.com_refresh_button = ttk.Button(
-            self.window, text=_("Refresh"), command=lambda: self.on_com_refresh_button()
+            self.display_config_frame, text=_("Refresh"), command=lambda: self.on_com_refresh_button()
         )
-        self.com_refresh_button.place(x=660, y=110, width=90)
+        self.com_refresh_button.grid(row=3, column=2, padx=5, pady=5, sticky="w")
 
-        self.orient_label = ttk.Label(self.window, text=_("Orientation"))
-        self.orient_label.place(x=320, y=155)
+        self.orient_label = ttk.Label(self.display_config_frame, text=_("Orientation"))
+        self.orient_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")
         self.orient_cb = ttk.Combobox(
-            self.window, values=list(reverse_map.values()), state="readonly"
+            self.display_config_frame, values=list(reverse_map.values()), state="readonly"
         )
-        self.orient_cb.place(x=500, y=150, width=250)
+        self.orient_cb.grid(row=4, column=1, columnspan=2, padx=5, pady=5, sticky="w"+"e")
 
         self.brightness_string = tkinter.StringVar()
-        self.brightness_label = ttk.Label(self.window, text=_("Brightness"))
-        self.brightness_label.place(x=320, y=195)
+        self.brightness_label = ttk.Label(self.display_config_frame, text=_("Brightness"))
+        self.brightness_label.grid(row=5, column=0, padx=5, pady=5, sticky="w")
+        self.brightness_slider_frame = tkinter.Frame(self.display_config_frame)
+        self.brightness_slider_frame.grid(row=5, column=1, columnspan=2, sticky="w"+"e")
+        self.brightness_slider_frame.columnconfigure(1, weight=1)
         self.brightness_slider = ttk.Scale(
-            self.window,
+            self.brightness_slider_frame,
             from_=0,
             to=100,
             orient=tkinter.HORIZONTAL,
             command=self.on_brightness_change,
         )
-        self.brightness_slider.place(x=550, y=195, width=180)
+        self.brightness_slider.grid(row=0, column=1, padx=5, pady=5, sticky="w"+"e")
         self.brightness_val_label = ttk.Label(
-            self.window, textvariable=self.brightness_string
+            self.brightness_slider_frame, textvariable=self.brightness_string
         )
-        self.brightness_val_label.place(x=500, y=195)
+        self.brightness_val_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.live_display_bool_var = tkinter.BooleanVar()
         self.live_display_bool_var.set(False)
         self.live_display_checkbox = ttk.Checkbutton(
-            self.window,
+            self.display_config_frame,
             text=_("Theme Preview, Auto Save"),
             variable=self.live_display_bool_var,
         )
-        self.live_display_checkbox.place(x=500, y=228)
+        self.live_display_checkbox.grid(row=6, column=1, columnspan=2, padx=5, sticky="w")
 
         self.other_setting_button = ttk.Button(
-            self.window,
+            self.display_config_frame,
             text=_("Other Config"),
             command=lambda: self.on_display_other_config_click(),
         )
-        self.other_setting_button.place(x=320, y=225)
+        self.other_setting_button.grid(row=6, column=0, padx=5, sticky="w"+"e")
 
         self.free_off_bool_var = tkinter.BooleanVar()
         self.free_off_bool_var.set(False)
         self.free_off_checkbox = ttk.Checkbutton(
-            self.window,
+            self.display_config_frame,
             text=_("Free Off(3 min)"),
             variable=self.free_off_bool_var,
         )
-        self.free_off_checkbox.place(x=500, y=258)
+        self.free_off_checkbox.grid(row=7, column=1, columnspan=2, padx=5, sticky="w")
 
         # System Monitor Configuration
+        self.system_monitor_frame = tkinter.Frame(self.window)
+        self.system_monitor_frame.columnconfigure(1, weight=1)
+        self.system_monitor_frame.grid(row=1, column=2, columnspan=3, padx=10, pady=10,sticky="nwe")
         sysmon_label = ttk.Label(
-            self.window, text=_("System Monitor Configuration"), font=("Arial", 13, "bold")
+            self.system_monitor_frame, text=_("System Monitor Configuration"), font=("Arial", 13, "bold")
         )
-        sysmon_label.place(x=320, y=295)
+        sysmon_label.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="w")
 
-        self.theme_label = ttk.Label(self.window, text=_("Theme"))
-        self.theme_label.place(x=320, y=330)
-        self.theme_cb = ttk.Combobox(self.window, state="readonly")
-        self.theme_cb.place(x=400, y=325, width=250)
+        self.theme_label = ttk.Label(self.system_monitor_frame, text=_("Theme"))
+        self.theme_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        self.theme_cb = ttk.Combobox(self.system_monitor_frame, state="readonly")
+        self.theme_cb.grid(row=1, column=1, columnspan=1, padx=5, pady=5, sticky="w"+"e")
         self.theme_cb.bind("<<ComboboxSelected>>", self.on_theme_change)
         self.theme_refresh_button = ttk.Button(
-            self.window, text=_("Refresh"), command=lambda: self.on_model_change()
+            self.system_monitor_frame, text=_("Refresh"), command=lambda: self.on_model_change()
         )
-        self.theme_refresh_button.place(x=660, y=325, width=90)
+        self.theme_refresh_button.grid(row=1, column=2, padx=5, pady=5, sticky="w")
 
-        self.hwlib_label = ttk.Label(self.window, text=_("Hardware monitoring"))
-        self.hwlib_label.place(x=320, y=370)
+        self.hwlib_label = ttk.Label(self.system_monitor_frame, text=_("Hardware monitoring"))
+        self.hwlib_label.grid(row=2, column=0, padx=5, pady=5, sticky="w")
         if sys.platform != "win32":
             del hw_lib_map["LHM"]  # LHM is for Windows platforms only
         self.hwlib_cb = ttk.Combobox(
-            self.window, values=list(hw_lib_map.values()), state="readonly"
+            self.system_monitor_frame, values=list(hw_lib_map.values()), state="readonly"
         )
-        self.hwlib_cb.place(x=500, y=365, width=250)
+        self.hwlib_cb.grid(row=2, column=1, columnspan=2, padx=5, pady=5, sticky="w"+"e")
         self.hwlib_cb.bind("<<ComboboxSelected>>", self.on_hwlib_change)
 
-        self.eth_label = ttk.Label(self.window, text=_("Ethernet interface"))
-        self.eth_label.place(x=320, y=410)
-        self.eth_cb = ttk.Combobox(self.window, values=get_net_if(), state="readonly")
-        self.eth_cb.place(x=500, y=405, width=250)
+        self.eth_label = ttk.Label(self.system_monitor_frame, text=_("Ethernet interface"))
+        self.eth_label.grid(row=3, column=0, padx=5, pady=5, sticky="w")
+        self.eth_cb = ttk.Combobox(self.system_monitor_frame, values=get_net_if(), state="readonly")
+        self.eth_cb.grid(row=3, column=1, columnspan=2, padx=5, pady=5, sticky="w"+"e")
 
-        self.wl_label = ttk.Label(self.window, text=_("Wi-Fi interface"))
-        self.wl_label.place(x=320, y=450)
-        self.wl_cb = ttk.Combobox(self.window, values=get_net_if(), state="readonly")
-        self.wl_cb.place(x=500, y=445, width=250)
+        self.wl_label = ttk.Label(self.system_monitor_frame, text=_("Wi-Fi interface"))
+        self.wl_label.grid(row=4, column=0, padx=5, pady=5, sticky="w")
+        self.wl_cb = ttk.Combobox(self.system_monitor_frame, values=get_net_if(), state="readonly")
+        self.wl_cb.grid(row=4, column=1, columnspan=2, padx=5, pady=5, sticky="w"+"e")
 
         # For Windows platform only
         self.lhm_admin_warning = ttk.Label(
-            self.window,
+            self.system_monitor_frame,
             text="❌ " + _("Restart as admin. or select another Hardware monitoring"),
             foreground="#f00",
         )
         # For platform != Windows
-        self.cpu_fan_label = ttk.Label(self.window, text="CPU fan (？)")
+        self.cpu_fan_label = ttk.Label(self.system_monitor_frame, text="CPU fan (？)")
         self.cpu_fan_label.config(foreground="#a3a3ff", cursor="hand2")
-        self.cpu_fan_cb = ttk.Combobox(self.window, values=get_fans(), state="readonly")
+        self.cpu_fan_cb = ttk.Combobox(self.system_monitor_frame, values=get_fans(), state="readonly")
 
         self.tooltip = ToolTip(
             self.cpu_fan_label,
@@ -361,49 +388,6 @@ class ConfigWindow:
             "Fans missing from the list? Install lm-sensors package\n"
             "and run 'sudo sensors-detect' command, then reboot.",
         )
-
-        self.edit_theme_btn = ttk.Button(
-            self.window, text=_("Edit theme"), command=lambda: self.on_theme_editor_click()
-        )
-        self.edit_theme_btn.place(x=310, y=540, height=50, width=130)
-
-        self.save_btn = ttk.Button(
-            self.window, text=_("Save settings"), command=lambda: self.on_save_click()
-        )
-        self.save_btn.place(x=450, y=540, height=50, width=130)
-
-        self.save_run_btn = ttk.Button(
-            self.window, text=_("Save and run"), command=lambda: self.on_saverun_click()
-        )
-        self.save_run_btn.place(x=590, y=540, height=50, width=130)
-
-        self.new_theme_btn = ttk.Button(
-            self.window,
-            text=_("New theme"),
-            command=lambda: self.on_new_theme_editor_click(),
-        )
-        self.new_theme_btn.place(x=170, y=540, height=50, width=130)
-
-        self.delete_theme_btn = ttk.Button(
-            self.window,
-            text=_("Delete theme"),
-            command=lambda: self.on_delete_theme_click(),
-        )
-        self.delete_theme_btn.place(x=30, y=540, height=50, width=130)
-
-        self.theme_dir_btn = ttk.Button(
-            self.window,
-            text=_("Theme dir"),
-            command=lambda: self.on_theme_dir_click(),
-        )
-        self.theme_dir_btn.place(x=30, y=480, height=50, width=130)
-
-        self.copy_theme_btn = ttk.Button(
-            self.window,
-            text=_("Copy theme"),
-            command=lambda: self.on_copy_theme_editor_click(),
-        )
-        self.copy_theme_btn.place(x=170, y=480, height=50, width=130)
 
         if platform.system() == "Windows":
             import ctypes
@@ -425,20 +409,102 @@ class ConfigWindow:
                     print(f"error schedule task path {schedule_task_path_get}")
                     schedule_service.delete_task(self.schedule_task_name)
                     schedule_task_exist = False
-                self.bootstrap_label = ttk.Label(self.window, text=_("Bootstrap"))
-                self.bootstrap_label.place(x=320, y=490)
+                self.bootstrap_label = ttk.Label(self.system_monitor_frame, text=_("Bootstrap"))
+                self.bootstrap_label.grid(row=6, column=0, padx=5, pady=5, sticky="w")
                 self.bootstrap_checkbutton_var = tkinter.IntVar()
                 self.bootstrap_checkbutton_var.set(schedule_task_exist)
                 self.bootstrap_checkbutton = ttk.Checkbutton(
-                    self.window,
+                    self.system_monitor_frame,
                     text=_("Enable"),
                     variable=self.bootstrap_checkbutton_var,
                     command=self.on_bootstrap_checkbutton_toggle,
                 )
-                self.bootstrap_checkbutton.place(x=500, y=485)
+                self.bootstrap_checkbutton.grid(row=6, column=1, columnspan=2, padx=5, pady=5, sticky="w")
+        
+        self.button_frame = tkinter.Frame(self.window)
+        for i in range(5):
+            self.button_frame.columnconfigure(i, weight=1)
+        self.button_frame.grid(row=5, column=0, columnspan=5, padx=10, pady=10, sticky="ew")
+        
+        self.edit_theme_btn = ttk.Button(
+            self.button_frame, text=_("Edit theme"), command=lambda: self.on_theme_editor_click()
+        )
+        self.edit_theme_btn.grid(row=1, column=2, padx=5, pady=5, sticky="nsew", ipady=10)
+
+        self.new_theme_btn = ttk.Button(
+            self.button_frame,
+            text=_("New theme"),
+            command=lambda: self.on_new_theme_editor_click(),
+        )
+        self.new_theme_btn.grid(row=1, column=1, padx=5, pady=5, sticky="nsew", ipady=10)
+
+        self.delete_theme_btn = ttk.Button(
+            self.button_frame,
+            text=_("Delete theme"),
+            command=lambda: self.on_delete_theme_click(),
+        )
+        self.delete_theme_btn.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.theme_dir_btn = ttk.Button(
+            self.button_frame,
+            text=_("Theme dir"),
+            command=lambda: self.on_theme_dir_click(),
+        )
+        self.theme_dir_btn.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.copy_theme_btn = ttk.Button(
+            self.button_frame,
+            text=_("Copy theme"),
+            command=lambda: self.on_copy_theme_editor_click(),
+        )
+        self.copy_theme_btn.grid(row=0, column=1, padx=5, pady=5, sticky="nsew", ipady=10)
+
+        self.workspace_settings_btn = ttk.Button(
+            self.button_frame,
+            text=_("Workspace Settings"),
+            command=lambda: self.on_workspace_settings_click()
+        )
+        self.workspace_settings_btn.grid(row=0, column=2, padx=5, pady=5, sticky="nsew", ipady=10)
+
+
+        self.weather_ping_btn = ttk.Button(self.button_frame, text=_("Ping & Weather"),
+                                           command=lambda: self.on_weatherping_click())
+        self.weather_ping_btn.grid(row=0, column=3, padx=5, pady=5, sticky="nsew", ipady=10)
+
+        self.save_btn = ttk.Button(
+            self.button_frame, text=_("Save settings"), command=lambda: self.on_save_click()
+        )
+        self.save_btn.grid(row=1, column=3, padx=5, pady=5, sticky="nsew")
+
+        self.save_run_btn = ttk.Button(
+            self.button_frame, text=_("Save and run"), command=lambda: self.on_saverun_click()
+        )
+        self.save_run_btn.grid(row=1, column=4, padx=5, pady=5, sticky="nsew")
 
         self.config = None
+        self.theme_get = None
+        self.themes_dir_path = None
         self.load_config_values()
+
+        # When window gets focus again, reload theme preview in case it has been updated by theme editor
+        self.window.bind("<FocusIn>", self.on_theme_change)
+
+        self.window.after(0, self.on_fan_speed_update)
+        self.window.resizable(False, False)
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+        self.window.iconphoto(True, tkinter.PhotoImage(file="res/icons/logo.png"))
+
+        # Center the window on the screen
+        # self.window.withdraw()
+        # self.window.update()
+        # screen_width = self.window.winfo_screenwidth()
+        # screen_height = self.window.winfo_screenheight()
+        # main_window_width = self.window.winfo_width()
+        # main_window_height = self.window.winfo_height()
+        # x = (screen_width - main_window_width) // 2
+        # y = (screen_height - main_window_height) // 2
+        # self.window.geometry(f"{main_window_width}x{main_window_height}+{x}+{y}")
+        # self.window.deiconify()
 
         self.display_init = False
         self.display_setting_change = True
@@ -455,20 +521,13 @@ class ConfigWindow:
         self.window.mainloop()
 
     def on_closing(self):
+        if self.is_theme_editor_process():
+            return
         self.on_closing_confirm()
 
     def on_closing_confirm(self):
         self.closing_confirm_frame = tkinter.Toplevel(self.window)
         self.closing_confirm_frame.title(_("Close Confirm"))
-        main_window_x = self.window.winfo_x()
-        main_window_y = self.window.winfo_y()
-        main_window_width = self.window.winfo_width()
-        main_window_height = self.window.winfo_height()
-        width = 300
-        height = 100
-        x = main_window_x + (main_window_width // 2) - (width // 2)
-        y = main_window_y + (main_window_height // 2) - (height // 2)
-        self.closing_confirm_frame.geometry(f"{width}x{height}+{x}+{y}")
 
         def on_closing_confirm_frame_closing():
             self.closing_confirm_frame.grab_release()
@@ -484,7 +543,7 @@ class ConfigWindow:
             self.closing_confirm_frame, text=_("Do you want to run theme?")
         )
         self.closing_confirm_label.pack(
-            side=tkinter.TOP, padx=5, pady=10, anchor=tkinter.W
+            side=tkinter.TOP, padx=5, pady=10, ipadx=50, anchor=tkinter.W
         )
 
         def on_closing_confirm_frame_no():
@@ -502,6 +561,20 @@ class ConfigWindow:
             self.closing_confirm_frame, text=_("NO"), command=on_closing_confirm_frame_no
         )
         cancel_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
+
+        self.closing_confirm_frame.withdraw()
+        self.closing_confirm_frame.update()
+        main_window_x = self.window.winfo_x()
+        main_window_y = self.window.winfo_y()
+        main_window_width = self.window.winfo_width()
+        main_window_height = self.window.winfo_height()
+        width = self.closing_confirm_frame.winfo_width()
+        height = self.closing_confirm_frame.winfo_height()
+        x = main_window_x + (main_window_width // 2) - (width // 2)
+        y = main_window_y + (main_window_height // 2) - (height // 2)
+        self.closing_confirm_frame.geometry(f"{width}x{height}+{x}+{y}")
+        self.closing_confirm_frame.deiconify()
+
         self.closing_confirm_frame.focus_force()
 
         def on_closing_confirm_frame_ok():
@@ -546,12 +619,10 @@ class ConfigWindow:
 
     def window_refresh(self):
         if self.live_display_bool_var.get() == True:
-            if self.theme_editor_process != None:
-                if self.theme_editor_process.poll() == None:
-                    messagebox.showerror(_("Error"), _("theme editor is running !"))
-                    self.live_display_bool_var.set(False)
-                    self.window.after(self.window_after_time, self.window_refresh)
-                    return
+            if self.is_theme_editor_process():
+                self.live_display_bool_var.set(False)
+                self.window.after(self.window_after_time, self.window_refresh)
+                return
             self.model_cb['state'] = "disabled"
             self.com_cb['state'] = "disabled"
             self.com_refresh_button['state'] = "disabled"
@@ -579,21 +650,31 @@ class ConfigWindow:
 
                     self.scheduler = scheduler
                     self.display = display
-                    print("Open Display LCD Serial")
+                    
                     self.on_com_refresh_button()
                     if self.com_cb.current() == 0:
                         self.display.lcd.com_port = "AUTO"
                     else:
                         self.display.lcd.com_port = self.com_cb.get()
-                    self.display.lcd.openSerial()
-                        
-                    print("Initialize display")
-                    self.display.initialize_display()
-                    print("Enable QueueHandler")
-                    self.scheduler.STOPPING = False
-                    self.scheduler.QueueHandler()
-                    print("display_init Ok")
-                    self.display_init = True
+                    if display.lcd.lcd_serial == None or display.lcd.lcd_serial.is_open == False:
+                        print("Open Display LCD Serial")
+                        r = self.display.lcd.openSerial()
+                    else:
+                        print("Reopen Display LCD Serial")
+                        self.display.lcd.closeSerial()
+                        r = self.display.lcd.openSerial()
+                    if not r:
+                        messagebox.showerror(_("Error"), _("Error: ") + f'Serial Open Failed')
+                        self.live_display_bool_var.set(False)
+                        self.display_init = False
+                    else:
+                        print("Initialize display")
+                        self.display.initialize_display()
+                        print("Enable QueueHandler")
+                        self.scheduler.STOPPING = False
+                        self.scheduler.QueueHandler()
+                        print("display_init Ok")
+                        self.display_init = True
                 except Exception as e:
                     traceback.print_exc()
                     messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
@@ -621,13 +702,13 @@ class ConfigWindow:
                         if self.theme_setting_change == True:
                             try:
                                 theme_preview = Image.open(
-                                    "res/themes/" + self.theme_cb.get() + "/preview.png"
+                                    Path(self.themes_dir_path) / self.theme_cb.get() / "preview.png"
                                 )
                                 print("Show preview.png")
                             except:
                                 theme_preview = Image.open("res/configs/no-preview.png")
                                 print("Show no-preview.png")
-                            theme_data = get_theme_data(self.theme_cb.get())
+                            theme_data = self.theme_get.get_theme_data(self.theme_cb.get())
                             print("display.lcd.SetOrientation")
                             d_o = theme_data.get("display")
                             if d_o["DISPLAY_ORIENTATION"] == "portrait":
@@ -688,23 +769,28 @@ class ConfigWindow:
         if self.theme_cb.get() != "":
             try:
                 theme_preview = Image.open(
-                    "res/themes/" + self.theme_cb.get() + "/preview.png"
+                    Path(self.themes_dir_path) / self.theme_cb.get() / "preview.png"
                 )
-            except:
-                theme_preview = Image.open("res/configs/no-preview.png")
+            except Exception as e:
+                traceback.print_exc()
+                theme_preview = Image.open(Path("res/configs/no-preview.png"))
             finally:
-                if theme_preview.width > theme_preview.height:
-                    theme_preview = theme_preview.resize(
-                        (300, 200), Image.Resampling.LANCZOS
-                    )
-                else:
-                    theme_preview = theme_preview.resize(
-                        (280, 420), Image.Resampling.LANCZOS
-                    )
+                # Set the fixed width for the preview image
+                fixed_width = 300
+                # Get the original width and height of the image
+                width, height = theme_preview.size
+                # Calculate the ratio to maintain the aspect ratio
+                ratio = fixed_width / width
+                # Calculate the new height based on the ratio
+                new_height = int(height * ratio)
+                # Resize the image with the fixed width and calculated height
+                theme_preview = theme_preview.resize(
+                    (fixed_width, new_height), Image.Resampling.LANCZOS
+                )
                 self.theme_preview_img = ImageTk.PhotoImage(theme_preview)
                 self.theme_preview.config(image=self.theme_preview_img)
 
-                theme_data = get_theme_data(self.theme_cb.get())
+                theme_data = self.theme_get.get_theme_data(self.theme_cb.get())
                 author_name = theme_data.get("author", "unknown")
                 self.theme_author.config(text=_("Author: ") + author_name)
                 if author_name.startswith("@"):
@@ -718,26 +804,87 @@ class ConfigWindow:
                 else:
                     self.theme_author.config(foreground="#a3a3a3", cursor="")
                     self.theme_author.unbind("<Button-1>")
-                self.theme_author.place(x=10, y=self.theme_preview_img.height() + 15)
+                
 
     def load_config_values(self):
         try:
             with open("config.yaml", "rt", encoding="utf8") as stream:
                 self.config, ind, bsi = ruamel.yaml.util.load_yaml_guess_indent(stream)
-        except:
+        except Exception as e:
+            traceback.print_exc()
+            messagebox.showerror(_("Error"), _("error: ") + f'{e}')
+            self.config = {}
+        # Check if theme is valid
+        if self.config is None:
             self.config = {}
 
-        # Check if theme is valid
+        # Display config
+        # Guess model from revision and size
+        display = self.config.get("display",None)
+        if display is None:
+            print("display config not found!!")
+            self.config["display"] = {}
+        try:
+            revision = self.config["display"]["REVISION"]
+            self.model_cb.set(revision_to_model_map[revision])
+        except:
+            self.model_cb.current(0)
+
+        try:
+            self.orient_cb.set(reverse_map[self.config["display"]["DISPLAY_REVERSE"]])
+        except:
+            self.orient_cb.current(0)
+
+        try:
+            self.brightness_slider.set(int(self.config["display"]["BRIGHTNESS"]))
+        except:
+            self.brightness_slider.set(50)
+
+        try:
+            if self.config["config"]["CPU_FAN"] == "AUTO":
+                self.cpu_fan_cb.current(0)
+            else:
+                self.cpu_fan_cb.set(self.config["config"]["CPU_FAN"])
+        except:
+            self.cpu_fan_cb.current(0)
+
+        try:
+            self.free_off_bool_var.set(self.config["display"].get("FREE_OFF",False))
+        except:
+            self.free_off_bool_var.set(False)
+
+        # Config config
         config = self.config.get("config",None)
         if config is None:
             print("Config not found!!")
             self.config["config"] = {}
-            self.config["config"]["THEME"] = get_themes(SIZE_1)[0]
+
+        fonts_dir_path = self.config["config"].get("FONTS_DIR",None)
+        if fonts_dir_path is None or fonts_dir_path == "":
+            self.config["config"]["FONTS_DIR"] = "res/fonts"
+
+        self.themes_dir_path = self.config["config"].get("THEMES_DIR",None)
+        if self.themes_dir_path is None or self.themes_dir_path == "":
+            self.themes_dir_path = "res/themes"
+            self.config["config"]["THEMES_DIR"] = self.themes_dir_path
         else:
-            theme = config.get("THEME",None)
-            if theme is None:
-                # Theme from config.yaml is not valid: use first theme available default size 320x480
-                self.config["config"]["THEME"] = get_themes(SIZE_1)[0]
+            try:
+                # Check if the path exists
+                if not Path(self.themes_dir_path).exists():
+                    print(f"THEMES_DIR path {self.themes_dir_path} does not exist, using default.")
+                    self.themes_dir_path = "res/themes"
+                    self.config["config"]["THEMES_DIR"] = self.themes_dir_path
+            except Exception as e:
+                print(f"Error checking themes directory path: {e}, using default.")
+                self.themes_dir_path = "res/themes"
+                self.config["config"]["THEMES_DIR"] = self.themes_dir_path
+        
+        self.theme_get = get_theme(Path(self.themes_dir_path))
+        theme = config.get("THEME",None)
+        themes_list = self.theme_get.get_themes(model_to_size_map[self.model_cb.get()])
+        if theme is None or theme == "" or theme not in themes_list:
+            # Theme from config.yaml is not valid: use first theme available default size 320x480
+            self.config["config"]["THEME"] = self.theme_get.get_themes(model_to_size_map[self.model_cb.get()])[0]
         
         try:
             self.theme_cb.set(config.get("THEME",None))
@@ -776,45 +923,11 @@ class ConfigWindow:
             self.com_cb.current(0)
 
         # Guess display size from theme in the configuration
-        size = get_theme_size(self.config["config"]["THEME"])
+        size = self.theme_get.get_theme_size(self.config["config"]["THEME"])
         try:
             self.size_select_label["text"] = size
         except:
             self.size_select_label["text"] = SIZE_1
-
-        # Guess model from revision and size
-        display = self.config.get("display",None)
-        if display is None:
-            print("display config not found!!")
-            self.config["display"] = {}
-        try:
-            revision = self.config["display"]["REVISION"]
-            self.model_cb.set(revision_to_model_map[revision])
-        except:
-            self.model_cb.current(0)
-
-        try:
-            self.orient_cb.set(reverse_map[self.config["display"]["DISPLAY_REVERSE"]])
-        except:
-            self.orient_cb.current(0)
-
-        try:
-            self.brightness_slider.set(int(self.config["display"]["BRIGHTNESS"]))
-        except:
-            self.brightness_slider.set(50)
-
-        try:
-            if self.config["config"]["CPU_FAN"] == "AUTO":
-                self.cpu_fan_cb.current(0)
-            else:
-                self.cpu_fan_cb.set(self.config["config"]["CPU_FAN"])
-        except:
-            self.cpu_fan_cb.current(0)
-
-        try:
-            self.free_off_bool_var.set(self.config["display"].get("FREE_OFF",False))
-        except:
-            self.free_off_bool_var.set(False)
 
         # Reload content on screen
         self.on_model_change()
@@ -853,25 +966,52 @@ class ConfigWindow:
         with open("config.yaml", "w", encoding="utf-8") as file:
             ruamel.yaml.YAML().dump(self.config, file)
 
+    def save_additional_config(self, ping: str, api_key: str, lat: str, long: str, unit: str, lang: str):
+        self.config['config']['PING'] = ping
+        self.config['config']['WEATHER_API_KEY'] = api_key
+        self.config['config']['WEATHER_LATITUDE'] = lat
+        self.config['config']['WEATHER_LONGITUDE'] = long
+        self.config['config']['WEATHER_UNITS'] = unit
+        self.config['config']['WEATHER_LANGUAGE'] = lang
+
+        with open("config.yaml", "w", encoding='utf-8') as file:
+            ruamel.yaml.YAML().dump(self.config, file)
+
+    def save_additional_config(self, theme_dir: str, font_dir: str):
+        self.config['config']['THEMES_DIR'] = theme_dir
+        self.config['config']['FONTS_DIR'] = font_dir
+
+        with open("config.yaml", "w", encoding='utf-8') as file:
+            ruamel.yaml.YAML().dump(self.config, file)
+        
+        self.load_config_values()
+
     def on_theme_change(self, e=None):
         self.load_theme_preview()
 
-    def on_new_theme_editor_click(self):
+    def on_workspace_settings_click(self):
+        # Subwindow for workspace settings.
+        self.workspace_settings_window = WorkspaceSettingsWindow(self)
+        self.workspace_settings_window.show()
+
+    def on_weatherping_click(self):
+        # Subwindow for weather/ping config.
+        self.weatherping_config_window = PingWeatherConfigWindow(self)
+        self.weatherping_config_window.show()
+
+    def is_theme_editor_process(self):
         if self.theme_editor_process != None:
             if self.theme_editor_process.poll() == None:
                 messagebox.showerror(_("Error"), _("theme editor is running !"))
-                return
+                return True
+        return False
+    
+    def on_new_theme_editor_click(self):
+        if self.is_theme_editor_process():
+            return
         self.new_theme_editor = tkinter.Toplevel(self.window)
         self.new_theme_editor.title(_("New theme"))
-        main_window_x = self.window.winfo_x()
-        main_window_y = self.window.winfo_y()
-        main_window_width = self.window.winfo_width()
-        main_window_height = self.window.winfo_height()
-        width = 300
-        height = 210
-        x = main_window_x + (main_window_width // 2) - (width // 2)
-        y = main_window_y + (main_window_height // 2) - (height // 2)
-        self.new_theme_editor.geometry(f"{width}x{height}+{x}+{y}")
+        
         self.new_theme_editor.protocol(
             "WM_DELETE_WINDOW", self.on_new_theme_editor_closing
         )
@@ -883,7 +1023,7 @@ class ConfigWindow:
         )
 
         self.new_theme_editor_entry = ttk.Entry(self.new_theme_editor)
-        self.new_theme_editor_entry.pack(fill=tkinter.X, expand=True, padx=10)
+        self.new_theme_editor_entry.pack(fill=tkinter.X, expand=True, padx=10, ipadx=30)
         self.new_theme_editor_entry.bind(
             "<KeyRelease>", self.new_theme_editor_entry_change
         )
@@ -899,7 +1039,7 @@ class ConfigWindow:
         )
         self.new_theme_editor_orientation_combobox.current(0)
         self.new_theme_editor_orientation_combobox.pack(
-            fill=tkinter.X, expand=True, padx=10
+            fill=tkinter.X, expand=True, padx=10, ipadx=30
         )
 
         cancel_button = ttk.Button(
@@ -914,6 +1054,19 @@ class ConfigWindow:
         )
         self.new_theme_editor_ok_button.pack(side=tkinter.RIGHT, padx=5, pady=10)
         self.new_theme_editor_ok_button.state(["disabled"])
+
+        self.new_theme_editor.withdraw()
+        self.new_theme_editor.update()
+        main_window_x = self.window.winfo_x()
+        main_window_y = self.window.winfo_y()
+        main_window_width = self.window.winfo_width()
+        main_window_height = self.window.winfo_height()
+        width = self.new_theme_editor.winfo_width()
+        height = self.new_theme_editor.winfo_height()
+        x = main_window_x + (main_window_width // 2) - (width // 2)
+        y = main_window_y + (main_window_height // 2) - (height // 2)
+        self.new_theme_editor.geometry(f"{width}x{height}+{x}+{y}")
+        self.new_theme_editor.deiconify()
         self.new_theme_editor.focus_force()
 
     def on_new_theme_editor_closing(self):
@@ -921,19 +1074,21 @@ class ConfigWindow:
         self.new_theme_editor.destroy()
 
     def list_theme_dir(self):
-        current_directory = "res/themes/"
-        entries = os.listdir(current_directory)
-        folders = [
-            entry
-            for entry in entries
-            if os.path.isdir(os.path.join(current_directory, entry))
-        ]
-        return folders
+        current_directory = Path(self.themes_dir_path)
+        try:
+            folders = [entry.name for entry in current_directory.iterdir() if entry.is_dir()]
+            return folders
+        except FileNotFoundError:
+            print(f"Error: Directory {current_directory} not found.")
+            return []
+        except PermissionError:
+            print(f"Error: Permission denied when accessing {current_directory}.")
+            return []
 
     def validate_entry(self, P):
         import re
 
-        pattern = r"^[a-zA-Z0-9_\- .]+$"
+        pattern = r"^[a-zA-Z0-9_\- .&']+$"
         if re.match(pattern, P):
             return True
         else:
@@ -952,17 +1107,17 @@ class ConfigWindow:
                 self.new_theme_editor_label["foreground"] = "black"
         else:
             self.new_theme_editor_ok_button.state(["disabled"])
-            self.new_theme_editor_label["text"] = _("Error input: ") + r"^[a-zA-Z0-9_\- ]+$"
+            self.new_theme_editor_label["text"] = _("Error input: ") + r"^[a-zA-Z0-9_\- .&']+$"
             self.new_theme_editor_label["foreground"] = "red"
             pass
 
     def on_new_theme_editor_button_ok(self):
-        current_directory = "res/themes/"
-        configs_directory = "res/configs/"
+        current_directory = Path(self.themes_dir_path)
+        configs_directory = Path("res/configs/")
         theme_name = self.new_theme_editor_entry.get()
-        new_dir = current_directory + theme_name + "/"
+        new_dir = current_directory / theme_name
         try:
-            os.mkdir(new_dir)
+            new_dir.mkdir()
             print(f"Directory '{new_dir}' created")
             # copy yaml
             if model_to_size_map[self.model_cb.get()] == SIZE_1:
@@ -982,8 +1137,8 @@ class ConfigWindow:
                 else:
                     template_name = "theme_template_800x480.yaml"
             dst_name = "theme.yaml"
-            src_file = configs_directory + template_name
-            dst_file = new_dir + dst_name
+            src_file = configs_directory / template_name
+            dst_file = new_dir / dst_name
             try:
                 shutil.copy2(src_file, dst_file)
                 print(f"File '{src_file}' copy to '{dst_file}'")
@@ -997,7 +1152,7 @@ class ConfigWindow:
                 return
             # new png
             template_name = "background.png"
-            dst_file = new_dir + template_name
+            dst_file = new_dir / template_name
             if model_to_size_map[self.model_cb.get()] == SIZE_1:
                 if (
                     self.new_theme_editor_orientation_combobox.get()
@@ -1015,6 +1170,7 @@ class ConfigWindow:
                 else:
                     new_image = Image.new("RGB", (800, 480), "black")
             new_image.save(dst_file)
+
             # save theme change
             self.on_model_change()
             self.theme_cb.set(theme_name)
@@ -1028,21 +1184,10 @@ class ConfigWindow:
             return
 
     def on_delete_theme_click(self):
-        if self.theme_editor_process != None:
-            if self.theme_editor_process.poll() == None:
-                messagebox.showerror(_("Error"), _("theme editor is running !"))
-                return
+        if self.is_theme_editor_process():
+            return
         self.delete_theme_frame = tkinter.Toplevel(self.window)
         self.delete_theme_frame.title(_("Delete theme"))
-        main_window_x = self.window.winfo_x()
-        main_window_y = self.window.winfo_y()
-        main_window_width = self.window.winfo_width()
-        main_window_height = self.window.winfo_height()
-        width = 350
-        height = 120
-        x = main_window_x + (main_window_width // 2) - (width // 2)
-        y = main_window_y + (main_window_height // 2) - (height // 2)
-        self.delete_theme_frame.geometry(f"{width}x{height}+{x}+{y}")
 
         def on_delete_theme_frame_closing():
             self.delete_theme_frame.grab_release()
@@ -1058,24 +1203,45 @@ class ConfigWindow:
             self.delete_theme_frame, text=_("Delete theme: ") + f"{self.theme_cb.get()} ?",wraplength = 340
         )
         self.delete_theme_label.pack(
-            side=tkinter.TOP, padx=5, pady=10, anchor=tkinter.W
+            side=tkinter.TOP, padx=5, pady=10, ipadx=30, anchor=tkinter.W
         )
 
         cancel_button = ttk.Button(
             self.delete_theme_frame, text=_("NO"), command=on_delete_theme_frame_closing
         )
         cancel_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
+
+        self.delete_theme_frame.withdraw()
+        self.delete_theme_frame.update()
+        main_window_x = self.window.winfo_x()
+        main_window_y = self.window.winfo_y()
+        main_window_width = self.window.winfo_width()
+        main_window_height = self.window.winfo_height()
+        width = self.delete_theme_frame.winfo_width()
+        height = self.delete_theme_frame.winfo_height()
+        x = main_window_x + (main_window_width // 2) - (width // 2)
+        y = main_window_y + (main_window_height // 2) - (height // 2)
+        self.delete_theme_frame.geometry(f"{width}x{height}+{x}+{y}")
+        self.delete_theme_frame.deiconify()
+
         self.delete_theme_frame.focus_force()
 
         def on_delete_theme_frame_ok():
-            current_directory = "res/themes/"
+            current_directory = Path(self.themes_dir_path)
             theme_name = self.theme_cb.get()
-            delete_dir = current_directory + theme_name + "/"
+            delete_dir = current_directory / theme_name
             try:
-                shutil.rmtree(delete_dir)
-                print(f"dir {delete_dir} and all of its contents have been deleted")
+                if delete_dir.exists() and delete_dir.is_dir():
+                    import shutil
+                    shutil.rmtree(delete_dir)
+                    print(f"Directory {delete_dir} and all of its contents have been deleted")
+                else:
+                    print(f"Directory {delete_dir} does not exist or is not a valid directory.")
             except OSError as error:
-                print(f"Error deleting directory: {error.strerror}")
+                print(f"Error deleting directory: {error}")
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+
             self.on_model_change()
             self.theme_cb.current(0)
             self.save_config_values()
@@ -1088,23 +1254,21 @@ class ConfigWindow:
         ok_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
 
     def on_theme_editor_click(self):
-        if self.theme_editor_process != None:
-            if self.theme_editor_process.poll() == None:
-                messagebox.showerror(_("Error"), _("theme editor is running !"))
-                return
+        if self.is_theme_editor_process():
+            return
         self.save_config_values()
         sys.path.append(".")
         self.theme_editor_process = subprocess.Popen(
             (
                 "python",
                 os.path.join(os.getcwd(), "theme-editor.py"),
-                self.theme_cb.get(),
+                "\"" + self.theme_cb.get() + "\"",
             ),
             shell=True,
         )
 
     def on_theme_dir_click(self):
-        dir_path = Path("res/themes/" + self.theme_cb.get())
+        dir_path = Path(self.themes_dir_path) / self.theme_cb.get()
         if dir_path.exists():
             if platform.system() == "Windows":  
                 os.startfile(str(dir_path))  
@@ -1114,21 +1278,11 @@ class ConfigWindow:
                 os.system(f'xdg-open "{dir_path}"')
 
     def on_copy_theme_editor_click(self):
-        if self.theme_editor_process != None:
-            if self.theme_editor_process.poll() == None:
-                messagebox.showerror(_("Error"), _("theme editor is running !"))
-                return
+        if self.is_theme_editor_process():
+            return
         self.copy_theme_editor = tkinter.Toplevel(self.window)
         self.copy_theme_editor.title(_("Copy theme"))
-        main_window_x = self.window.winfo_x()
-        main_window_y = self.window.winfo_y()
-        main_window_width = self.window.winfo_width()
-        main_window_height = self.window.winfo_height()
-        width = 300
-        height = 150
-        x = main_window_x + (main_window_width // 2) - (width // 2)
-        y = main_window_y + (main_window_height // 2) - (height // 2)
-        self.copy_theme_editor.geometry(f"{width}x{height}+{x}+{y}")
+        
         self.copy_theme_editor.protocol(
             "WM_DELETE_WINDOW", self.on_copy_theme_editor_closing
         )
@@ -1140,7 +1294,7 @@ class ConfigWindow:
         )
 
         self.copy_theme_editor_entry = ttk.Entry(self.copy_theme_editor)
-        self.copy_theme_editor_entry.pack(fill=tkinter.X, expand=True, padx=10)
+        self.copy_theme_editor_entry.pack(fill=tkinter.X, expand=True, padx=10,ipadx=30)
         self.copy_theme_editor_entry.bind(
             "<KeyRelease>", self.copy_theme_editor_entry_change
         )
@@ -1157,6 +1311,19 @@ class ConfigWindow:
         )
         self.copy_theme_editor_ok_button.pack(side=tkinter.RIGHT, padx=5, pady=10)
         self.copy_theme_editor_ok_button.state(["disabled"])
+
+        self.copy_theme_editor.withdraw()
+        self.copy_theme_editor.update()
+        main_window_x = self.window.winfo_x()
+        main_window_y = self.window.winfo_y()
+        main_window_width = self.window.winfo_width()
+        main_window_height = self.window.winfo_height()
+        width = self.copy_theme_editor.winfo_width()
+        height = self.copy_theme_editor.winfo_height()
+        x = main_window_x + (main_window_width // 2) - (width // 2)
+        y = main_window_y + (main_window_height // 2) - (height // 2)
+        self.copy_theme_editor.geometry(f"{width}x{height}+{x}+{y}")
+        self.copy_theme_editor.deiconify()
 
         self.copy_theme_editor_entry.insert(0,self.theme_cb.get()+'_0')
         self.copy_theme_editor_entry_change()
@@ -1184,22 +1351,37 @@ class ConfigWindow:
             pass
 
     def on_copy_theme_editor_button_ok(self):
-        current_directory = "res/themes/"
-        src_dir = current_directory + self.theme_cb.get()  + "/"
-        dst_dir = current_directory + self.copy_theme_editor_entry.get() + "/"
-        
-        # copy theme
+        current_directory = Path(self.themes_dir_path)
+        src_dir = current_directory / self.theme_cb.get()
+        dst_dir = current_directory / self.copy_theme_editor_entry.get()
+
         try:
-            shutil.copytree(src_dir, dst_dir)
-            print(f"Directory '{src_dir}' copy to '{dst_dir}'")
-        except FileNotFoundError:
-            messagebox.showerror(_("Error"), f"Source '{src_dir}' no found")
+            # Check if the source directory exists and is a valid directory
+            if src_dir.exists() and src_dir.is_dir():
+                # Copy the source directory to the destination directory
+                shutil.copytree(src_dir, dst_dir)
+                print(f"Directory '{src_dir}' copied to '{dst_dir}'")
+            else:
+                # Show an error message if the source directory does not exist
+                messagebox.showerror(_("Error"), f"Source '{src_dir}' not found")
+                self.copy_theme_editor.destroy()
+                return
+        except FileExistsError:
+            # Show an error message if the destination directory already exists
+            messagebox.showerror(_("Error"), f"Destination '{dst_dir}' already exists")
+            self.copy_theme_editor.destroy()
+            return
+        except PermissionError:
+            # Show an error message if permission is denied during the copy operation
+            messagebox.showerror(_("Error"), f"Permission denied when copying to '{dst_dir}'")
             self.copy_theme_editor.destroy()
             return
         except Exception as e:
+            # Show a generic error message for other exceptions
             messagebox.showerror(_("Error"), f"Error: {e}")
             self.copy_theme_editor.destroy()
             return
+        
         # save theme change
         self.on_model_change()
         self.theme_cb.set(self.copy_theme_editor_entry.get())
@@ -1208,10 +1390,8 @@ class ConfigWindow:
         self.copy_theme_editor.destroy()
 
     def on_save_click(self):
-        if self.theme_editor_process != None:
-            if self.theme_editor_process.poll() == None:
-                messagebox.showerror(_("Error"), _("theme editor is running !"))
-                return
+        if self.is_theme_editor_process():
+            return
         self.save_config_values()
 
     def on_display_other_config_click(self):
@@ -1230,10 +1410,8 @@ class ConfigWindow:
         )
 
     def on_saverun_click(self):
-        if self.theme_editor_process != None:
-            if self.theme_editor_process.poll() == None:
-                messagebox.showerror(_("Error"), _("theme editor is running !"))
-                return
+        if self.is_theme_editor_process():
+            return
         if self.display_init == True:
             self.display_off()
             self.display_init = False
@@ -1263,7 +1441,7 @@ class ConfigWindow:
             else:
                 self.other_setting_button.configure(state="disabled")
 
-        themes = get_themes(model_to_size_map[model])
+        themes = self.theme_get.get_themes(model_to_size_map[model])
         self.theme_cb.config(values=themes)
 
         if not self.theme_cb.get() in themes:
@@ -1289,21 +1467,21 @@ class ConfigWindow:
 
             is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
             if (hwlib == "LHM" or hwlib == "AUTO") and not is_admin:
-                self.lhm_admin_warning.place(x=320, y=510)
+                self.lhm_admin_warning.grid(row=7, column=0, columnspan=3, padx=5, pady=5,sticky="w")
                 self.save_run_btn['state'] = "disabled"
                 self.live_display_bool_var.set(False)
                 self.live_display_checkbox['state'] = "disabled"
             else:
-                self.lhm_admin_warning.place_forget()
+                self.lhm_admin_warning.grid_forget()
                 self.save_run_btn['state'] = "normal"
                 self.live_display_checkbox['state'] = "normal"
         else:
             if hwlib == "PYTHON" or hwlib == "AUTO":
-                self.cpu_fan_label.place(x=320, y=520)
-                self.cpu_fan_cb.place(x=500, y=510, width=250)
+                self.cpu_fan_label.grid(row=5, column=0, padx=5, pady=5,sticky="w")
+                self.cpu_fan_cb.grid(row=5, column=1, columnspan=2, padx=5, pady=5,sticky="w"+"e")
             else:
-                self.cpu_fan_label.place_forget()
-                self.cpu_fan_cb.place_forget()
+                self.cpu_fan_label.grid_forget()
+                self.cpu_fan_cb.grid_forget()
 
         self.theme_setting_change = True
         self.display_setting_change = True
@@ -1340,6 +1518,312 @@ class ConfigWindow:
         if com_now not in self.com_cb['values']:
             self.com_cb.current(0)
 
+class PingWeatherConfigWindow:
+    def __init__(self, main_window: ConfigWindow):
+        self.window = tkinter.Toplevel()
+        self.window.withdraw()
+        self.window.title(_("Ping & Weather Configure"))
+
+        self.main_window = main_window
+
+        # Make TK look better with Sun Valley ttk theme
+        sv_ttk.set_theme("light")
+
+        # ping frame
+        self.ping_frame = tkinter.Frame(self.window)
+        self.ping_frame.grid(row=0, column=0, columnspan=4, padx=5, pady=5,sticky="w")
+        self.ping_label = ttk.Label(self.ping_frame, text="Ping", font=("Arial", 13, "bold"))
+        self.ping_label.grid(row=0, column=0, padx=5, pady=5,sticky="w")
+        self.ping_label1 = ttk.Label(self.ping_frame, text=_("Hostname / IP to ping"))
+        self.ping_label1.grid(row=1, column=0, padx=5, pady=5,sticky="w")
+        self.ping_entry = ttk.Entry(self.ping_frame)
+        self.ping_entry.grid(row=1, column=1, columnspan=2, padx=5, pady=5,sticky="w"+"e")
+
+        # weather frame
+        self.weather_frame = tkinter.Frame(self.window)
+        self.weather_frame.columnconfigure(1,weight=1)
+        self.weather_frame.grid(row=1, column=0, columnspan=4, padx=5, pady=5,sticky="w")
+        weather_label = ttk.Label(self.weather_frame, text=_("Weather forecast (OpenWeatherMap API)"), font=("Arial", 13, "bold"))
+        weather_label.grid(row=0, column=0, columnspan=3, padx=5, pady=5,sticky="w")
+
+        weather_info_label = ttk.Label(self.weather_frame,
+                                       text=_("To display weather forecast on themes that support it, you need an OpenWeatherMap API key."
+                                            "\nIt use \"Current weather data api\": https://openweathermap.org/current .\n"
+                                            "You will get 1,000 API calls per day for free. This program is configured to stay under this threshold (~300 calls/day)."))
+        weather_info_label.grid(row=1, column=0, columnspan=3, padx=5, pady=5,sticky="w")
+        weather_api_link_label = ttk.Label(self.weather_frame,
+                                           text=_("Click here to Create an OpenWeatherMap Account."))
+        weather_api_link_label.grid(row=2, column=0, columnspan=3, padx=5, pady=5,sticky="w")
+        weather_api_link_label.config(foreground="#a3a3ff", cursor="hand2")
+        weather_api_link_label.bind("<Button-1>",
+                                    lambda e: webbrowser.open_new_tab("https://home.openweathermap.org/users/sign_up"))
+
+        self.api_label = ttk.Label(self.weather_frame, text="OpenWeatherMap API key")
+        self.api_label.grid(row=3, column=0, padx=5, pady=5,sticky="w")
+        self.api_entry = ttk.Entry(self.weather_frame)
+        self.api_entry.grid(row=3, column=1, columnspan=2, padx=5, pady=5,sticky="w"+"e")
+
+        # latlong frame
+        self.latlong_frame = tkinter.Frame(self.window)
+        self.latlong_frame.grid(row=2, column=0, columnspan=4, padx=5, pady=5,sticky="w")
+        latlong_label = ttk.Label(self.latlong_frame,
+                                  text=_("You can use online services to get your latitude/longitude e.g. latlong.net (click here)"))
+        latlong_label.grid(row=0, column=0, columnspan=4, padx=5, pady=5,sticky="w")
+        latlong_label.config(foreground="#a3a3ff", cursor="hand2")
+        latlong_label.bind("<Button-1>",
+                           lambda e: webbrowser.open_new_tab("https://www.latlong.net/"))
+
+        self.lat_label = ttk.Label(self.latlong_frame, text=_("Latitude"))
+        self.lat_label.grid(row=1, column=0, padx=5, pady=5,sticky="w")
+        self.lat_entry = ttk.Entry(self.latlong_frame, validate="key",
+                                   validatecommand=(self.window.register(self.validateCoord), "%P"))
+        self.lat_entry.grid(row=1, column=1, padx=5, pady=5,sticky="w"+"e")
+
+        self.long_label = ttk.Label(self.latlong_frame, text=_("Longitude"))
+        self.long_label.grid(row=1, column=2, padx=5, pady=5,sticky="w")
+        self.long_entry = ttk.Entry(self.latlong_frame, validate="key",
+                                    validatecommand=(self.window.register(self.validateCoord), "%P"))
+        self.long_entry.grid(row=1, column=3, padx=5, pady=5,sticky="w"+"e")
+        
+        self.get_latlong_btn = ttk.Button(self.latlong_frame, text=_("Get via IP"), command=lambda: self.on_get_latlong_click())
+        self.get_latlong_btn.grid(row=1, column=4, padx=5, pady=5,sticky="e")
+
+        self.unit_label = ttk.Label(self.latlong_frame, text=_("Units"))
+        self.unit_label.grid(row=2, column=0, padx=5, pady=5,sticky="w")
+        self.unit_cb = ttk.Combobox(self.latlong_frame, values=list(utils.TEMPERATURE_UNIT_MAP.values()), state="readonly")
+        self.unit_cb.grid(row=2, column=1,columnspan=4, padx=5, pady=5,sticky="w")
+
+        self.lang_label = ttk.Label(self.latlong_frame, text=_("Language"))
+        self.lang_label.grid(row=3, column=0, padx=5, pady=5,sticky="w")
+        self.lang_cb = ttk.Combobox(self.latlong_frame, values=list(utils.WEATHER_LANG_MAP.values()), state="readonly")
+        self.lang_cb.grid(row=3, column=1,columnspan=4, padx=5, pady=5,sticky="w")
+
+        # test and save frame
+        self.test_and_save_frame = tkinter.Frame(self.window)
+        self.test_and_save_frame.columnconfigure(0,weight=1)
+        self.test_and_save_frame.grid(row=3, column=0, columnspan=4, padx=5, pady=5,sticky="we")
+
+        self.test_result_label = ttk.Label(self.test_and_save_frame, text='\n\n\n\n')
+        self.test_result_label.grid(row=0, column=0, padx=5, pady=5,sticky="w")
+
+        self.ping_test_btn = ttk.Button(self.test_and_save_frame, text=_("Test Ping"), command=lambda: self.on_ping_test_btn_click())
+        self.ping_test_btn.grid(row=0, column=1, padx=5, pady=5, ipady=10,sticky="e")
+
+        self.weather_api_test_btn = ttk.Button(self.test_and_save_frame, text=_("Test API"), command=lambda: self.on_weather_api_test_btn_click())
+        self.weather_api_test_btn.grid(row=0, column=2, padx=5, pady=5, ipady=10,sticky="e")
+
+        self.save_btn = ttk.Button(self.test_and_save_frame, text=_("Save settings"), command=lambda: self.on_save_click())
+        self.save_btn.grid(row=0, column=3, padx=5, pady=5, ipady=10, sticky="e")
+
+        # bind events
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def validateCoord(self, coord: str):
+        if not coord:
+            return True
+        try:
+            float(coord)
+        except:
+            return False
+        return True
+
+    def show(self):
+        self.load_config_values(self.main_window.config)
+        self.window.withdraw()
+        self.window.update()
+        main_window_x = self.main_window.window.winfo_x()
+        main_window_y = self.main_window.window.winfo_y()
+        main_window_width = self.main_window.window.winfo_width()
+        main_window_height = self.main_window.window.winfo_height()
+        width = self.window.winfo_width()
+        height = self.window.winfo_height()
+        x = main_window_x + (main_window_width // 2) - (width // 2)
+        y = main_window_y + (main_window_height // 2) - (height // 2)
+        self.window.geometry(f"{width}x{height}+{x}+{y}")
+        self.window.resizable(False, False)
+        self.window.deiconify()
+        self.window.focus_force()
+        self.window.grab_set()
+
+    def on_closing(self):
+        self.window.grab_release()
+        self.window.destroy()
+
+    def load_config_values(self, config):
+        self.config = config
+
+        try:
+            self.ping_entry.insert(0, self.config['config']['PING'])
+        except:
+            self.ping_entry.insert(0, "8.8.8.8")
+
+        try:
+            self.api_entry.insert(0, self.config['config']['WEATHER_API_KEY'])
+        except:
+            pass
+
+        try:
+            self.lat_entry.insert(0, self.config['config']['WEATHER_LATITUDE'])
+        except:
+            self.lat_entry.insert(0, "45.75")
+
+        try:
+            self.long_entry.insert(0, self.config['config']['WEATHER_LONGITUDE'])
+        except:
+            self.long_entry.insert(0, "45.75")
+
+        try:
+            self.unit_cb.set(utils.TEMPERATURE_UNIT_MAP[self.config['config']['WEATHER_UNITS']])
+        except:
+            self.unit_cb.set(0)
+
+        try:
+            self.lang_cb.set(utils.WEATHER_LANG_MAP[self.config['config']['WEATHER_LANGUAGE']])
+        except:
+            self.lang_cb.set(utils.WEATHER_LANG_MAP["en"])
+
+    def on_ping_test_btn_click(self):
+        host = self.ping_entry.get()
+        if host == "":
+            self.test_result_label.config(text=_("\n\nPlease enter a hostname or IP address.\n\n"))
+            return
+        delay = utils.get_ping_delay(host)
+        if delay == -1:
+            self.test_result_label.config(text=_("\n\nPing failed!\n\n"))
+        else:
+            self.test_result_label.config(text=_("\n\nPing successful!") + f" {delay:.2f} ms\n\n")
+
+    def on_weather_api_test_btn_click(self):
+        api_key = self.api_entry.get()
+        lat = self.lat_entry.get()
+        long = self.long_entry.get()
+        unit = [k for k, v in utils.TEMPERATURE_UNIT_MAP.items() if v == self.unit_cb.get()][0]
+        lang = [k for k, v in utils.WEATHER_LANG_MAP.items() if v == self.lang_cb.get()][0]
+        temp, feel, desc, humidity, time, result= utils.get_weather(lat, long, api_key, unit, lang)
+        self.test_result_label.config(text=_("Temperature: ")+f"{temp}\n"+_("Temperature Felt: ")+f"{feel}\n"+_("Humidity: ")+f"{humidity}\n"+_("Description: ")+f"{desc}\n"+_("Update Time: ")+f"{time}")
+
+    def on_get_latlong_click(self):
+        g = geocoder.ip('me')
+        if g.ok:
+            self.lat_entry.delete(0, 'end')
+            self.lat_entry.insert(0, str(g.latlng[0]))
+            self.long_entry.delete(0, 'end')
+            self.long_entry.insert(0, str(g.latlng[1]))
+
+    def on_save_click(self):
+        self.save_config_values()
+        self.on_closing()
+
+    def save_config_values(self):
+        ping = self.ping_entry.get()
+        api_key = self.api_entry.get()
+        lat = self.lat_entry.get()
+        long = self.long_entry.get()
+        unit = [k for k, v in utils.TEMPERATURE_UNIT_MAP.items() if v == self.unit_cb.get()][0]
+        lang = [k for k, v in utils.WEATHER_LANG_MAP.items() if v == self.lang_cb.get()][0]
+
+        self.main_window.save_additional_config(ping, api_key, lat, long, unit, lang)
+
+class WorkspaceSettingsWindow:
+    def __init__(self, main_window: ConfigWindow):
+        self.window = tkinter.Toplevel()
+        self.window.withdraw()
+        self.window.title(_("Workspace Settings"))
+
+        self.main_window = main_window
+
+        # Make TK look better with Sun Valley ttk theme
+        sv_ttk.set_theme("light")
+
+        # theme folder 
+        theme_folder_label = ttk.Label(self.window, text=_("Themes Folder:"))
+        theme_folder_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        self.theme_folder_path = tkinter.StringVar()
+        self.theme_folder_entry = ttk.Entry(self.window, textvariable=self.theme_folder_path, width=50)
+        self.theme_folder_entry.grid(row=0, column=1, padx=5, pady=5, sticky="we")
+
+        theme_folder_button = ttk.Button(self.window, text=_("Select Folder"), command=self.select_theme_folder)
+        theme_folder_button.grid(row=0, column=2, padx=5, pady=5, sticky="we")
+
+        # font folder
+        font_folder_label = ttk.Label(self.window, text=_("Fonts Folder:"))
+        font_folder_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+
+        self.font_folder_path = tkinter.StringVar()
+        self.font_folder_entry = ttk.Entry(self.window, textvariable=self.font_folder_path, width=50)
+        self.font_folder_entry.grid(row=1, column=1, padx=5, pady=5, sticky="we")
+
+        font_folder_button = ttk.Button(self.window, text=_("Select Folder"), command=self.select_font_folder)
+        font_folder_button.grid(row=1, column=2, padx=5, pady=5, sticky="we")
+
+        self.save_btn = ttk.Button(self.window, text=_("Save settings"), command=lambda: self.on_save_click())
+        self.save_btn.grid(row=2, column=2, padx=5, pady=5, sticky="We")
+
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def show(self):
+        self.load_config_values(self.main_window.config)
+        self.window.withdraw()
+        self.window.update()
+        main_window_x = self.main_window.window.winfo_x()
+        main_window_y = self.main_window.window.winfo_y()
+        main_window_width = self.main_window.window.winfo_width()
+        main_window_height = self.main_window.window.winfo_height()
+        width = self.window.winfo_width()
+        height = self.window.winfo_height()
+        x = main_window_x + (main_window_width // 2) - (width // 2)
+        y = main_window_y + (main_window_height // 2) - (height // 2)
+        self.window.geometry(f"{width}x{height}+{x}+{y}")
+        self.window.resizable(False, False)
+        self.window.deiconify()
+        self.window.focus_force()
+        self.window.grab_set()
+    
+    def on_closing(self):
+        self.window.grab_release()
+        self.window.destroy()
+    
+    def load_config_values(self, config):
+        self.config = config
+        try:
+            self.theme_folder_path.set(self.config['config']['THEMES_DIR'])
+        except:
+            self.theme_folder_path.set("res/themes")
+        
+        try:
+            self.font_folder_path.set(self.config['config']['FONTS_DIR'])
+        except:
+            self.font_folder_path.set("res/fonts")
+
+    def select_theme_folder(self):
+        folder = filedialog.askdirectory(initialdir = Path.cwd(), title=_("Themes Folder:"))
+        if folder:
+            self.theme_folder_path.set(folder)
+
+    def select_font_folder(self):
+        folder = filedialog.askdirectory(initialdir = Path.cwd(), title=_("Fonts Folder:"))
+        if folder:
+            self.font_folder_path.set(folder)
+
+    def on_save_click(self):
+        if self.save_config_values():
+            self.on_closing()
+
+    def save_config_values(self):
+        theme = self.theme_folder_path.get()
+        font = self.font_folder_path.get()
+        if theme == "":
+            theme = "res/themes"
+        if font == "":
+            font = "res/fonts"
+        if Path(theme).is_dir() and Path(theme).exists() and Path(font).is_dir() and Path(font).exists():
+            self.main_window.save_additional_config(theme, font)
+        else:
+            messagebox.showerror(_("Error"), _("Theme or Font folder is not valid!"))
+            return False
+        return True
+        
 if __name__ == "__main__":
     configurator = ConfigWindow()
     configurator.run()

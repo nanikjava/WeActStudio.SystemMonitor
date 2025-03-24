@@ -144,7 +144,7 @@ def wait_for_empty_queue(timeout: int = 5):
         logger.info(f"Waiting for {scheduler.get_queue_size()} pending request to be sent to display ({timeout}s max)...")
 
         wait_time = 0
-        while not scheduler.is_queue_empty() and wait_time < timeout:
+        while not scheduler.is_queue_empty() and wait_time < timeout and display.lcd.lcd_serial != None and display.lcd.lcd_serial.is_open == True:
             time.sleep(0.1)
             wait_time = wait_time + 0.1
 
@@ -272,6 +272,10 @@ def scheduler_init():
     scheduler.photo_album_Init()
     scheduler.photo_album_Handler()
     time.sleep(0.15)
+    scheduler.WeatherStats()
+    time.sleep(0.15)
+    scheduler.PingStats()
+    time.sleep(0.15)
 
 if platform.system() == "Windows":
     def on_win32_ctrl_event(event):
@@ -342,6 +346,7 @@ try:
     scheduler_init()
 except Exception as e:
     messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
+    logger.error(f'{e}')
     start_configure()
     clean_stop(tray_icon)
 

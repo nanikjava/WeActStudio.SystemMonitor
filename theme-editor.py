@@ -68,8 +68,10 @@ from library import config
 config.CONFIG_DATA["config"][
     "HW_SENSORS"
 ] = "STATIC"  # For theme editor always use stub data
-config.CONFIG_DATA["config"]["THEME"] = sys.argv[1]  # Theme is given as argument
 
+theme_name = sys.argv[1].strip('"')
+config.CONFIG_DATA["config"]["THEME"] = theme_name  # Theme is given as argument
+config.load_theme_edit()
 config.load_theme()
 
 # For theme editor, always use simulated LCD
@@ -112,21 +114,20 @@ class dict_tools:
 
 
 class file_tools:
-    res_fonts_path = "res/fonts/"
+    res_fonts_path = config.FONTS_DIR
 
+    @staticmethod
     def list_res_fonts():
-        fonts = list()
-        for root, dirs, files in os.walk(file_tools.res_fonts_path):
-            for file in files:
-                if file.lower().endswith(".ttf"):
-                    fonts.append(root[len(file_tools.res_fonts_path) :] + "/" + file)
-                elif file.lower().endswith(".otf"):
-                    fonts.append(root[len(file_tools.res_fonts_path) :] + "/" + file)
+        fonts = []
+        for file in file_tools.res_fonts_path.rglob('*'):
+            if file.suffix.lower() in ['.ttf', '.otf']:
+                relative_path = file.relative_to(file_tools.res_fonts_path)
+                fonts.append(str(relative_path))
         return fonts
 
     def list_theme_pic():
         pic = list()
-        for root, dirs, files in os.walk(config.THEME_DATA_EDIT["PATH"]):
+        for root, dirs, files in os.walk(config.CURRENT_THEME_PATH):
             for file in files:
                 file_l = file.lower()
                 if (
@@ -134,15 +135,11 @@ class file_tools:
                     or file_l.endswith(".jpg")
                     or file_l.endswith(".bmp")
                 ):
-                    if len(root) > len(config.THEME_DATA_EDIT["PATH"]):
-                        pic.append(root[len(config.THEME_DATA_EDIT["PATH"]) :] + "\\" + file)
-                    else:
-                        pic.append(file)
+                    relative_path = Path(root).relative_to(config.CURRENT_THEME_PATH)
+                    pic.append(str(relative_path / file))
         return pic
 
-
 file_tools.list_res_fonts()
-
 
 class Tooltip:
     def __init__(self, widget, text):
@@ -200,9 +197,9 @@ class theme_editor:
         self.logger.debug("Starting WeAct Studio System Monitor Theme Editor...")
 
         # Get theme file to edit
-        self.theme_file = config.THEME_DATA["PATH"] + "theme.yaml"
+        self.theme_file = config.CURRENT_THEME_PATH / "theme.yaml"
         self.last_edit_time = os.path.getmtime(self.theme_file)
-        self.logger.debug("Using theme file " + self.theme_file)
+        self.logger.debug("Using theme file " + str(self.theme_file))
 
         # Open theme in default editor. You can also open the file manually in another program
         # self.logger.debug(
@@ -221,7 +218,7 @@ class theme_editor:
 
         self.main = tkinter.Tk()
 
-        self.main.title(_("WeAct Studio System Monitor Theme Editor"))
+        self.main.title(_("WeAct Studio System Monitor Theme Editor") + f" - {theme_name}")
 
         self.main.iconphoto(True, tkinter.PhotoImage(file="res/icons/logo.png"))
         self.main.geometry(
@@ -366,7 +363,7 @@ class theme_editor:
         )
 
     def on_file_open_theme_dir_button_press(self):
-        dir_path = Path(config.THEME_DATA_EDIT["PATH"])
+        dir_path = config.CURRENT_THEME_PATH
         if dir_path.exists():
             if platform.system() == "Windows":  
                 os.startfile(str(dir_path))  
@@ -817,222 +814,196 @@ class theme_editor:
         )
 
     def editor_display(self, selection, title, value):
+        # Destroy the old editor frame
         self.editor.destroy()
 
+        # Create a new editor frame
         self.editor = tkinter.Frame(self.main)
         self.editor.place(
             x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN - 50 + 100,
+            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN + 50,
             width=600,
-            height=100,
+            height=100
         )
 
-        label = ttk.Label(
+        # Create a title label
+        title_label = ttk.Label(
             self.editor, text=title + _(" Editor"), font=("Arial", 12, "bold")
         )
-        label.place(x=0, y=0)
-        # label.grid(row=0, column=0, columnspan=10, sticky="w")
+        title_label.place(x=0, y=0)
 
-        label_tips = ttk.Label(self.editor, text="")
-        label_tips["text"] = _("Please input")
-        label_tips.place(x=0, y=30)
-        # label_tips.grid(row=1, column=0, columnspan=10, sticky="w")
+        # Create a tips label
+        tips_label = ttk.Label(self.editor, text="")
+        tips_label["text"] = _("Please input")
+        tips_label.place(x=0, y=30)
 
+        # Define the position of input controls
         setting_x = 0
         setting_y = 60
-        setting_c_x = 475
-        setting_c_y = 58
+        confirm_x = 475
+        confirm_y = 58
 
         setting_value = None
-        is_colorchooser = 0
-        is_combobox = 0
+        is_color_chooser = False
+        is_combobox = False
 
-        # Get standard Settings
+        # Get standard settings
         try:
             setting_value = self.theme_tree_item_get_setting_config_value(selection)
-        except:
-            self.logger.debug("No Found Setting Value")
-        # Query whether any standard Settings are available
-        if setting_value != None and type(setting_value) == dict:
-            combobox_list = list()
-            combobox_select = 0
-            for index, key in enumerate(setting_value):
-                v = setting_value[key]
-                combobox_list.append(v)
-                if v == value:
-                    combobox_select = index
-            if title == "FORMAT":
-                combobox = ttk.Combobox(self.editor)
-            else:
-                combobox = ttk.Combobox(self.editor, state="readonly")
+        except Exception as e:
+            # Log detailed error information
+            self.logger.debug(f"No Found Setting Value: {e}")
+
+        from ruamel.yaml.comments import CommentedMap
+        # Check if there are standard settings
+        if setting_value and isinstance(setting_value, (dict, CommentedMap)):
+            print("standard settings")
+            # Prepare combobox options
+            combobox_list = list(setting_value.values())
+            combobox_select = combobox_list.index(value) if value in combobox_list else 0
+
+            # Create a combobox
+            combobox = ttk.Combobox(self.editor, state="readonly" if title != "FORMAT" else None)
             combobox["value"] = combobox_list
             combobox.current(combobox_select)
             combobox.place(x=setting_x, y=setting_y, width=470)
-            # combobox.grid(row=setting_row, column=0, columnspan=10, sticky="w" + "e")
 
-            label_tips["text"] = _("Please Select")
+            # Update tips information
+            tips_label["text"] = _("Please Select")
 
             def on_confirm():
-                v = combobox.get()
-                if v != value:
-                    self.theme_tree_item_set_config_value(
-                        config.THEME_DATA_EDIT, selection, v
-                    )
-                    if type(v) != str:
-                        v = str(v)
-                    self.theme_tree.item(selection, text=title + ": " + v)
-                    self.editor_display(selection, title, v)
-                    self.theme_refresh = True
+                new_value = combobox.get()
+                if new_value != value:
+                    self._update_config_and_refresh(selection, title, new_value)
 
+            # Create a confirm button
             confirm_button = ttk.Button(
                 self.editor, text=_("Confirm"), command=on_confirm
             )
-            confirm_button.place(x=setting_c_x, y=setting_c_y)
-            # confirm_button.grid(
-            #     row=setting_row, column=11, columnspan=1, sticky="w" + "e"
-            # )
+            confirm_button.place(x=confirm_x, y=confirm_y)
         else:
-            if type(value) == int:
-
-                def restrict_entry(event):
-                    current_text = event.widget.get()
-                    cursor_index = event.widget.index(tkinter.INSERT)
-                    new_char = event.char
-
-                    # 如果用户按下的是Backspace键（ASCII码为8）或Delete键（在Mac上可能是127）
-                    # 则允许删除操作
-                    if new_char in ("", "\x7f", "\x08"):
-                        return
-
-                    if (
-                        cursor_index == 0 and event.char == "-"
-                    ) or event.char.isdigit():
-                        return
-                    else:
-                        event.widget.delete(len(current_text), tkinter.END)
-                        return "break"
-
-                entry = ttk.Entry(self.editor, width=25)
-                entry.bind("<Key>", restrict_entry)
-                entry.place(x=setting_x, y=setting_y, width=470)
-                # entry.grid(row=setting_row, column=0, columnspan=10, sticky="w" + "e")
-                entry.insert(0, str(value))
-                entry.focus_set()
-            elif type(value) == str:
-                if title == "FONT":
-                    label_tips["text"] = _("Select the font in the res/fonts/")
-                    is_combobox = 1
-                elif title == "PATH" or title == "BACKGROUND_IMAGE":
-                    label_tips["text"] = (
-                        _("Select the picture in ") + config.THEME_DATA_EDIT["PATH"]
-                    )
-                    is_combobox = 2
-                elif title.endswith("COLOR") or title == "DISPLAY_RGB_LED":
-                    label_tips["text"] = _("Select the color you like")
-                    is_colorchooser = 1
-                    is_combobox = 0
-                else:
-                    is_colorchooser = 0
-                    is_combobox = 0
-                if is_combobox:
-                    combobox_list = list()
-                    combobox_select = 0
-                    if is_combobox == 1:
-                        res_list = file_tools.list_res_fonts()
-                    elif is_combobox == 2:
-                        res_list = file_tools.list_theme_pic()
-                    for index, font in enumerate(res_list):
-                        combobox_list.append(font)
-                        if font == value:
-                            combobox_select = index
-
-                    combobox = ttk.Combobox(self.editor, state="readonly")
-                    combobox["value"] = combobox_list
-                    combobox.current(combobox_select)
-                    combobox.place(x=setting_x, y=setting_y, width=470)
-                elif is_colorchooser:
-                    color_v = value.split(", ")
-                    color = "#{:02x}{:02x}{:02x}".format(
-                        int(color_v[0]), int(color_v[1]), int(color_v[2])
-                    )
-
-                    def on_canvas_click(event, init_color):
-                        color = colorchooser.askcolor(initialcolor=init_color)
-                        if len(color) == 2:
-                            if color[0] != None:
-                                v = "{:0d}, {:0d}, {:0d}".format(
-                                    color[0][0], color[0][1], color[0][2]
-                                )
-                                self.theme_tree_item_set_config_value(
-                                    config.THEME_DATA_EDIT, selection, v
-                                )
-                                self.theme_tree.item(selection, text=title + ": " + v)
-                                self.editor_display(selection, title, v)
-                                self.theme_refresh = True
-
-                    canvas = tkinter.Canvas(self.editor, width=75, height=25)
-                    canvas.delete("all")
-                    canvas.create_rectangle(2, 2, 75, 25, fill=color, outline="black")
-                    canvas.place(x=setting_x, y=setting_y)
-                    canvas.bind("<Button-1>", lambda e, c=color: on_canvas_click(e, c))
-                else:
-                    entry = ttk.Entry(self.editor)
-                    entry.place(x=setting_x, y=setting_y, width=470)
-                    entry.insert(0, value)
-                    entry.focus_set()
-            elif type(value) == bool:
+            print("unstandard settings")
+            if isinstance(value, bool):
+                print("Value is bool")
+                # Create a checkbox
                 bool_var = tkinter.BooleanVar()
                 bool_var.set(value)
                 check_button = ttk.Checkbutton(
                     self.editor, text=title, variable=bool_var
                 )
                 check_button.place(x=setting_x, y=setting_y)
+            elif isinstance(value, int):
+                print("Value is int")
+                def restrict_entry(event):
+                    char = event.char
+                    current_text = event.widget.get()
+                    cursor_index = event.widget.index(tkinter.INSERT)
 
-            if is_colorchooser == 0:
+                    # Allow delete operations
+                    if char in ("", "\x7f", "\x08"):
+                        return
 
+                    # Allow input of minus sign and digits
+                    if (cursor_index == 0 and char == "-") or char.isdigit():
+                        return
+                    else:
+                        event.widget.delete(len(current_text), tkinter.END)
+                        return "break"
+
+                # Create an entry box
+                entry = ttk.Entry(self.editor, width=25)
+                entry.bind("<Key>", restrict_entry)
+                entry.place(x=setting_x, y=setting_y, width=470)
+                entry.insert(0, str(value))
+                entry.focus_set()
+            elif isinstance(value, str):
+                print("Value is str")
+                if title == "FONT":
+                    tips_label["text"] = _("Select the font in the fonts_dir/")
+                    is_combobox = True
+                    res_list = file_tools.list_res_fonts()
+                elif title in ("PATH", "BACKGROUND_IMAGE"):
+                    tips_label["text"] = _("Select the picture in ") + str(config.THEME_DATA_EDIT["PATH"])
+                    is_combobox = True
+                    res_list = file_tools.list_theme_pic()
+                elif title.endswith("COLOR") or title == "DISPLAY_RGB_LED":
+                    tips_label["text"] = _("Select the color you like")
+                    is_color_chooser = True
+                else:
+                    is_color_chooser = False
+                    is_combobox = False
+
+                if is_combobox:
+                    # Prepare combobox options
+                    combobox_list = res_list
+                    combobox_select = combobox_list.index(value) if value in combobox_list else 0
+
+                    # Create a combobox
+                    combobox = ttk.Combobox(self.editor, state="readonly")
+                    combobox["value"] = combobox_list
+                    combobox.current(combobox_select)
+                    combobox.place(x=setting_x, y=setting_y, width=470)
+                elif is_color_chooser:
+                    # Parse color value
+                    color_values = [int(x) for x in value.split(", ")]
+                    color = "#{:02x}{:02x}{:02x}".format(*color_values)
+
+                    def on_canvas_click(event, init_color):
+                        new_color = colorchooser.askcolor(initialcolor=init_color)
+                        if new_color and new_color[0]:
+                            new_value = "{:0d}, {:0d}, {:0d}".format(*new_color[0])
+                            self._update_config_and_refresh(selection, title, new_value)
+
+                    # Create a color selection canvas
+                    canvas = tkinter.Canvas(self.editor, width=75, height=25)
+                    canvas.delete("all")
+                    canvas.create_rectangle(2, 2, 75, 25, fill=color, outline="black")
+                    canvas.place(x=setting_x, y=setting_y)
+                    canvas.bind("<Button-1>", lambda e, c=color: on_canvas_click(e, c))
+                else:
+                    # Create an entry box
+                    entry = ttk.Entry(self.editor)
+                    entry.place(x=setting_x, y=setting_y, width=470)
+                    entry.insert(0, value)
+                    entry.focus_set()
+
+            if not is_color_chooser:
                 def on_confirm(event=None):
-                    if type(value) == str:
-                        if is_combobox:
-                            v = combobox.get()
-                        else:
-                            v = entry.get()
-                        self.theme_tree_item_set_config_value(
-                            config.THEME_DATA_EDIT, selection, v
-                        )
-                        self.theme_tree.item(selection, text=title + ": " + v)
-                        self.editor_display(selection, title, v)
-                        self.theme_refresh = True
-                    elif type(value) == int:
-                        v = entry.get()
-                        if v != str(value):
-                            self.theme_tree_item_set_config_value(
-                                config.THEME_DATA_EDIT, selection, int(v)
-                            )
-                            self.theme_tree.item(selection, text=title + ": " + v)
-                            self.editor_display(selection, title, int(v))
-                            self.theme_refresh = True
-                    elif type(value) == bool:
-                        v = bool_var.get()
-                        if v != value:
-                            self.theme_tree_item_set_config_value(
-                                config.THEME_DATA_EDIT, selection, v
-                            )
-                            self.theme_tree.item(selection, text=title + ": " + str(v))
-                            self.editor_display(selection, title, v)
-                            self.theme_refresh = True
+                    if isinstance(value, str):
+                        new_value = combobox.get() if is_combobox else entry.get()
+                    elif isinstance(value, bool):
+                        new_value = bool_var.get()
+                    elif isinstance(value, int):
+                        new_value = int(entry.get())
 
-                if type(value) == bool:
+                    if new_value != value:
+                        self._update_config_and_refresh(selection, title, new_value)
+
+                if isinstance(value, bool):
                     check_button["command"] = on_confirm
                 else:
                     try:
                         entry.bind("<Return>", on_confirm)
-                    except:
+                    except NameError:
                         pass
 
+                    # Create a confirm button
                     confirm_button = ttk.Button(
                         self.editor, text=_("Confirm"), command=on_confirm
                     )
-                    confirm_button.place(x=setting_c_x, y=setting_c_y)
+                    confirm_button.place(x=confirm_x, y=confirm_y)
+
+    def _update_config_and_refresh(self, selection, title, new_value):
+        # Update configuration data
+        self.theme_tree_item_set_config_value(
+            config.THEME_DATA_EDIT, selection, new_value
+        )
+        # Update tree item
+        self.theme_tree.item(selection, text=title + ": " + str(new_value))
+        # Redisplay the editor
+        self.editor_display(selection, title, new_value)
+        # Mark the theme for refresh
+        self.theme_refresh = True
 
     def editor_display_dict(self, selection, title):
         self.editor.destroy()
@@ -1086,7 +1057,8 @@ class theme_editor:
                 )
                 self.theme_refresh = True
             else:
-                self.logger.error("Have Same Name")
+                self.logger.error(f"{entry.get()} already exists")
+                self.logger_error_message(f"{entry.get()} already exists")
 
         confirm_button = ttk.Button(self.editor, text=_("Confirm"), command=on_confirm)
         confirm_button.grid(row=1, column=11, columnspan=1, sticky="w" + "e")
@@ -1248,7 +1220,7 @@ class theme_editor:
             # Update the preview.png that is in the theme folder
             if self.theme_refresh != True:
                 display.lcd.screen_image.save(
-                    config.THEME_DATA["PATH"] + "preview.png", "PNG"
+                    config.CURRENT_THEME_PATH / "preview.png", "PNG"
                 )
 
             # Display new picture
@@ -1352,6 +1324,12 @@ class theme_editor:
                 ):
                     error_text = "LcdSensor humidness"
                     stats.LcdSensor.humidness(True)
+                if config.THEME_DATA['STATS']['WEATHER'].get("INTERVAL", 0) > 0:
+                    error_text = "Weather stats"
+                    stats.Weather.stats()
+                if config.THEME_DATA['STATS']['PING'].get("INTERVAL", 0) > 0:
+                    error_text = "Ping stats"
+                    stats.Ping.stats()
             
                 dynamic_images.dynamic_images.init()
                 dynamic_texts.dynamic_texts.init()

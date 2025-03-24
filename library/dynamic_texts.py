@@ -1,13 +1,7 @@
-import os
+from pathlib import Path
 
 import library.config as config
 from library.display import display
-
-def get_theme_file_path(name):
-    if name:
-        return os.path.join(config.THEME_DATA['PATH'], name)
-    else:
-        return None
 
 class dynamic_texts:
     theme_data = []
@@ -28,7 +22,7 @@ class dynamic_texts:
         cls.time_out = 0
         if config.THEME_DATA.get('dynamic_texts', False):
             cls.theme_data = config.THEME_DATA['dynamic_texts']
-            cls.background_image = get_theme_file_path(cls.theme_data.get("BACKGROUND_IMAGE", None))
+            cls.background_image = config.get_theme_file_path(cls.theme_data.get("BACKGROUND_IMAGE", None))
             cls.background_color = cls.theme_data.get("BACKGROUND_COLOR", (0, 0, 0))
             cls.show = cls.theme_data.get("SHOW", False)
             if cls.show != False:
@@ -72,6 +66,8 @@ class dynamic_texts:
                             break
 
                 if find_id == False:
+                    if cls.first_text_dict == None:
+                        return refresh
                     text_dict = cls.first_text_dict
                     cls.time_out = cls.theme_data[text_dict].get("INTERVAL_100mS", 10)
                     cls.id_now = cls.id_min + 1
@@ -85,7 +81,7 @@ class dynamic_texts:
                     height=cls.theme_data[text_dict].get("HEIGHT", 0),
                     background_color=cls.background_color,
                     background_image=cls.background_image,
-                    font=cls.theme_data[text_dict].get("FONT", "roboto-mono/RobotoMono-Regular.ttf"),
+                    font=config.get_font_path(cls.theme_data[text_dict].get("FONT", None)),
                     font_size=cls.theme_data[text_dict].get("FONT_SIZE", 10),
                     font_color=cls.theme_data[text_dict].get("FONT_COLOR", (0, 0, 0)),
                     align=cls.theme_data[text_dict].get("ALIGN", "left"),

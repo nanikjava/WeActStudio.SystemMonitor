@@ -1,4 +1,3 @@
----
 display:
   DISPLAY_ORIENTATION: portrait
   DISPLAY_RGB_LED: 0, 0, 0
@@ -14,20 +13,20 @@ STATS:
     PERCENTAGE:
       INTERVAL: 5
       TEXT:
-        SHOW: True
-        SHOW_UNIT: False
+        SHOW: true
+        SHOW_UNIT: false
         X: 23
         Y: 309
         FONT: digital/DIGITAL-7.TTF
         FONT_SIZE: 200
         FONT_COLOR: 20, 240, 116
         # BACKGROUND_COLOR: 132, 154, 165
-        BACKGROUND_IMAGE: background_digital.png 
+        BACKGROUND_IMAGE: background_digital.png
     TEMPERATURE:
       INTERVAL: 2
       TEXT:
-        SHOW: True
-        SHOW_UNIT: False
+        SHOW: true
+        SHOW_UNIT: false
         X: 23
         Y: 80
         FONT: digital/DIGITAL-7.TTF

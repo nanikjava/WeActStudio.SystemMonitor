@@ -4,31 +4,34 @@ import library.config as config
 from library.display import display
 from library.log import logger
 import random 
-
-def get_theme_file_path(name):
-    if name:
-        return os.path.join(config.THEME_DATA['PATH'], name)
-    else:
-        return None
+from pathlib import Path
+    
+from pathlib import Path
 
 def list_theme_pic():
-        pic = list()
-        for root, dirs, files in os.walk(config.THEME_DATA_EDIT["PATH"]):
+    # List to store the paths of picture files
+    pic = []
+    # Define the allowed picture file extensions
+    valid_extensions = ('.png', '.jpg', '.bmp')
+    # Convert the configuration paths to Path objects
+    theme_path = Path(config.CURRENT_THEME_PATH)
+    # Traverse all files and folders under the theme path
+    for root, _, files in os.walk(theme_path):
+        root_path = Path(root)
+        # Check if it is a 'Photos' folder
+        if 'Photos' in root_path.parts:
             for file in files:
+                # Convert the file name to lowercase
                 file_l = file.lower()
-                if (
-                    file_l.endswith(".png")
-                    or file_l.endswith(".jpg")
-                    or file_l.endswith(".bmp")
-                ):
-                    if len(root) > len(config.THEME_DATA_EDIT["PATH"]):
-                        root_path = root[len(config.THEME_DATA_EDIT["PATH"]) :]
-                        if root_path.startswith("Photos\\") or root_path.startswith("Photos/") or root_path == "Photos":
-                            path = root[len(config.THEME_DATA_EDIT["PATH"]) :] + "/" + file
-                            pic.append(get_theme_file_path(path))
-                    # else:
-                    #     pic.append(file)
-        return pic
+                # Check if the file extension is an allowed picture extension
+                if file_l.endswith(valid_extensions):
+                    # Construct the relative path of the file
+                    relative_path = root_path.relative_to(theme_path) / file
+                    # Get the full path of the theme file
+                    pic_path = config.get_theme_file_path(str(relative_path))
+                    # Add the picture path to the list
+                    pic.append(pic_path)
+    return pic
 
 class photo_album:
     theme_data = []
@@ -60,7 +63,7 @@ class photo_album:
             cls.theme_data = config.THEME_DATA['photo_album']
             cls.show = cls.theme_data.get("SHOW", False)
             if cls.show == True:
-                cls.background_image = get_theme_file_path(cls.theme_data.get("BACKGROUND_IMAGE", None))
+                cls.background_image = config.get_theme_file_path(cls.theme_data.get("BACKGROUND_IMAGE", None))
                 cls.background_color = cls.theme_data.get("BACKGROUND_COLOR", (0, 0, 0))
                 cls.show_sequential = not cls.theme_data.get("SHOW_RANDOM", False)
                 cls.interval = cls.theme_data.get("INTERVAL", 3)

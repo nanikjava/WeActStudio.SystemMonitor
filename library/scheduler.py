@@ -188,22 +188,6 @@ def LcdSensorHumidness():
     """ Refresh the Humiture Humidness """
     stats.LcdSensor.humidness()
 
-@async_job("Queue_Handler")
-@schedule(timedelta(milliseconds=1).total_seconds())
-def QueueHandler():
-    # Do next action waiting in the queue
-    global STOPPING
-    if STOPPING:
-        # Empty the action queue to allow program to exit cleanly
-        while not config.update_queue.empty():
-            f, args = config.update_queue.get()
-            f(*args)
-    else:
-        # Execute first action in the queue
-        f, args = config.update_queue.get()
-        if f:
-            f(*args)
-
 def is_queue_empty() -> bool:
     return config.update_queue.empty()
 
@@ -238,3 +222,29 @@ def photo_album_Init():
 @schedule(timedelta(seconds=(config.THEME_DATA['photo_album'].get("INTERVAL", 0))).total_seconds())
 def photo_album_Handler():
     photo_album.photo_album.handle()
+
+@async_job("Weather_Stats")
+@schedule(timedelta(seconds=max(300.0, config.THEME_DATA['STATS'].get('WEATHER', {}).get("INTERVAL", 0))).total_seconds())
+def WeatherStats():
+    stats.Weather.stats()
+
+@async_job("Ping_Stats")
+@schedule(timedelta(seconds=config.THEME_DATA['STATS'].get('PING', {}).get("INTERVAL", 0)).total_seconds())
+def PingStats():
+    stats.Ping.stats()
+
+@async_job("Queue_Handler")
+@schedule(timedelta(milliseconds=1).total_seconds())
+def QueueHandler():
+    # Do next action waiting in the queue
+    global STOPPING
+    if STOPPING:
+        # Empty the action queue to allow program to exit cleanly
+        while not config.update_queue.empty():
+            f, args = config.update_queue.get()
+            f(*args)
+    else:
+        # Execute first action in the queue
+        f, args = config.update_queue.get()
+        if f:
+            f(*args)

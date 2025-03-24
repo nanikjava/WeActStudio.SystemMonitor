@@ -1,3 +1,26 @@
+author: '@WeActStudio'
+display:
+  DISPLAY_ORIENTATION: portrait
+  DISPLAY_RGB_LED: 0, 0, 0
+  DISPLAY_SIZE: 320x480
+static_images:
+  background:
+    HEIGHT: 480
+    PATH: background.png
+    WIDTH: 320
+    X: 0
+    Y: 0
+photo_album:
+  ALIGN: center
+  AUTO_REFRESH: true
+  BACKGROUND_COLOR: 0, 0, 0
+  INTERVAL: 10
+  MAX_HEIGHT: 455
+  MAX_WIDTH: 0
+  SHOW: true
+  SHOW_RANDOM: false
+  X: 0
+  Y: 0
 STATS:
   DATE:
     DAY:
@@ -68,26 +91,3 @@ STATS:
         WIDTH: 0
         X: 190
         Y: 470
-author: '@WeActStudio'
-display:
-  DISPLAY_ORIENTATION: portrait
-  DISPLAY_RGB_LED: 0, 0, 0
-  DISPLAY_SIZE: 320x480
-photo_album:
-  ALIGN: center
-  AUTO_REFRESH: true
-  BACKGROUND_COLOR: 0, 0, 0
-  INTERVAL: 10
-  MAX_HEIGHT: 455
-  MAX_WIDTH: 0
-  SHOW: true
-  SHOW_RANDOM: false
-  X: 0
-  Y: 0
-static_images:
-  background:
-    HEIGHT: 480
-    PATH: background.png
-    WIDTH: 320
-    X: 0
-    Y: 0

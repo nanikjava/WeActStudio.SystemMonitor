@@ -3,12 +3,6 @@ import os
 import library.config as config
 from library.display import display
 
-def get_theme_file_path(name):
-    if name:
-        return os.path.join(config.THEME_DATA['PATH'], name)
-    else:
-        return None
-
 class dynamic_images:
     theme_data = []
     theme_data_ok = False
@@ -28,7 +22,7 @@ class dynamic_images:
         cls.time_out = 0
         if config.THEME_DATA.get('dynamic_images', False):
             cls.theme_data = config.THEME_DATA['dynamic_images']
-            cls.background_image = get_theme_file_path(cls.theme_data.get("BACKGROUND_IMAGE", None))
+            cls.background_image = config.get_theme_file_path(cls.theme_data.get("BACKGROUND_IMAGE", None))
             cls.background_color = cls.theme_data.get("BACKGROUND_COLOR", (0, 0, 0))
             cls.show = cls.theme_data.get("SHOW", False)
             if cls.show != False:
@@ -72,6 +66,8 @@ class dynamic_images:
                             break
 
                 if find_id == False:
+                    if cls.first_image_dict == None:
+                        return refresh
                     image_dict = cls.first_image_dict
                     cls.time_out = cls.theme_data[image_dict].get("INTERVAL_100mS", 10)
                     cls.id_now = cls.id_min + 1
@@ -81,7 +77,7 @@ class dynamic_images:
                     y=cls.theme_data[image_dict].get("Y", 0),
                     width=cls.theme_data[image_dict].get("WIDTH", 0),
                     height=cls.theme_data[image_dict].get("HEIGHT", 0),
-                    image=get_theme_file_path(cls.theme_data[image_dict].get("PATH", None)),
+                    image=config.get_theme_file_path(cls.theme_data[image_dict].get("PATH", None)),
                     background_color=cls.background_color,
                     background_image=cls.background_image)
                 

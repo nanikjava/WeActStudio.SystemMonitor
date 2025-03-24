@@ -28,7 +28,7 @@ import os
 import platform
 import sys
 from typing import List
-
+from pathlib import Path
 import babel.dates
 from psutil._common import bytes2human
 from uptime import uptime
@@ -36,6 +36,7 @@ from uptime import uptime
 import library.config as config
 from library.display import display
 from library.log import logger
+from library import utils
 
 DEFAULT_HISTORY_SIZE = 10
 
@@ -78,14 +79,6 @@ else:
 
 import library.sensors.sensors_custom as sensors_custom
 
-
-def get_theme_file_path(name):
-    if name:
-        return os.path.join(config.THEME_DATA['PATH'], name)
-    else:
-        return None
-
-
 def display_themed_value(theme_data, value, min_size=0, unit=''):
     if not theme_data.get("SHOW", False):
         return
@@ -115,11 +108,11 @@ def display_themed_value(theme_data, value, min_size=0, unit=''):
         y=theme_data.get("Y", 0),
         width=theme_data.get("WIDTH", 0),
         height=theme_data.get("HEIGHT", 0),
-        font=theme_data.get("FONT", "roboto-mono/RobotoMono-Regular.ttf"),
+        font=config.get_font_path(theme_data.get("FONT", None)),
         font_size=theme_data.get("FONT_SIZE", 10),
         font_color=theme_data.get("FONT_COLOR", (0, 0, 0)),
         background_color=theme_data.get("BACKGROUND_COLOR", (255, 255, 255)),
-        background_image=get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None)),
+        background_image=config.get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None)),
         align=theme_data.get("ALIGN", "left"),
         anchor=anchor,
     )
@@ -157,7 +150,7 @@ def display_themed_progress_bar(theme_data, value):
         bar_color=theme_data.get("BAR_COLOR", (0, 0, 0)),
         bar_outline=theme_data.get("BAR_OUTLINE", False),
         background_color=theme_data.get("BACKGROUND_COLOR", (255, 255, 255)),
-        background_image=get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None))
+        background_image=config.get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None))
     )
 
 
@@ -190,11 +183,11 @@ def display_themed_radial_bar(theme_data, value, min_size=0, unit='', custom_tex
         value=value,
         bar_color=theme_data.get("BAR_COLOR", (0, 0, 0)),
         text=text,
-        font=theme_data.get("FONT", "roboto-mono/RobotoMono-Regular.ttf"),
+        font=config.get_font_path(theme_data.get("FONT", None)),
         font_size=theme_data.get("FONT_SIZE", 10),
         font_color=theme_data.get("FONT_COLOR", (0, 0, 0)),
         background_color=theme_data.get("BACKGROUND_COLOR", (0, 0, 0)),
-        background_image=get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None)),
+        background_image=config.get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None)),
         custom_bbox=theme_data.get("CUSTOM_BBOX", (0, 0, 0, 0)),
         text_offset=theme_data.get("TEXT_OFFSET", (0, 0)),
         bar_background_color = theme_data.get("BAR_BACKGROUND_COLOR", (0, 0, 0)),
@@ -240,10 +233,10 @@ def display_themed_line_graph(theme_data, values):
         line_width=theme_data.get("LINE_WIDTH", 2),
         graph_axis=theme_data.get("AXIS", False),
         axis_color=theme_data.get("AXIS_COLOR", line_color),  # If no color specified, use line color for axis
-        axis_font=theme_data.get("AXIS_FONT", "roboto/Roboto-Black.ttf"),
+        axis_font=config.get_font_path(theme_data.get("AXIS_FONT", None)),
         axis_font_size=theme_data.get("AXIS_FONT_SIZE", 10),
         background_color=theme_data.get("BACKGROUND_COLOR", (0, 0, 0)),
-        background_image=get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None))
+        background_image=config.get_theme_file_path(theme_data.get("BACKGROUND_IMAGE", None))
     )
 
 
@@ -971,10 +964,6 @@ class LcdSensor:
     _humidness = 0
     @classmethod
     def temperature(cls,forced_refresh = False):
-        if HW_SENSORS == "STATIC":
-            # For static sensors
-            cls._temperature = 26.2
-
         save_last_value(cls._temperature, cls.last_values_temperature,
                         config.THEME_DATA['STATS']['LCD_SENSOR']['TEMPERATURE']['LINE_GRAPH'].get("HISTORY_SIZE",
                                                                                            DEFAULT_HISTORY_SIZE))
@@ -1016,9 +1005,6 @@ class LcdSensor:
 
     @classmethod
     def humidness(cls,forced_refresh = False):
-        if HW_SENSORS == "STATIC":
-            # For static sensors
-            cls._humidness = 50.5
         save_last_value(cls._humidness, cls.last_values_humidness,
                         config.THEME_DATA['STATS']['LCD_SENSOR']['HUMIDNESS']['LINE_GRAPH'].get("HISTORY_SIZE",
                                                                                            DEFAULT_HISTORY_SIZE))
@@ -1066,4 +1052,80 @@ class LcdSensor:
             cls._temperature = 0
             cls._humidness = 0
 
+class Weather:
+    @staticmethod
+    def stats():
+        weather_theme_data = config.THEME_DATA['STATS'].get('WEATHER', {})
+        wtemperature_theme_data = weather_theme_data.get('TEMPERATURE', {}).get('TEXT', {})
+        wfelt_theme_data = weather_theme_data.get('TEMPERATURE_FELT', {}).get('TEXT', {})
+        wupdatetime_theme_data = weather_theme_data.get('UPDATE_TIME', {}).get('TEXT', {})
+        wdescription_theme_data = weather_theme_data.get('WEATHER_DESCRIPTION', {}).get('TEXT', {})
+        whumidity_theme_data = weather_theme_data.get('HUMIDITY', {}).get('TEXT', {})
 
+        activate = True if wtemperature_theme_data.get("SHOW") or wfelt_theme_data.get(
+            "SHOW") or wupdatetime_theme_data.get("SHOW") or wdescription_theme_data.get(
+            "SHOW") or whumidity_theme_data.get("SHOW") else False
+
+        if activate:
+            temp = None
+            feel = None
+            time = None
+            humidity = None
+            if HW_SENSORS in ["STATIC", "STUB"]:
+                temp = "17.5°C"
+                feel = "(17.2°C)"
+                desc = "Cloudy"
+                time = "@15:33"
+                humidity = "45%"
+            else:
+                # API Parameters
+                lat = config.CONFIG_DATA['config'].get('WEATHER_LATITUDE', "")
+                lon = config.CONFIG_DATA['config'].get('WEATHER_LONGITUDE', "")
+                api_key = config.CONFIG_DATA['config'].get('WEATHER_API_KEY', "")
+                units = config.CONFIG_DATA['config'].get('WEATHER_UNITS', "metric")
+                lang = config.CONFIG_DATA['config'].get('WEATHER_LANGUAGE', "en")
+                temp, feel, desc, humidity, time, result = utils.get_weather(lat, lon, api_key, units, lang)
+                if not result:
+                    desc = "Error"
+        if activate:
+            # Display Temperature
+            display_themed_value(theme_data=wtemperature_theme_data, value=temp)
+            # Display Temperature Felt
+            display_themed_value(theme_data=wfelt_theme_data, value=feel)
+            # Display Update Time
+            display_themed_value(theme_data=wupdatetime_theme_data, value=time)
+            # Display Humidity
+            display_themed_value(theme_data=whumidity_theme_data, value=humidity)
+            # Display Weather Description (or error message)
+            display_themed_value(theme_data=wdescription_theme_data, value=desc)
+
+
+class Ping:
+    last_values_ping = []
+
+    @classmethod
+    def stats(cls):
+        theme_data = config.THEME_DATA['STATS']['PING']
+
+        if HW_SENSORS in ["STATIC", "STUB"]:
+            delay = 10.25
+        else:
+            delay = utils.get_ping_delay(config.CONFIG_DATA["config"].get("PING", "127.0.0.1"))
+
+        save_last_value(delay, cls.last_values_ping,
+                        theme_data['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+
+        display_themed_progress_bar(theme_data['GRAPH'], delay)
+        display_themed_radial_bar(
+            theme_data=theme_data['RADIAL'],
+            value=f"{delay:.2f}",
+            unit="ms",
+            min_size=6
+        )
+        display_themed_value(
+            theme_data=theme_data['TEXT'],
+            value=f"{delay:.2f}",
+            unit="ms",
+            min_size=2
+        )
+        display_themed_line_graph(theme_data['LINE_GRAPH'], cls.last_values_ping)

@@ -221,3 +221,59 @@ msgstr ""
 
 msgid "Copy theme"
 msgstr ""
+
+msgid "Ping & Weather"
+msgstr ""
+
+msgid "Ping & Weather Configure"
+msgstr ""
+
+msgid "Hostname / IP to ping"
+msgstr ""
+
+msgid "Weather forecast (OpenWeatherMap API)"
+msgstr ""
+
+msgid "To display weather forecast on themes that support it, you need an OpenWeatherMap API key.\n"
+"It use \"Current weather data api\": https://openweathermap.org/current .\n"
+"You will get 1,000 API calls per day for free. This program is configured to stay under this threshold (~300 calls/day)."
+msgstr ""
+
+msgid "Click here to Create an OpenWeatherMap Account."
+msgstr ""
+
+msgid "You can use online services to get your latitude/longitude e.g. latlong.net (click here)"
+msgstr ""
+
+msgid "Latitude"
+msgstr ""
+
+msgid "Longitude"
+msgstr ""
+
+msgid "Get via IP"
+msgstr ""
+
+msgid "Units"
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Test Ping"
+msgstr ""
+
+msgid "Test API"
+msgstr ""
+
+msgid "Workspace Settings"
+msgstr ""
+
+msgid "Themes Folder:"
+msgstr ":"
+
+msgid "Select Folder"
+msgstr ""
+
+msgid  "Fonts Folder:"
+msgstr ""

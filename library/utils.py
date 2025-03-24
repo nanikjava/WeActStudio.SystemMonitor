@@ -1,8 +1,11 @@
 import os
 import sys
+import requests,datetime
+import threading
 try:
     import tkinter as tk
     import psutil
+    import ping3
 except:
     print("[ERROR] Python dependencies not installed.")
     try:
@@ -18,7 +21,7 @@ def show_messagebox(message, title="", delay=3000):
     screen_width = main.winfo_screenwidth()  
     screen_height = main.winfo_screenheight()  
     height = 50
-    width = 350 
+    width = 300 
     position_top = int(screen_height / 2 - height / 2)  
     position_right = int(screen_width / 2 - width / 2)  
     main.geometry(f'{width}x{height}+{position_right}+{position_top}')
@@ -28,16 +31,22 @@ def show_messagebox(message, title="", delay=3000):
     main.attributes("-toolwindow", True)
 
     label = tk.Label(
-        main, text=message
+        main, text=message, anchor="w"
     )
-    label.pack(
-        side=tk.TOP, padx=5, pady=10, anchor=tk.W
-    )
+    label.grid(row=0, column=0,columnspan=2,padx=5, pady=10, ipadx=100, ipady=5, sticky="w")
 
     main.update()
+    # screen_width = main.winfo_screenwidth()
+    # screen_height = main.winfo_screenheight()
+    # main_window_width = main.winfo_width()
+    # main_window_height = main.winfo_height()
+    # x = (screen_width - main_window_width) // 2
+    # y = (screen_height - main_window_height) // 2
+    # main.geometry(f"{main_window_width}x{main_window_height}+{x}+{y}")
+    # main.deiconify()
 
     if delay > 0:
-        main.after(delay, lambda: (main.destroy() if not main.winfo_viewable() else None))
+        main.after(delay, lambda: (main.destroy() if main.winfo_viewable() else None))
 
     return main
 
@@ -125,3 +134,55 @@ def set_language(file_path):
     lang_translation = gettext.translation(domain, localedir, languages=[language], fallback=True)
     lang_translation.install(domain)
     return lang_translation.gettext
+
+TEMPERATURE_UNIT_MAP = {"metric": "metric - °C", "imperial": "imperial - °F", "standard": "standard - °K"}
+
+WEATHER_LANG_MAP = {"sq": "Albanian", "af": "Afrikaans", "ar": "Arabic", "az": "Azerbaijani", "eu": "Basque",
+                    "be": "Belarusian", "bg": "Bulgarian", "ca": "Catalan", "zh_cn": "Chinese Simplified",
+                    "zh_tw": "Chinese Traditional", "hr": "Croatian", "cz": "Czech", "da": "Danish", "nl": "Dutch",
+                    "en": "English", "fi": "Finnish", "fr": "French", "gl": "Galician", "de": "German", "el": "Greek",
+                    "he": "Hebrew", "hi": "Hindi", "hu": "Hungarian", "is": "Icelandic", "id": "Indonesian",
+                    "it": "Italian", "ja": "Japanese", "kr": "Korean", "ku": "Kurmanji (Kurdish)", "la": "Latvian",
+                    "lt": "Lithuanian", "mk": "Macedonian", "no": "Norwegian", "fa": "Persian (Farsi)", "pl": "Polish",
+                    "pt": "Portuguese", "pt_br": "Português Brasil", "ro": "Romanian", "ru": "Russian", "sr": "Serbian",
+                    "sk": "Slovak", "sl": "Slovenian", "sp": "Spanish", "sv": "Swedish", "th": "Thai", "tr": "Turkish",
+                    "ua": "Ukrainian", "vi": "Vietnamese", "zu": "Zulu"}
+
+def get_weather(lat, lon, api_key, units, lang):
+    WEATHER_UNITS = {'metric': '°C', 'imperial': '°F', 'standard': '°K'}
+    url = f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units={units}&lang={lang}'
+    desc = ''
+    result = False
+    deg = WEATHER_UNITS.get(units, '°?')
+    temp = f"{0}{deg}"
+    feel = f"({0}{deg})"
+    humidity = f"{0}%"
+    now = datetime.datetime.now()
+    time = f"@{now.hour:02d}:{now.minute:02d}"
+    if api_key:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                data = response.json()
+                temp = f"{data['main']['temp']:.1f}{deg}"
+                feel = f"({data['main']['feels_like']:.1f}{deg})"
+                desc = data['weather'][0]['description'].capitalize()
+                humidity = f"{data['main']['humidity']:.0f}%"
+                result = True
+            else:
+                print(f"Error {response.status_code} fetching OpenWeatherMap API:")
+                desc = response.json().get('message')
+        except Exception as e:
+            print(f"Error fetching OpenWeatherMap API: {str(e)}")
+            desc = "Error fetching OpenWeatherMap API"
+    else:
+        print("No OpenWeatherMap API key provided in config.yaml")
+        desc = "No OpenWeatherMap API key"
+    return temp, feel, desc, humidity, time, result
+
+def get_ping_delay(host):
+    delay = ping3.ping(host)
+    if delay is not False:
+        return delay
+    else:
+        return -1

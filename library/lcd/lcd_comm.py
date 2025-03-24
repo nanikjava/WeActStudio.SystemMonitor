@@ -93,24 +93,18 @@ class LcdComm(ABC):
                 logger.error(
                     "Cannot find COM port automatically, please run Configuration again and select COM port manually")
                 self.com_port = 'AUTO'
-                return
-                # try:
-                #     sys.exit(0)
-                # except:
-                #     os._exit(0)
+                return False
             else:
                 logger.debug(f"Auto detected COM port: {self.com_port}")
         else:
             logger.debug(f"Static COM port: {self.com_port}")
-
+        
         try:
             self.lcd_serial = serial.Serial(self.com_port, 115200, timeout=1, rtscts=True)
         except Exception as e:
             logger.error(f"Cannot open COM port {self.com_port}: {e}")
-            # try:
-            #     sys.exit(0)
-            # except:
-            #     os._exit(0)
+            return False
+        return True
 
     def closeSerial(self):
         try:
@@ -250,7 +244,7 @@ class LcdComm(ABC):
             y: int = 0,
             width: int = 0,
             height: int = 0,
-            font: str = "roboto-mono/RobotoMono-Regular.ttf",
+            font: str = "res/fonts/roboto-mono/RobotoMono-Regular.ttf",
             font_size: int = 20,
             font_color: Color = (0, 0, 0),
             background_color: Color = (255, 255, 255),
@@ -269,10 +263,6 @@ class LcdComm(ABC):
             self.get_height())
         assert len(text) > 0, 'Text must not be empty'
         assert font_size > 0, "Font size must be > 0"
-
-        # If only width is specified, assume height based on font size (one-line text)
-        if width > 0 and height == 0:
-            height = font_size
             
         text_image = None
         if background_image is None:
@@ -291,6 +281,15 @@ class LcdComm(ABC):
         ttfont = self.open_font(font, font_size)
         d = ImageDraw.Draw(text_image)
 
+        # If only width is specified, assume height based on font size (one-line text)
+        if width > 0 and height == 0:
+            height = font_size
+        # If only height is specified, assume width based on font size (one-line text)
+        elif width == 0 and height > 0:
+            left, top, right, bottom = d.textbbox((x, y), text, font=ttfont, align=align, anchor=anchor)
+            width = right - left
+
+        # If width/height are not specified, calculate them based on text
         if width == 0 or height == 0:
             left, top, right, bottom = d.textbbox((x, y), text, font=ttfont, align=align, anchor=anchor)
 
@@ -386,7 +385,7 @@ class LcdComm(ABC):
                          line_width: int = 2,
                          graph_axis: bool = True,
                          axis_color: Color = (0, 0, 0),
-                         axis_font: str = "roboto/Roboto-Black.ttf",
+                         axis_font: str = "res/fonts/roboto/Roboto-Black.ttf",
                          axis_font_size: int = 10,
                          background_color: Color = (255, 255, 255),
                          background_image: Optional[str] = None):
@@ -507,7 +506,7 @@ class LcdComm(ABC):
                                  value: int = 50,
                                  text: Optional[str] = None,
                                  with_text: bool = True,
-                                 font: str = "roboto/Roboto-Black.ttf",
+                                 font: str = "res/fonts/roboto/Roboto-Black.ttf",
                                  font_size: int = 20,
                                  font_color: Color = (0, 0, 0),
                                  bar_color: Color = (0, 0, 0),
@@ -697,8 +696,9 @@ class LcdComm(ABC):
        # self.DisplayPILImage(bar_image, xc - radius, yc - radius)
 
     # Load image from the filesystem, or get from the cache if it has already been loaded previously
-    def open_image(self, bitmap_path: str,max_width: int=0,max_height:int=0) -> Image.Image:
-        if bitmap_path not in self.image_cache:
+    def open_image(self, bitmap_path: str,max_width: int=0,max_height:int=0,id:int=-1) -> Image.Image:
+        bitmap_path_with_id = str(bitmap_path) + f" {id}"
+        if bitmap_path_with_id not in self.image_cache:
             image = Image.open(bitmap_path)
             if max_width > 0 and max_height > 0:
                 width_set = max_width
@@ -712,12 +712,16 @@ class LcdComm(ABC):
                     width = int(image.width * ratio)  
                     image = image.resize((width, height_set), Image.LANCZOS) 
             else:
-                assert image.width <= self.get_width(), "Bitmap " + bitmap_path + f' width {image.width} exceeds display width {self.get_width()}'
-                assert image.height <= self.get_height(), "Bitmap " + bitmap_path + f' height {image.height} exceeds display height {self.get_height()}'
-            logger.debug("Bitmap " + bitmap_path + " is now loaded in the cache")
-            self.image_cache[bitmap_path] = image
-        return copy.copy(self.image_cache[bitmap_path])
+                assert image.width <= self.get_width(), "Bitmap " + bitmap_path_with_id + f' width {image.width} exceeds display width {self.get_width()}'
+                assert image.height <= self.get_height(), "Bitmap " + bitmap_path_with_id + f' height {image.height} exceeds display height {self.get_height()}'
+            logger.debug("Bitmap " + bitmap_path_with_id + " is now loaded in the cache")
+            self.image_cache[bitmap_path_with_id] = image
+        return copy.copy(self.image_cache[bitmap_path_with_id])
     
+    def save_image(self, bitmap_path: str, bitmap: Image.Image, id:int=-1):
+        bitmap_path_with_id = str(bitmap_path) + f" {id}"
+        self.image_cache[bitmap_path_with_id] = bitmap
+
     def DisplayImage(self, x: int, y: int,width: int,height: int,color: Tuple[int, int, int] = (255, 255, 255),image: str = None,
                            background_color: Tuple[int, int, int] = (255, 255, 255),
                            background_image: str = None):
@@ -761,53 +765,81 @@ class LcdComm(ABC):
         self.DisplayPILImage(bg_image, x, y)
 
     def DisplayImage2(self, x: int, y: int,max_width: int,max_height: int,image: str = None,align: str = 'left',
-                           background_color: Tuple[int, int, int] = (255, 255, 255),
-                           background_image: str = None):
+                        background_color: Tuple[int, int, int] = (255, 255, 255),background_image: str = None, 
+                        color: Tuple[int, int, int] = (255, 255, 255), radius: int = 0, alpha: int = 255, 
+                        overlay_display=False, id:int=0):
         # display a image
-
+        width_set = max_width
+        height_set = max_height
         if image is None:
-            assert 'Display Image in None'
+            display_image = Image.new('RGBA', (width_set, height_set), (0, 0, 0, 0))
+            draw = ImageDraw.Draw(display_image)
+            if isinstance(color, str):
+                color = tuple(map(int, color.split(', ')))
+            r, g, b = color
+            fill_color = (r, g, b, alpha)
+            draw.rounded_rectangle((0, 0, width_set, height_set), radius=radius, fill=fill_color)
         else:
             # A bitmap is created from provided display image
-            display_image = self.open_image(image,max_width,max_height)
-            width = display_image.size[0]
-            height = display_image.size[1]
+            if overlay_display:
+                if max_width == 0:
+                    width_set = self.get_width()
+                if max_height == 0:
+                    height_set = self.get_height()
+            display_image = self.open_image(image,width_set,height_set,id)
+            mask = Image.new('L', display_image.size, 0)
+            draw = ImageDraw.Draw(mask)
+            draw.rounded_rectangle((0, 0, display_image.size[0], display_image.size[1]), radius=radius, fill=alpha)
+            display_image = Image.composite(display_image, Image.new('RGBA', display_image.size, (0, 0, 0)), mask)
+
+        width = display_image.size[0]
+        height = display_image.size[1]
+        if overlay_display:
+            if max_width == 0:
+                width_set = width
+            if max_height == 0:
+                height_set = height
             
         assert x <= self.get_width(), f'Display Image X {x} coordinate must be <= display width {self.get_width()}'
         assert y <= self.get_height(), f'Display Image Y {y} coordinate must be <= display height {self.get_height()}'
-        assert x + max_width <= self.get_width(), f'Display Bitmap max_width+x exceeds display width {self.get_width()}'
-        assert y + max_height <= self.get_height(), f'Display Bitmap max_height+y exceeds display height {self.get_height()}'
+        assert x + width_set <= self.get_width(), f'Display Bitmap width+x exceeds display width {self.get_width()}'
+        assert y + height_set <= self.get_height(), f'Display Bitmap height+y exceeds display height {self.get_height()}'
 
         if isinstance(background_color, str):
             background_color = tuple(map(int, background_color.split(', ')))
 
         if background_image is None:
             # A bitmap is created with solid background
-            bg_image = Image.new('RGB', (max_width, max_height), background_color)
+            r, g, b = background_color
+            background_fill_color = (r, g, b, 255)
+            bg_image = Image.new('RGBA', (self.get_width(), self.get_height()), background_fill_color)
         else:
             # A bitmap is created from provided background image
             bg_image = self.open_image(background_image)
 
-            # Crop bitmap to keep only the image background
-            bg_image = bg_image.crop(box=(x, y, x + max_width, y + max_height))
+            if overlay_display:
+                self.save_image(background_image, bg_image)
+                # self.image_cache[background_image] = bg_image
 
         x_d = 0
         y_d = 0
-        if max_width > 0 and max_height > 0:
+        if width_set > 0 and height_set > 0:
             if align == 'right':
-                x_d = max_width - width
+                x_d = width_set - width
             elif align == 'center':
-                x_d = (max_width - width) // 2
-                y_d = (max_height - height) // 2
+                x_d = (width_set - width) // 2
+                y_d = (height_set - height) // 2
 
         if 'A' in display_image.mode:
-            bg_image.paste(display_image,(x_d, y_d),display_image)
+            bg_image.paste(display_image,(x_d+x, y_d+y),display_image)
         else:
-            bg_image.paste(display_image,(x_d, y_d))
-            
-        self.DisplayPILImage(bg_image, x, y)
+            bg_image.paste(display_image,(x_d+x, y_d+y))
+
+        # Crop bitmap to keep only the image background
+        bg_image_c = bg_image.crop(box=(x, y, x + width_set, y + height_set))
+        self.DisplayPILImage(bg_image_c, x, y)
 
     def open_font(self, name: str, size: int) -> ImageFont.FreeTypeFont:
         if (name, size) not in self.font_cache:
-            self.font_cache[(name, size)] = ImageFont.truetype("./res/fonts/" + name, size)
+            self.font_cache[(name, size)] = ImageFont.truetype(name, size)
         return self.font_cache[(name, size)]
