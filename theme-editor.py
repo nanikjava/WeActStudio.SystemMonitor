@@ -61,7 +61,7 @@ if len(sys.argv) != 2:
         os._exit(0)
 
 import library.log
-
+from library import utils
 # Hardcode specific configuration for theme editor
 from library import config
 
@@ -175,6 +175,8 @@ class theme_editor:
         self.x0 = 0
         self.y0 = 0
 
+        self.theme_preview_path = config.CURRENT_THEME_PATH / "preview.png"
+        
         self.theme_file_change = False
         self.theme_refresh = True
         self.theme_file_unsave = False
@@ -220,7 +222,7 @@ class theme_editor:
 
         self.main.title(_("WeAct Studio System Monitor Theme Editor") + f" - {theme_name}")
 
-        self.main.iconphoto(True, tkinter.PhotoImage(file="res/icons/logo.png"))
+        self.main.iconphoto(True, tkinter.PhotoImage(file=Path(__file__).parent / "res" / "icons" / "logo.png"))
         self.main.geometry(
             str(display.lcd.get_width() + 3 * self.RGB_LED_MARGIN + 600)
             + "x"
@@ -345,22 +347,14 @@ class theme_editor:
             if self.image_scaler_process.poll() == None:
                 messagebox.showerror("Error", "image scaler tool is running !")
                 return
-        sys.path.append(".")
-        self.image_scaler_process = subprocess.Popen(
-            ("python", os.path.join(os.getcwd(), "image_scaler_tool.py")),
-            shell=True,
-        )
+        self.image_scaler_process = utils.run.image_scaler_tool()
 
     def on_file_gif_scaler_button_press(self):
         if self.image_scaler_process != None:
             if self.image_scaler_process.poll() == None:
                 messagebox.showerror("Error", "gif scaler tool is running !")
                 return
-        sys.path.append(".")
-        self.image_scaler_process = subprocess.Popen(
-            ("python", os.path.join(os.getcwd(), "image_gif2png_scaler_tool.py")),
-            shell=True,
-        )
+        self.image_scaler_process = utils.run.image_gif2png_scaler_tool()
 
     def on_file_open_theme_dir_button_press(self):
         dir_path = config.CURRENT_THEME_PATH
@@ -1218,10 +1212,9 @@ class theme_editor:
             self.last_edit_time = os.path.getmtime(self.theme_file)
 
             # Update the preview.png that is in the theme folder
-            if self.theme_refresh != True:
-                display.lcd.screen_image.save(
-                    config.CURRENT_THEME_PATH / "preview.png", "PNG"
-                )
+            if self.theme_refresh != True or not self.theme_preview_path.exists():
+                print("update preview")
+                display.lcd.screen_image.save(self.theme_preview_path)
 
             # Display new picture
             self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)

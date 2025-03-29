@@ -8,7 +8,7 @@ from enum import IntEnum
 from PIL import Image, ImageDraw, ImageFont
 import struct
 import traceback
-
+from pathlib import Path
 
 class Command(IntEnum):
     CMD_WHO_AM_I = 0x01  # Establish communication before driving the screen
@@ -466,7 +466,7 @@ class lcd_weact:
     ):
         image = bitmap.copy()
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype("res/fonts/SourceHanSansCN/SourceHanSansCN-Normal.otf", size)
+        font = ImageFont.truetype(Path(__file__).parent / "res" / "fonts" / "SourceHanSansCN" / "SourceHanSansCN-Normal.otf", size)
         left, top, right, bottom = draw.textbbox(
             (xs, ys), text, font=font, align=align, anchor=anchor
         )
@@ -606,7 +606,7 @@ class tk_gui:
         self.device_orientation_last = 0
         self.device_brightness_last = 0
         self.device_unconnect_brightness_last = 0
-        image = Image.open('res/backgrounds/logo.png')
+        image = Image.open(Path(__file__).parent / "res" / "backgrounds" / "logo.png")
         self.image_logo = image.resize((200,200))
 
         self.refresh_device_state()

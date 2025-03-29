@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2024-09-15 00:42+0800\n"
-"PO-Revision-Date: 2025-02-25 20:51+0800\n"
+"PO-Revision-Date: 2025-03-29 13:29+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -38,4 +38,7 @@ msgstr "¥¨¥é©`: "
 
 msgid "Starting ..."
 msgstr "é_Ê¼¤¹¤ë..."
+
+msgid "Error: Another instance of the program is already running."
+msgstr "¥¨¥é©`: ¥×¥í¥°¥é¥à¤Î„e¤Î¥¤¥ó¥¹¥¿¥ó¥¹¤¬¤¹¤Ç¤ËŒgÐÐÖÐ¤Ç¤¹¡£"
 

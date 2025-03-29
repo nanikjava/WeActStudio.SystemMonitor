@@ -1,4 +1,4 @@
 cd /d %~dp0
 @set "PATH=C:\Windows\System32;.\Python\Scripts;.\Python;"
-python .\configure.py
+"%~dp0Python\WeActStudioSystemMonitor.exe" ".\configure.py"
 pause

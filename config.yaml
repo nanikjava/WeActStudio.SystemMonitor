@@ -49,8 +49,8 @@ config:
 
   # Workspace Settings
   # Themes and fonts directories are relative to the config.yaml file
-  THEMES_DIR: res/themes
-  FONTS_DIR: res/fonts
+  THEMES_DIR: res\themes
+  FONTS_DIR: res\fonts
 
 display:
   # Display revision:

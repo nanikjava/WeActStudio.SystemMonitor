@@ -26,6 +26,7 @@
 # This file is the system monitor main program to display HW sensors on your screen using themes (see README)
 import os
 import sys
+from pathlib import Path
 sys.path.append(os.path.dirname(__file__))
 MIN_PYTHON = (3, 9)
 if sys.version_info < MIN_PYTHON:
@@ -71,7 +72,9 @@ import time
 LOCKFILE = os.path.join(os.path.dirname(__file__), os.path.basename(__file__)+".lock")
 if utils.app_is_running(LOCKFILE):
     print("Error: Another instance of the program is already running.")
-    utils.show_messagebox("Error: Another instance of the program is already running.",_("WeAct Studio System Monitor Configuration"),3000)
+    title = _("WeAct Studio System Monitor")
+    message = _("Error: Another instance of the program is already running.")
+    utils.show_messagebox(message=message,title=title,delay=3000)
     time.sleep(3)
     try:
         sys.exit(0)
@@ -90,7 +93,7 @@ def app_exit():
         os._exit(0)
 
 # Show Start Frame
-main = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor'),delay=10000)
+msg_close_handler = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor'),delay=10000)
 time.sleep(1)
 
 from library.log import logger
@@ -185,10 +188,10 @@ def on_signal_caught(signum, frame=None):
     clean_stop()
 
 def start_configure():
-    subprocess.Popen(("python",os.path.join(os.getcwd(), "configure.py")), shell=True)
+    utils.run().configure()
 
 def start_main():
-    subprocess.Popen(("python",os.path.join(os.getcwd(), "main.py")), shell=True)
+    utils.run().main()
 
 def on_configure_tray(tray_icon, item):
     logger.info("Configure from tray icon")
@@ -310,7 +313,7 @@ try:
     tray_icon = pystray.Icon(
         name=_('WeAct Studio System Monitor'),
         title=_('WeAct Studio System Monitor'),
-        icon=Image.open("res/icons/logo.png"),
+        icon=Image.open(Path(__file__).parent / "res" / "icons" / "logo.png"),
         menu=pystray.Menu(
             pystray.MenuItem(
                 text=_('Configure'),
@@ -350,7 +353,7 @@ except Exception as e:
     start_configure()
     clean_stop(tray_icon)
 
-main.destroy()
+msg_close_handler()
 
 if tray_icon and platform.system() == "Darwin":  # macOS-specific
     from AppKit import NSBundle, NSApp, NSApplicationActivationPolicyProhibited

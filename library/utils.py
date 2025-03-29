@@ -1,6 +1,8 @@
 import os
 import sys
 import requests,datetime
+import subprocess
+from pathlib import Path
 import threading
 try:
     import tkinter as tk
@@ -13,55 +15,82 @@ except:
     except:
         os._exit(0)
 
-def show_messagebox(message, title="", delay=3000):  
-    main = tk.Tk()
+def show_messagebox(message, title="", delay=3000):
+    def create_and_run_messagebox():
+        nonlocal root
+        root = tk.Tk()
+        root.title(title)
 
-    main.title(title)
+        # screen_width = root.winfo_screenwidth()
+        # screen_height = root.winfo_screenheight()
+        # width, height = 300, 50
+        # x = (screen_width - width) // 2
+        # y = (screen_height - height) // 2
+        # root.geometry(f"{width}x{height}+{x}+{y}")
 
-    screen_width = main.winfo_screenwidth()  
-    screen_height = main.winfo_screenheight()  
-    height = 50
-    width = 300 
-    position_top = int(screen_height / 2 - height / 2)  
-    position_right = int(screen_width / 2 - width / 2)  
-    main.geometry(f'{width}x{height}+{position_right}+{position_top}')
+        root.resizable(False, False)
+        root.attributes('-topmost', True)
+        root.attributes("-toolwindow", True)
 
-    main.resizable(False, False)
-    main.attributes('-topmost',True)
-    main.attributes("-toolwindow", True)
+        label = tk.Label(root, text=message, anchor="w")
+        label.grid(row=1, column=0, padx=5, pady=10, sticky="w")
+        
+        # Center the window on the screen
+        root.withdraw()
+        root.update_idletasks()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        main_window_width = root.winfo_reqwidth() if root.winfo_reqwidth() > 200 else 200
+        main_window_height = root.winfo_reqheight()
+        x = (screen_width - main_window_width) // 2
+        y = (screen_height - main_window_height) // 2
+        root.geometry(f"{main_window_width}x{main_window_height}+{x}+{y}")
+        root.deiconify()
 
-    label = tk.Label(
-        main, text=message, anchor="w"
-    )
-    label.grid(row=0, column=0,columnspan=2,padx=5, pady=10, ipadx=100, ipady=5, sticky="w")
+        if delay > 0:
+            root.after(delay, root.destroy)
 
-    main.update()
-    # screen_width = main.winfo_screenwidth()
-    # screen_height = main.winfo_screenheight()
-    # main_window_width = main.winfo_width()
-    # main_window_height = main.winfo_height()
-    # x = (screen_width - main_window_width) // 2
-    # y = (screen_height - main_window_height) // 2
-    # main.geometry(f"{main_window_width}x{main_window_height}+{x}+{y}")
-    # main.deiconify()
+        root.mainloop()
 
-    if delay > 0:
-        main.after(delay, lambda: (main.destroy() if main.winfo_viewable() else None))
+    root = None
+    messagebox_thread = threading.Thread(target=create_and_run_messagebox)
+    messagebox_thread.start()
 
-    return main
+    while root is None:
+        pass
 
-def app_is_running(lockfile):  
-    if os.path.exists(lockfile):  
-        value = open(lockfile).read().strip()
-        try:  
-            pid = int(value)  
-            p = psutil.Process(pid)  
-            p.is_running()
-        except:
-            # PID doesn't exist anymore, so we can safely delete the lockfile and proceed  
-            os.remove(lockfile)    
-            return False  
-        return True
+    def close_messagebox():
+        if root and root.winfo_exists():
+            print("Closing message box...") 
+            root.after(0, root.destroy)
+
+    return close_messagebox
+
+def app_is_running(lockfile):
+    if not os.path.exists(lockfile):
+        return False
+        
+    try:
+        with open(lockfile) as f:
+            pid = int(f.read().strip())
+            
+        p = psutil.Process(pid)
+        process_path = Path(p.exe()).parent
+        expected_path = Path(__file__).resolve().parent.parent / "Python"
+        cmdline = p.cmdline()
+        lockfile_name = Path(lockfile).stem
+        if cmdline and len(cmdline) > 1 and lockfile_name in cmdline[1] and process_path.samefile(expected_path) and p.is_running():
+            print("Process is running")
+            return True
+            
+    except (ValueError, psutil.NoSuchProcess, psutil.AccessDenied):
+        pass
+
+    try:
+        os.remove(lockfile)
+    except OSError:
+        pass
+        
     return False
 
 def app_set_running(lockfile):
@@ -186,3 +215,57 @@ def get_ping_delay(host):
         return delay
     else:
         return -1
+    
+class run:
+    python_name = 'WeActStudioSystemMonitor'
+    current_file = Path(__file__).resolve()
+    parent_dir = current_file.parent
+    grandparent_dir = parent_dir.parent
+
+    @classmethod
+    def get_executable_name(cls):
+        if sys.platform == 'win32':
+            exec_name = f"{cls.python_name}.exe"
+        else:
+            exec_name = cls.python_name
+        python_cmd = cls.grandparent_dir / "Python" / exec_name
+        if not python_cmd.exists():
+            print(f"[Info] {python_cmd} not found. Using python.exe")
+            python_cmd = cls.grandparent_dir / "Python" / "python.exe"
+        return python_cmd
+        
+    @classmethod
+    def main(cls):
+        exec_name = cls.get_executable_name()
+        main_py = cls.grandparent_dir / "main.py"
+        return subprocess.Popen([exec_name, str(main_py)], shell=True)
+
+    @classmethod
+    def configure(cls):
+        exec_name = cls.get_executable_name()
+        configure_py = cls.grandparent_dir / "configure.py"
+        return subprocess.Popen([exec_name, str(configure_py)], shell=True)
+    
+    @classmethod
+    def weact_device_setting(cls):
+        exec_name = cls.get_executable_name()
+        weact_device_setting_py = cls.grandparent_dir / "weact_device_setting.py"
+        return subprocess.Popen([exec_name, str(weact_device_setting_py)], shell=True)
+    
+    @classmethod
+    def theme_editor(cls,theme_name):
+        exec_name = cls.get_executable_name()
+        theme_editor_py = cls.grandparent_dir / "theme-editor.py"
+        return subprocess.Popen([exec_name, str(theme_editor_py),f"\"{theme_name}\""], shell=True)
+    
+    @classmethod
+    def image_scaler_tool(cls):
+        exec_name = cls.get_executable_name()
+        image_scaler_tool_py = cls.grandparent_dir / "image_scaler_tool.py"
+        return subprocess.Popen([exec_name, str(image_scaler_tool_py)], shell=True)
+    
+    @classmethod
+    def image_gif2png_scaler_tool(cls):
+        exec_name = cls.get_executable_name()
+        image_gif2png_scaler_tool_py = cls.grandparent_dir / "image_gif2png_scaler_tool.py"
+        return subprocess.Popen([exec_name, str(image_gif2png_scaler_tool_py)], shell=True)

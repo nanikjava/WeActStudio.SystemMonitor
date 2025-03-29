@@ -4,6 +4,7 @@ from tkinter import filedialog, ttk, messagebox
 from PIL import Image, ImageTk  
 import gettext
 import os,locale
+from pathlib import Path
 
 class ImageScaler:  
     def __init__(self,frame=None):  
@@ -13,7 +14,7 @@ class ImageScaler:
             self.frame = frame
 
         self.frame.title(_("ImageScaler Tool"))  
-        self.frame.iconphoto(True, tk.PhotoImage(file="res/icons/logo.png"))
+        self.frame.iconphoto(True, tk.PhotoImage(file=Path(__file__).parent / "res" / "icons" / "logo.png"))
         self.frame.geometry('320x80')
         # 图片显示  
         self.label_image = ttk.Label(self.frame)  

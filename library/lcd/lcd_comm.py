@@ -27,7 +27,7 @@ import time
 from abc import ABC, abstractmethod
 from enum import IntEnum
 from typing import Tuple, List, Optional, Dict
-
+from pathlib import Path
 import serial
 from PIL import Image, ImageDraw, ImageFont
 
@@ -244,7 +244,7 @@ class LcdComm(ABC):
             y: int = 0,
             width: int = 0,
             height: int = 0,
-            font: str = "res/fonts/roboto-mono/RobotoMono-Regular.ttf",
+            font: str = str(Path(__file__).parent.parent.parent / "res" / "fonts" / "roboto-mono" / "RobotoMono-Regular.ttf"),
             font_size: int = 20,
             font_color: Color = (0, 0, 0),
             background_color: Color = (255, 255, 255),
@@ -385,7 +385,7 @@ class LcdComm(ABC):
                          line_width: int = 2,
                          graph_axis: bool = True,
                          axis_color: Color = (0, 0, 0),
-                         axis_font: str = "res/fonts/roboto/Roboto-Black.ttf",
+                         axis_font: str = str(Path(__file__).parent.parent.parent / "res" / "fonts" / "roboto" / "Roboto-Black.ttf"),
                          axis_font_size: int = 10,
                          background_color: Color = (255, 255, 255),
                          background_image: Optional[str] = None):
@@ -506,7 +506,7 @@ class LcdComm(ABC):
                                  value: int = 50,
                                  text: Optional[str] = None,
                                  with_text: bool = True,
-                                 font: str = "res/fonts/roboto/Roboto-Black.ttf",
+                                 font: str = str(Path(__file__).parent.parent.parent / "res" / "fonts" / "roboto" / "Roboto-Black.ttf"),
                                  font_size: int = 20,
                                  font_color: Color = (0, 0, 0),
                                  bar_color: Color = (0, 0, 0),

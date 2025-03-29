@@ -76,7 +76,9 @@ import time
 LOCKFILE = os.path.join(os.path.dirname(__file__), os.path.basename(__file__)+".lock")
 if utils.app_is_running(LOCKFILE):
     print("Error: Another instance of the program is already running.")
-    utils.show_messagebox("Error: Another instance of the program is already running.",_("WeAct Studio System Monitor Configuration"),3000)
+    title = _("WeAct Studio System Monitor Configuration")
+    message = _("Error: Another instance of the program is already running.")
+    utils.show_messagebox(message=message,title=title,delay=3000)
     time.sleep(3)
     try:
         sys.exit(0)
@@ -492,7 +494,7 @@ class ConfigWindow:
         self.window.after(0, self.on_fan_speed_update)
         self.window.resizable(False, False)
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
-        self.window.iconphoto(True, tkinter.PhotoImage(file="res/icons/logo.png"))
+        self.window.iconphoto(True, tkinter.PhotoImage(file=Path(__file__).parent / "res" / "icons" / "logo.png"))
 
         # Center the window on the screen
         # self.window.withdraw()
@@ -585,7 +587,7 @@ class ConfigWindow:
             print("Exiting System Monitor Configuration...")
             self.closing_confirm_frame.grab_release()
             self.closing_confirm_frame.destroy()
-            subprocess.Popen(("python", os.path.join(os.getcwd(), "main.py")), shell=True)
+            utils.run.main()
             self.window.destroy()
             app_exit()
 
@@ -706,7 +708,7 @@ class ConfigWindow:
                                 )
                                 print("Show preview.png")
                             except:
-                                theme_preview = Image.open("res/configs/no-preview.png")
+                                theme_preview = Image.open(Path(__file__).parent / "res" / "configs" / "no-preview.png")
                                 print("Show no-preview.png")
                             theme_data = self.theme_get.get_theme_data(self.theme_cb.get())
                             print("display.lcd.SetOrientation")
@@ -773,7 +775,7 @@ class ConfigWindow:
                 )
             except Exception as e:
                 traceback.print_exc()
-                theme_preview = Image.open(Path("res/configs/no-preview.png"))
+                theme_preview = Image.open(Path(__file__).parent / "res" / "configs" / "no-preview.png")
             finally:
                 # Set the fixed width for the preview image
                 fixed_width = 300
@@ -861,12 +863,12 @@ class ConfigWindow:
 
         fonts_dir_path = self.config["config"].get("FONTS_DIR",None)
         if fonts_dir_path is None or fonts_dir_path == "":
-            self.config["config"]["FONTS_DIR"] = "res/fonts"
+            self.config["config"]["FONTS_DIR"] = str(Path("res/fonts"))
 
         self.themes_dir_path = self.config["config"].get("THEMES_DIR",None)
         if self.themes_dir_path is None or self.themes_dir_path == "":
             self.themes_dir_path = "res/themes"
-            self.config["config"]["THEMES_DIR"] = self.themes_dir_path
+            self.config["config"]["THEMES_DIR"] = str(Path(self.themes_dir_path))
         else:
             try:
                 # Check if the path exists
@@ -877,7 +879,7 @@ class ConfigWindow:
             except Exception as e:
                 print(f"Error checking themes directory path: {e}, using default.")
                 self.themes_dir_path = "res/themes"
-                self.config["config"]["THEMES_DIR"] = self.themes_dir_path
+                self.config["config"]["THEMES_DIR"] = str(Path(self.themes_dir_path))
         
         self.theme_get = get_theme(Path(self.themes_dir_path))
         theme = config.get("THEME",None)
@@ -966,25 +968,29 @@ class ConfigWindow:
         with open("config.yaml", "w", encoding="utf-8") as file:
             ruamel.yaml.YAML().dump(self.config, file)
 
-    def save_additional_config(self, ping: str, api_key: str, lat: str, long: str, unit: str, lang: str):
-        self.config['config']['PING'] = ping
-        self.config['config']['WEATHER_API_KEY'] = api_key
-        self.config['config']['WEATHER_LATITUDE'] = lat
-        self.config['config']['WEATHER_LONGITUDE'] = long
-        self.config['config']['WEATHER_UNITS'] = unit
-        self.config['config']['WEATHER_LANGUAGE'] = lang
+    def save_additional_config(self, ping: str = None, api_key: str = None, lat: str = None, long: str = None, unit: str = None, lang: str = None, theme_dir: str = None, font_dir: str = None):
+        if ping is not None:
+            self.config['config']['PING'] = ping
+        if api_key is not None:
+            self.config['config']['WEATHER_API_KEY'] = api_key
+        if lat is not None:
+            self.config['config']['WEATHER_LATITUDE'] = lat
+        if long is not None:
+            self.config['config']['WEATHER_LONGITUDE'] = long
+        if unit is not None:
+            self.config['config']['WEATHER_UNITS'] = unit
+        if lang is not None:
+            self.config['config']['WEATHER_LANGUAGE'] = lang
+        if theme_dir is not None:
+            self.config['config']['THEMES_DIR'] = theme_dir
+        if font_dir is not None:
+            self.config['config']['FONTS_DIR'] = font_dir
 
         with open("config.yaml", "w", encoding='utf-8') as file:
             ruamel.yaml.YAML().dump(self.config, file)
 
-    def save_additional_config(self, theme_dir: str, font_dir: str):
-        self.config['config']['THEMES_DIR'] = theme_dir
-        self.config['config']['FONTS_DIR'] = font_dir
-
-        with open("config.yaml", "w", encoding='utf-8') as file:
-            ruamel.yaml.YAML().dump(self.config, file)
-        
-        self.load_config_values()
+        if theme_dir is not None or font_dir is not None:
+            self.load_config_values()
 
     def on_theme_change(self, e=None):
         self.load_theme_preview()
@@ -1257,15 +1263,7 @@ class ConfigWindow:
         if self.is_theme_editor_process():
             return
         self.save_config_values()
-        sys.path.append(".")
-        self.theme_editor_process = subprocess.Popen(
-            (
-                "python",
-                os.path.join(os.getcwd(), "theme-editor.py"),
-                "\"" + self.theme_cb.get() + "\"",
-            ),
-            shell=True,
-        )
+        self.theme_editor_process = utils.run.theme_editor(self.theme_cb.get())
 
     def on_theme_dir_click(self):
         dir_path = Path(self.themes_dir_path) / self.theme_cb.get()
@@ -1404,10 +1402,9 @@ class ConfigWindow:
             self.display_off()
             self.display_init = False
             self.live_display_bool_var.set(False)
+            time.sleep(1)
 
-        self.display_other_config_process = subprocess.Popen(
-            ("python", os.path.join(os.getcwd(), "weact_device_setting.py")), shell=True
-        )
+        self.display_other_config_process = utils.run.weact_device_setting()
 
     def on_saverun_click(self):
         if self.is_theme_editor_process():
@@ -1417,7 +1414,7 @@ class ConfigWindow:
             self.display_init = False
             self.live_display_bool_var.set(False)
         self.save_config_values()
-        subprocess.Popen(("python", os.path.join(os.getcwd(), "main.py")), shell=True)
+        utils.run.main()
         self.window.destroy()
 
     def on_brightness_change(self, e=None):
@@ -1722,7 +1719,7 @@ class PingWeatherConfigWindow:
         unit = [k for k, v in utils.TEMPERATURE_UNIT_MAP.items() if v == self.unit_cb.get()][0]
         lang = [k for k, v in utils.WEATHER_LANG_MAP.items() if v == self.lang_cb.get()][0]
 
-        self.main_window.save_additional_config(ping, api_key, lat, long, unit, lang)
+        self.main_window.save_additional_config(ping=ping, api_key=api_key, lat=lat, long=long, unit=unit, lang=lang)
 
 class WorkspaceSettingsWindow:
     def __init__(self, main_window: ConfigWindow):
@@ -1814,11 +1811,11 @@ class WorkspaceSettingsWindow:
         theme = self.theme_folder_path.get()
         font = self.font_folder_path.get()
         if theme == "":
-            theme = "res/themes"
+            theme = str(Path("res/themes"))
         if font == "":
-            font = "res/fonts"
+            font = str(Path("res/fonts"))
         if Path(theme).is_dir() and Path(theme).exists() and Path(font).is_dir() and Path(font).exists():
-            self.main_window.save_additional_config(theme, font)
+            self.main_window.save_additional_config(theme_dir=theme, font_dir=font)
         else:
             messagebox.showerror(_("Error"), _("Theme or Font folder is not valid!"))
             return False

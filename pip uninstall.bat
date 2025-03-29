@@ -9,6 +9,6 @@ set /p var="python -m pip uninstall "
 cls
 echo Start Uninstall
 
-python -m pip uninstall %var%
+WeActStudioSystemMonitor -m pip uninstall %var%
 
 goto restart

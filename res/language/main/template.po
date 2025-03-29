@@ -37,3 +37,6 @@ msgstr ""
 
 msgid "Starting ..."
 msgstr ""
+
+msgid "Error: Another instance of the program is already running."
+msgstr ""

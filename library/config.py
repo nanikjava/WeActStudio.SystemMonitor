@@ -149,7 +149,7 @@ def get_font_path(name):
     if name:
         return FONTS_DIR / name
     else:
-        return Path("res/fonts/roboto-mono/RobotoMono-Regular.ttf")
+        return Path(__file__).parent.parent / "res" / "fonts" / "roboto-mono" / "RobotoMono-Regular.ttf"
 
 # Load config on import
 load_config()
