@@ -76,7 +76,7 @@ import time
 LOCKFILE = os.path.join(os.path.dirname(__file__), os.path.basename(__file__)+".lock")
 if utils.app_is_running(LOCKFILE):
     print("Error: Another instance of the program is already running.")
-    title = _("WeAct Studio System Monitor Configuration")
+    title = _("WeAct Studio System Monitor Configuration") + " " + utils.get_version()
     message = _("Error: Another instance of the program is already running.")
     utils.show_messagebox(message=message,title=title,delay=3000)
     time.sleep(3)
@@ -227,7 +227,7 @@ class ConfigWindow:
         self.display_other_config_process = None
 
         self.window = tkinter.Tk()
-        self.window.title(_("WeAct Studio System Monitor Configuration"))
+        self.window.title(_("WeAct Studio System Monitor Configuration") + " " + utils.get_version())
         # self.window.geometry("770x600")
 
         # Make TK look better with Sun Valley ttk theme

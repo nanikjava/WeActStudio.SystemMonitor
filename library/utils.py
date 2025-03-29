@@ -21,13 +21,6 @@ def show_messagebox(message, title="", delay=3000):
         root = tk.Tk()
         root.title(title)
 
-        # screen_width = root.winfo_screenwidth()
-        # screen_height = root.winfo_screenheight()
-        # width, height = 300, 50
-        # x = (screen_width - width) // 2
-        # y = (screen_height - height) // 2
-        # root.geometry(f"{width}x{height}+{x}+{y}")
-
         root.resizable(False, False)
         root.attributes('-topmost', True)
         root.attributes("-toolwindow", True)
@@ -40,7 +33,7 @@ def show_messagebox(message, title="", delay=3000):
         root.update_idletasks()
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
-        main_window_width = root.winfo_reqwidth() if root.winfo_reqwidth() > 200 else 200
+        main_window_width = root.winfo_reqwidth() if root.winfo_reqwidth() > 250 else 250
         main_window_height = root.winfo_reqheight()
         x = (screen_width - main_window_width) // 2
         y = (screen_height - main_window_height) // 2
@@ -269,3 +262,13 @@ class run:
         exec_name = cls.get_executable_name()
         image_gif2png_scaler_tool_py = cls.grandparent_dir / "image_gif2png_scaler_tool.py"
         return subprocess.Popen([exec_name, str(image_gif2png_scaler_tool_py)], shell=True)
+    
+def get_version():
+    version_file = Path(__file__).parent.parent / "version"
+    try:
+        with open(version_file, 'r') as f:
+            version = f.read().strip()
+            return version
+    except Exception as e:
+        print(f"Error reading version file: {e}")
+        return "V0.0.0"

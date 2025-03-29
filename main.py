@@ -72,7 +72,7 @@ import time
 LOCKFILE = os.path.join(os.path.dirname(__file__), os.path.basename(__file__)+".lock")
 if utils.app_is_running(LOCKFILE):
     print("Error: Another instance of the program is already running.")
-    title = _("WeAct Studio System Monitor")
+    title = _("WeAct Studio System Monitor") + " " + utils.get_version()
     message = _("Error: Another instance of the program is already running.")
     utils.show_messagebox(message=message,title=title,delay=3000)
     time.sleep(3)
@@ -93,7 +93,7 @@ def app_exit():
         os._exit(0)
 
 # Show Start Frame
-msg_close_handler = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor'),delay=10000)
+msg_close_handler = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor') + " " + utils.get_version(),delay=10000)
 time.sleep(1)
 
 from library.log import logger
@@ -178,7 +178,7 @@ def stop():
     app_exit()
 
 def clean_stop(tray_icon=None):
-    utils.show_messagebox(message=_('Exit') + " ...",title=_('WeAct Studio System Monitor'),delay=5000)
+    utils.show_messagebox(message=_('Exit') + " ...",title=_('WeAct Studio System Monitor') + " " + utils.get_version(),delay=5000)
     time.sleep(1)
     clean(tray_icon)
     stop()
@@ -195,7 +195,7 @@ def start_main():
 
 def on_configure_tray(tray_icon, item):
     logger.info("Configure from tray icon")
-    utils.show_messagebox(message=_('Configure') + ' ' + _("Starting ..."),title=_('WeAct Studio System Monitor'),delay=5000)
+    utils.show_messagebox(message=_('Configure') + ' ' + _("Starting ..."),title=_('WeAct Studio System Monitor') + " " + utils.get_version(),delay=5000)
     time.sleep(1)
     clean(tray_icon)
     start_configure()
@@ -311,8 +311,8 @@ if platform.system() == "Windows":
 # Create a tray icon for the program, with an Exit entry in menu
 try:
     tray_icon = pystray.Icon(
-        name=_('WeAct Studio System Monitor'),
-        title=_('WeAct Studio System Monitor'),
+        name=_('WeAct Studio System Monitor') + " " + utils.get_version(),
+        title=_('WeAct Studio System Monitor') + " " + utils.get_version(),
         icon=Image.open(Path(__file__).parent / "res" / "icons" / "logo.png"),
         menu=pystray.Menu(
             pystray.MenuItem(
