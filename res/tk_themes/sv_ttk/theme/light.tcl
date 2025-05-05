@@ -466,6 +466,20 @@ namespace eval ttk::theme::sv_light {
       -sashthickness 4 \
       -gripcount 20
     
+    ttk::style configure . \
+      -background $colors(-bg) \
+      -foreground $colors(-fg) \
+      -troughcolor $colors(-bg) \
+      -focuscolor $colors(-selbg) \
+      -selectbackground $colors(-selbg) \
+      -selectforeground $colors(-selfg) \
+      -insertwidth 1 \
+      -insertcolor $colors(-fg) \
+      -fieldbackground $colors(-bg) \
+      -font "TkDefaultFont" \
+      -borderwidth 0 \
+      -relief flat
+
     # Some defaults for non ttk-widgets so that they fit
     tk_setPalette \
       background $colors(-bg) \
@@ -475,5 +489,7 @@ namespace eval ttk::theme::sv_light {
       selectForeground $colors(-selfg) \
       activeBackground $colors(-selbg) \
       activeForeground $colors(-selfg)
+
+    ttk::style map . -foreground [list disabled $colors(-disfg)]
   }
 }

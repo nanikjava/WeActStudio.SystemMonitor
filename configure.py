@@ -250,14 +250,19 @@ class ConfigWindow:
         self.window.title(_("WeAct Studio System Monitor Configuration") + " " + utils.get_version())
         
         style = ttk.Style()
-        self.window.tk.call("source", Path(__file__).parent / "res" / "tk_themes" / "sv_ttk" / "sv.tcl")
 
         self.theme_is_dark = False
         if platform.system() == "Windows" and sys.getwindowsversion().major >= 10:
             import darkdetect
             self.theme_is_dark = darkdetect.theme() == "Dark"
-            style.theme_use("sun-valley-dark" if self.theme_is_dark else "sun-valley-light")
+            if self.theme_is_dark:
+                self.window.tk.call("source", Path(__file__).parent / "res" / "tk_themes" / "sv_ttk" / "theme" / "dark.tcl")
+                style.theme_use("sun-valley-dark")
+            else:
+                self.window.tk.call("source", Path(__file__).parent / "res" / "tk_themes" / "sv_ttk" / "theme" / "light.tcl")
+                style.theme_use("sun-valley-light")
         else:
+            self.window.tk.call("source", Path(__file__).parent / "res" / "tk_themes" / "sv_ttk" / "theme" / "light.tcl")
             style.theme_use("sun-valley-light")
 
         self.theme_preview_img = None

@@ -44,16 +44,21 @@ def show_messagebox(message, title="", delay=3000):
         root.title(title)
 
         style = ttk.Style()
-        root.tk.call("source", Path(__file__).parent.parent / "res" / "tk_themes" / "sv_ttk" / "sv.tcl")
+        style = ttk.Style()
 
         theme_is_dark = False
         if platform.system() == "Windows" and sys.getwindowsversion().major >= 10:
             import darkdetect
             theme_is_dark = darkdetect.theme() == "Dark"
-            style.theme_use("sun-valley-dark" if theme_is_dark else "sun-valley-light")
+            if theme_is_dark:
+                root.tk.call("source", Path(__file__).parent.parent / "res" / "tk_themes" / "sv_ttk" / "theme" / "dark.tcl")
+                style.theme_use("sun-valley-dark")
+            else:
+                root.tk.call("source", Path(__file__).parent.parent / "res" / "tk_themes" / "sv_ttk" / "theme" / "light.tcl")
+                style.theme_use("sun-valley-light")
         else:
+            root.tk.call("source", Path(__file__).parent.parent / "res" / "tk_themes" / "sv_ttk" / "theme" / "light.tcl")
             style.theme_use("sun-valley-light")
-
 
         root.resizable(False, False)
         root.attributes('-topmost', True)
