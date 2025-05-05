@@ -25,11 +25,9 @@ import locale
 import logging
 import os
 import platform
-import subprocess
 import sys
 import time
 import copy
-import gettext
 
 sys.path.append(os.path.dirname(__file__))
 MIN_PYTHON = (3, 8)
@@ -1323,7 +1321,10 @@ class theme_editor:
                 if config.THEME_DATA['STATS']['PING'].get("INTERVAL", 0) > 0:
                     error_text = "Ping stats"
                     stats.Ping.stats()
-            
+                if config.THEME_DATA['STATS']['INPUT_MONITOR'].get("INTERVAL", 0) > 0:
+                    error_text = "Input monitor stats"
+                    stats.InputMonitor.stats(True)
+
                 dynamic_images.dynamic_images.init()
                 dynamic_texts.dynamic_texts.init()
                 photo_album.photo_album.init()
@@ -1400,6 +1401,7 @@ class theme_editor:
 
             def on_close_theme_frame_ok():
                 self.on_file_save_button_press()
+                self.main_refresh()
                 self.close_theme_frame.grab_release()
                 self.close_theme_frame.destroy()
                 self.logger.debug("Exit Theme Editor...")
@@ -1506,5 +1508,15 @@ if __name__ == "__main__":
     # Loading Language
     from library.utils import set_language
     _ = set_language(__file__)
-
-    te = theme_editor()
+    try:
+        te = theme_editor()
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        messagebox.showerror(
+            _("Error"), _("An error occurred while starting the Theme Editor.")
+        )
+        try:
+            sys.exit(0)
+        except:
+            os._exit(0)

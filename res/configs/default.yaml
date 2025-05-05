@@ -275,6 +275,18 @@ STATS:
       SHOW: False
     TEXT:
       SHOW: False
+  INPUT_MONITOR:
+    INTERVAL: 0
+    MOUSE_CLICK_COUNT:
+      LINE_GRAPH:
+        SHOW: False
+      TEXT:
+        SHOW: False
+    KEYBOARD_PRESS_COUNT:
+      LINE_GRAPH:
+        SHOW: False
+      TEXT:
+        SHOW: False
         
 dynamic_images:
   SHOW: False

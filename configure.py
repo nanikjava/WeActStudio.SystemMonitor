@@ -220,6 +220,26 @@ def get_fans():
     )  # Add manual entry on top if auto-detection succeeded
     return fan_list
 
+
+def apply_theme_to_titlebar(root,is_dark):
+    if platform.system() != "Windows":
+        return
+    
+    import pywinstyles, sys
+    version = sys.getwindowsversion()
+
+    if version.major == 10 and version.build >= 22000:
+        # Set the title bar color to the background color on Windows 11 for better appearance
+        if is_dark:
+            pywinstyles.change_header_color(root, "#1c1c1c")
+    elif version.major == 10:
+        if is_dark:
+            pywinstyles.apply_style(root, "dark")
+
+            # A hacky way to update the title bar's color on Windows 10 (it doesn't update instantly like on Windows 11)
+            root.wm_attributes("-alpha", 0.99)
+            root.wm_attributes("-alpha", 1)
+
 class ConfigWindow:
     def __init__(self):
 
@@ -228,11 +248,18 @@ class ConfigWindow:
 
         self.window = tkinter.Tk()
         self.window.title(_("WeAct Studio System Monitor Configuration") + " " + utils.get_version())
-        # self.window.geometry("770x600")
-
-        # Make TK look better with Sun Valley ttk theme
-        sv_ttk.set_theme("light")
         
+        style = ttk.Style()
+        self.window.tk.call("source", Path(__file__).parent / "res" / "tk_themes" / "sv_ttk" / "sv.tcl")
+
+        self.theme_is_dark = False
+        if platform.system() == "Windows" and sys.getwindowsversion().major >= 10:
+            import darkdetect
+            self.theme_is_dark = darkdetect.theme() == "Dark"
+            style.theme_use("sun-valley-dark" if self.theme_is_dark else "sun-valley-light")
+        else:
+            style.theme_use("sun-valley-light")
+
         self.theme_preview_img = None
 
         # Theme preview
@@ -332,6 +359,15 @@ class ConfigWindow:
             variable=self.free_off_bool_var,
         )
         self.free_off_checkbox.grid(row=7, column=1, columnspan=2, padx=5, sticky="w")
+
+        self.pic_compress_bool_var = tkinter.BooleanVar()
+        self.pic_compress_bool_var.set(False)
+        self.pic_compress_checkbox = ttk.Checkbutton(
+            self.display_config_frame,
+            text=_("Picture Compress"),
+            variable=self.pic_compress_bool_var,
+        )
+        self.pic_compress_checkbox.grid(row=8, column=1, columnspan=2, padx=5, sticky="w")
 
         # System Monitor Configuration
         self.system_monitor_frame = tkinter.Frame(self.window)
@@ -495,6 +531,8 @@ class ConfigWindow:
         self.window.resizable(False, False)
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.iconphoto(True, tkinter.PhotoImage(file=Path(__file__).parent / "res" / "icons" / "logo.png"))
+        
+        apply_theme_to_titlebar(self.window,self.theme_is_dark)
 
         # Center the window on the screen
         # self.window.withdraw()
@@ -514,6 +552,7 @@ class ConfigWindow:
         self.display_step = 0
         self.display_orientation_last = reverse_map[False]
         self.display_brightness_last = int(self.brightness_slider.get())
+        self.pic_compress_bool_var_last = self.pic_compress_bool_var.get()
         self.theme_select_last = self.theme_cb.get()
         self.theme_setting_change = True
         self.window_after_time = 1000
@@ -530,6 +569,7 @@ class ConfigWindow:
     def on_closing_confirm(self):
         self.closing_confirm_frame = tkinter.Toplevel(self.window)
         self.closing_confirm_frame.title(_("Close Confirm"))
+        self.closing_confirm_frame.withdraw()
 
         def on_closing_confirm_frame_closing():
             self.closing_confirm_frame.grab_release()
@@ -564,7 +604,6 @@ class ConfigWindow:
         )
         cancel_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
 
-        self.closing_confirm_frame.withdraw()
         self.closing_confirm_frame.update()
         main_window_x = self.window.winfo_x()
         main_window_y = self.window.winfo_y()
@@ -596,6 +635,8 @@ class ConfigWindow:
         )
         ok_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
         ok_button['state'] = self.save_run_btn['state']
+
+        apply_theme_to_titlebar(self.closing_confirm_frame,self.theme_is_dark)
 
     def display_off(self):
         print('display.turn_off')
@@ -641,7 +682,11 @@ class ConfigWindow:
                 self.theme_select_last = self.theme_cb.get()
                 self.display_setting_change = True
                 self.theme_setting_change = True
-
+            if self.pic_compress_bool_var_last!= self.pic_compress_bool_var.get():
+                self.pic_compress_bool_var_last = self.pic_compress_bool_var.get()
+                self.live_display_bool_var.set(False)
+                self.save_config_values()
+                
             if self.theme_setting_change == True or self.display_setting_change == True:
                 self.save_config_values()
             # init display
@@ -653,6 +698,7 @@ class ConfigWindow:
                     self.scheduler = scheduler
                     self.display = display
                     
+                    self.display.use_compress = 1 if self.pic_compress_bool_var.get() == True else 0
                     self.on_com_refresh_button()
                     if self.com_cb.current() == 0:
                         self.display.lcd.com_port = "AUTO"
@@ -763,6 +809,7 @@ class ConfigWindow:
             self.theme_setting_change = True
             self.display_brightness_change = True
             self.display_orientation_last = -1
+            self.pic_compress_bool_var_last = self.pic_compress_bool_var.get()
             self.display_step = 0
             self.window_after_time = 1000
         self.window.after(self.window_after_time, self.window_refresh)
@@ -810,7 +857,7 @@ class ConfigWindow:
 
     def load_config_values(self):
         try:
-            with open("config.yaml", "rt", encoding="utf8") as stream:
+            with open(Path(__file__).parent / "config.yaml", "rt", encoding="utf8") as stream:
                 self.config, ind, bsi = ruamel.yaml.util.load_yaml_guess_indent(stream)
         except Exception as e:
             traceback.print_exc()
@@ -854,6 +901,11 @@ class ConfigWindow:
             self.free_off_bool_var.set(self.config["display"].get("FREE_OFF",False))
         except:
             self.free_off_bool_var.set(False)
+
+        try:
+            self.pic_compress_bool_var.set(self.config["display"].get("PIC_COMPRESS",False))
+        except:
+            self.pic_compress_bool_var.set(False)
 
         # Config config
         config = self.config.get("config",None)
@@ -964,6 +1016,7 @@ class ConfigWindow:
         ][0]
         self.config["display"]["BRIGHTNESS"] = int(self.brightness_slider.get())
         self.config["display"]["FREE_OFF"] = self.free_off_bool_var.get()
+        self.config["display"]["PIC_COMPRESS"] = self.pic_compress_bool_var.get()
         
         with open("config.yaml", "w", encoding="utf-8") as file:
             ruamel.yaml.YAML().dump(self.config, file)
@@ -1006,10 +1059,12 @@ class ConfigWindow:
         self.weatherping_config_window.show()
 
     def is_theme_editor_process(self):
-        if self.theme_editor_process != None:
-            if self.theme_editor_process.poll() == None:
+        if self.theme_editor_process is not None:
+            if self.theme_editor_process.poll() is None:
                 messagebox.showerror(_("Error"), _("theme editor is running !"))
                 return True
+            else:
+                self.theme_editor_process = None
         return False
     
     def on_new_theme_editor_click(self):
@@ -1017,6 +1072,7 @@ class ConfigWindow:
             return
         self.new_theme_editor = tkinter.Toplevel(self.window)
         self.new_theme_editor.title(_("New theme"))
+        self.new_theme_editor.withdraw()
         
         self.new_theme_editor.protocol(
             "WM_DELETE_WINDOW", self.on_new_theme_editor_closing
@@ -1061,7 +1117,6 @@ class ConfigWindow:
         self.new_theme_editor_ok_button.pack(side=tkinter.RIGHT, padx=5, pady=10)
         self.new_theme_editor_ok_button.state(["disabled"])
 
-        self.new_theme_editor.withdraw()
         self.new_theme_editor.update()
         main_window_x = self.window.winfo_x()
         main_window_y = self.window.winfo_y()
@@ -1074,6 +1129,8 @@ class ConfigWindow:
         self.new_theme_editor.geometry(f"{width}x{height}+{x}+{y}")
         self.new_theme_editor.deiconify()
         self.new_theme_editor.focus_force()
+
+        apply_theme_to_titlebar(self.new_theme_editor,self.theme_is_dark)
 
     def on_new_theme_editor_closing(self):
         self.new_theme_editor.grab_release()
@@ -1110,7 +1167,7 @@ class ConfigWindow:
             else:
                 self.new_theme_editor_ok_button.state(["!disabled"])
                 self.new_theme_editor_label["text"] = _("Name")
-                self.new_theme_editor_label["foreground"] = "black"
+                self.new_theme_editor_label["foreground"] = "white" if self.theme_is_dark else "black"
         else:
             self.new_theme_editor_ok_button.state(["disabled"])
             self.new_theme_editor_label["text"] = _("Error input: ") + r"^[a-zA-Z0-9_\- .&']+$"
@@ -1194,6 +1251,7 @@ class ConfigWindow:
             return
         self.delete_theme_frame = tkinter.Toplevel(self.window)
         self.delete_theme_frame.title(_("Delete theme"))
+        self.delete_theme_frame.withdraw()
 
         def on_delete_theme_frame_closing():
             self.delete_theme_frame.grab_release()
@@ -1217,7 +1275,6 @@ class ConfigWindow:
         )
         cancel_button.pack(side=tkinter.RIGHT, padx=5, pady=5)
 
-        self.delete_theme_frame.withdraw()
         self.delete_theme_frame.update()
         main_window_x = self.window.winfo_x()
         main_window_y = self.window.winfo_y()
@@ -1231,6 +1288,8 @@ class ConfigWindow:
         self.delete_theme_frame.deiconify()
 
         self.delete_theme_frame.focus_force()
+
+        apply_theme_to_titlebar(self.delete_theme_frame,self.theme_is_dark)
 
         def on_delete_theme_frame_ok():
             current_directory = Path(self.themes_dir_path)
@@ -1280,6 +1339,7 @@ class ConfigWindow:
             return
         self.copy_theme_editor = tkinter.Toplevel(self.window)
         self.copy_theme_editor.title(_("Copy theme"))
+        self.copy_theme_editor.withdraw()
         
         self.copy_theme_editor.protocol(
             "WM_DELETE_WINDOW", self.on_copy_theme_editor_closing
@@ -1310,7 +1370,6 @@ class ConfigWindow:
         self.copy_theme_editor_ok_button.pack(side=tkinter.RIGHT, padx=5, pady=10)
         self.copy_theme_editor_ok_button.state(["disabled"])
 
-        self.copy_theme_editor.withdraw()
         self.copy_theme_editor.update()
         main_window_x = self.window.winfo_x()
         main_window_y = self.window.winfo_y()
@@ -1327,6 +1386,8 @@ class ConfigWindow:
         self.copy_theme_editor_entry_change()
         self.copy_theme_editor.focus_force()
 
+        apply_theme_to_titlebar(self.copy_theme_editor,self.theme_is_dark)
+
     def on_copy_theme_editor_closing(self):
         self.copy_theme_editor.grab_release()
         self.copy_theme_editor.destroy()
@@ -1341,7 +1402,7 @@ class ConfigWindow:
             else:
                 self.copy_theme_editor_ok_button.state(["!disabled"])
                 self.copy_theme_editor_label["text"] = _("Name")
-                self.copy_theme_editor_label["foreground"] = "black"
+                self.copy_theme_editor_label["foreground"] = "white" if self.theme_is_dark else "black"
         else:
             self.copy_theme_editor_ok_button.state(["disabled"])
             self.copy_theme_editor_label["text"] = _("Error input: ") + r"^[a-zA-Z0-9_\- ]+$"
@@ -1423,15 +1484,17 @@ class ConfigWindow:
     def on_model_change(self, e=None):
         model = self.model_cb.get()
         if "Simulated" in model:
-            self.com_cb.configure(state="disabled", foreground="#C0C0C0")
-            self.orient_cb.configure(state="disabled", foreground="#C0C0C0")
+            self.com_cb.configure(state="disabled")
+            self.orient_cb.configure(state="disabled")
             self.brightness_slider.configure(state="disabled")
-            self.brightness_val_label.configure(foreground="#C0C0C0")
+            self.brightness_val_label.configure(state="disabled")
+            self.com_refresh_button.configure(state="disabled")
         else:
-            self.com_cb.configure(state="readonly", foreground="#000")
-            self.orient_cb.configure(state="readonly", foreground="#000")
+            self.com_cb.configure(state="readonly")
+            self.orient_cb.configure(state="readonly")
             self.brightness_slider.configure(state="normal")
-            self.brightness_val_label.configure(foreground="#000")
+            self.brightness_val_label.configure(state="normal")
+            self.com_refresh_button.configure(state="normal")
 
             if model == WEACT_A_MODEL:
                 self.other_setting_button.configure(state="normal")
@@ -1453,11 +1516,11 @@ class ConfigWindow:
     def on_hwlib_change(self, e=None):
         hwlib = [k for k, v in hw_lib_map.items() if v == self.hwlib_cb.get()][0]
         if hwlib == "STUB" or hwlib == "STATIC":
-            self.eth_cb.configure(state="disabled", foreground="#C0C0C0")
-            self.wl_cb.configure(state="disabled", foreground="#C0C0C0")
+            self.eth_cb.configure(state="disabled")
+            self.wl_cb.configure(state="disabled")
         else:
-            self.eth_cb.configure(state="readonly", foreground="#000")
-            self.wl_cb.configure(state="readonly", foreground="#000")
+            self.eth_cb.configure(state="readonly")
+            self.wl_cb.configure(state="readonly")
 
         if sys.platform == "win32":
             import ctypes
@@ -1522,9 +1585,6 @@ class PingWeatherConfigWindow:
         self.window.title(_("Ping & Weather Configure"))
 
         self.main_window = main_window
-
-        # Make TK look better with Sun Valley ttk theme
-        sv_ttk.set_theme("light")
 
         # ping frame
         self.ping_frame = tkinter.Frame(self.window)
@@ -1642,6 +1702,8 @@ class PingWeatherConfigWindow:
         self.window.focus_force()
         self.window.grab_set()
 
+        apply_theme_to_titlebar(self.window,self.main_window.theme_is_dark)
+
     def on_closing(self):
         self.window.grab_release()
         self.window.destroy()
@@ -1729,9 +1791,6 @@ class WorkspaceSettingsWindow:
 
         self.main_window = main_window
 
-        # Make TK look better with Sun Valley ttk theme
-        sv_ttk.set_theme("light")
-
         # theme folder 
         theme_folder_label = ttk.Label(self.window, text=_("Themes Folder:"))
         theme_folder_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
@@ -1776,6 +1835,8 @@ class WorkspaceSettingsWindow:
         self.window.deiconify()
         self.window.focus_force()
         self.window.grab_set()
+
+        apply_theme_to_titlebar(self.window,self.main_window.theme_is_dark)
     
     def on_closing(self):
         self.window.grab_release()

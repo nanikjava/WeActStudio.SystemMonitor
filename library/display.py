@@ -52,6 +52,7 @@ class Display:
     def __init__(self):
         self.lcd = None
         self.is_LcdSimulated = False
+        self.use_compress = 1 if config.CONFIG_DATA['display']['PIC_COMPRESS']==True else 0
         if config.CONFIG_DATA["display"]["REVISION"] == "A_320x480":
             self.lcd = LcdComm_WeAct_A(com_port=config.CONFIG_DATA['config']['COM_PORT'],
                                    update_queue=config.update_queue)
@@ -72,7 +73,7 @@ class Display:
         self.lcd.Reset()
 
         # Send initialization commands
-        self.lcd.InitializeComm()
+        self.lcd.InitializeComm(self.use_compress)
 
         # Set orientation
         self.lcd.SetOrientation(_get_theme_orientation())

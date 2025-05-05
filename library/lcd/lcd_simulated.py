@@ -129,7 +129,7 @@ class LcdSimulated(LcdComm):
         logger.debug("Shutting down web server")
         self.webServer.shutdown()
 
-    def InitializeComm(self):
+    def InitializeComm(self,use_compress:int = 0):
         pass
 
     def Reset(self):

@@ -4,8 +4,11 @@ import requests,datetime
 import subprocess
 from pathlib import Path
 import threading
+import platform
+import time
 try:
     import tkinter as tk
+    import tkinter.ttk as ttk
     import psutil
     import ping3
 except:
@@ -15,11 +18,42 @@ except:
     except:
         os._exit(0)
 
+def apply_theme_to_titlebar(root,is_dark):
+    if platform.system() != "Windows":
+        return
+    
+    import pywinstyles, sys
+    version = sys.getwindowsversion()
+
+    if version.major == 10 and version.build >= 22000:
+        # Set the title bar color to the background color on Windows 11 for better appearance
+        if is_dark:
+            pywinstyles.change_header_color(root, "#1c1c1c")
+    elif version.major == 10:
+        if is_dark:
+            pywinstyles.apply_style(root, "dark")
+
+            # A hacky way to update the title bar's color on Windows 10 (it doesn't update instantly like on Windows 11)
+            root.wm_attributes("-alpha", 0.99)
+            root.wm_attributes("-alpha", 1)
+
 def show_messagebox(message, title="", delay=3000):
     def create_and_run_messagebox():
         nonlocal root
         root = tk.Tk()
         root.title(title)
+
+        style = ttk.Style()
+        root.tk.call("source", Path(__file__).parent.parent / "res" / "tk_themes" / "sv_ttk" / "sv.tcl")
+
+        theme_is_dark = False
+        if platform.system() == "Windows" and sys.getwindowsversion().major >= 10:
+            import darkdetect
+            theme_is_dark = darkdetect.theme() == "Dark"
+            style.theme_use("sun-valley-dark" if theme_is_dark else "sun-valley-light")
+        else:
+            style.theme_use("sun-valley-light")
+
 
         root.resizable(False, False)
         root.attributes('-topmost', True)
@@ -39,6 +73,8 @@ def show_messagebox(message, title="", delay=3000):
         y = (screen_height - main_window_height) // 2
         root.geometry(f"{main_window_width}x{main_window_height}+{x}+{y}")
         root.deiconify()
+
+        apply_theme_to_titlebar(root,theme_is_dark)
 
         if delay > 0:
             root.after(delay, root.destroy)
@@ -272,3 +308,121 @@ def get_version():
     except Exception as e:
         print(f"Error reading version file: {e}")
         return "V0.0.0"
+
+def WindowToast(title, message, icon=None):
+    import platform, sys
+    if platform.system() == "Windows" and sys.getwindowsversion().major >= 10 and sys.version_info >= (3, 9):
+        from windows_toasts import Toast, WindowsToaster,ToastDisplayImage
+        toaster = WindowsToaster(title)
+        # Initialise the toast
+        newToast = Toast()
+        # Set the body of the notification
+        newToast.text_fields = [message]
+        if icon:
+            newToast.AddImage(ToastDisplayImage.fromPath(icon))
+        toaster.show_toast(newToast)
+        def close():
+            toaster.remove_toast(newToast)
+        
+        return close
+    else:
+        return None
+    
+from pynput import mouse, keyboard
+class InputMonitor:
+    """
+    A class to monitor keyboard and mouse activities with automatic resource cleanup.
+    Tracks key presses and mouse movements.
+    """
+    def __init__(self):
+        """Initialize counters and flags"""
+        self.key_press_count = 0
+        self.mouse_press_count = 0
+        self.mouse_moved = False
+        self.key_pressed = False
+        self._running = False
+        self._listeners = []
+        
+    def _on_move(self, x, y):
+        """Callback for mouse movement"""
+        self.mouse_moved = True
+        
+    def _on_click(self, x, y, button, pressed):
+        """Callback for mouse click"""
+        if pressed:
+            self.mouse_press_count += 1
+            
+    def _on_press(self, key):
+        """Callback for keyboard press"""
+        self.key_press_count += 1
+        self.key_pressed = True
+        
+    def start(self):
+        """Start monitoring input events"""
+        if not self._running:
+            self._running = True
+            # Start mouse listener
+            mouse_listener = mouse.Listener(
+                on_move=self._on_move,
+                on_click=self._on_click
+            )
+            mouse_listener.daemon = True
+            mouse_listener.start()
+            self._listeners.append(mouse_listener)
+            
+            # Start keyboard listener
+            keyboard_listener = keyboard.Listener(
+                on_press=self._on_press
+            )
+            keyboard_listener.daemon = True
+            keyboard_listener.start()
+            self._listeners.append(keyboard_listener)
+            
+    def stop(self):
+        """Stop all listeners and cleanup resources"""
+        for listener in self._listeners:
+            if listener.is_alive():
+                listener.stop()
+                time.sleep(0.1)
+                listener.join(timeout=0.5)
+        self._listeners.clear()
+        self._running = False
+                
+    def get_key_press_count(self):
+        """Get total key press count"""
+        return self.key_press_count
+    
+    def get_mouse_press_count(self):
+        """Get total key press count"""
+        return self.mouse_press_count
+    
+    def is_key_pressed(self):
+        """Check if any key has been pressed since last call"""
+        pressed = self.key_pressed
+        self.key_pressed = False  # Reset flag after checking
+        return pressed
+
+    def is_mouse_moved(self):
+        """Check if mouse has moved since last call"""
+        moved = self.mouse_moved
+        self.mouse_moved = False  # Reset movement flag
+        return moved
+    
+    def reset_key_counters(self):
+        """Reset key counters to zero"""
+        self.key_press_count = 0
+        self.key_pressed = False
+        
+    def reset_mouse_counters(self):
+        """Reset mouse counters to zero"""
+        self.mouse_press_count = 0
+        self.mouse_moved = False
+        
+    def __enter__(self):
+        """Context manager entry point"""
+        self.start()
+        return self
+        
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit point - ensures cleanup"""
+        self.stop()

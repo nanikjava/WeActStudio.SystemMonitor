@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2024-09-15 00:42+0800\n"
-"PO-Revision-Date: 2025-03-29 13:29+0800\n"
+"PO-Revision-Date: 2025-04-13 01:13+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -41,4 +41,7 @@ msgstr "启动中 ..."
 
 msgid "Error: Another instance of the program is already running."
 msgstr "错误：程序的另一个实例已经在运行。"
+
+msgid "The icon has been displayed in the tray. Click the icon to open the configuration."
+msgstr "图标已经显示到托盘。单击图标打开配置。"
 

@@ -280,3 +280,6 @@ msgstr ""
 
 msgid "Error: Another instance of the program is already running."
 msgstr ""
+
+msgid "Picture Compress"
+msgstr ""

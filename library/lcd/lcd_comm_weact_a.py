@@ -7,6 +7,7 @@ from serial.tools.list_ports import comports
 from library.lcd.lcd_comm import *
 from library.log import logger
 from library.lcd import serialize
+import fastlz
 
 class Command(IntEnum):
     CMD_WHO_AM_I = 0x81  # Establish communication before driving the screen
@@ -14,8 +15,10 @@ class Command(IntEnum):
     CMD_SET_BRIGHTNESS = 0x03  # Sets the screen brightness
     CMD_FULL = 0x04  # Displays an image on the screen
     CMD_SET_BITMAP = 0x05  # Displays an image on the screen
+    CMD_SET_BITMAP_WITH_FASTLZ = 0x15
     CMD_ENABLE_HUMITURE_REPORT = 0x06
     CMD_FREE = 0x07
+    CMD_SYSTEM_VERSION = 0x42
     CMD_END = 0x0A  # Displays an image on the screen
     CMD_READ = 0x80
 
@@ -32,7 +35,9 @@ class LcdComm_WeAct_A(LcdComm):
         self.brightness = 0
         self.temperature = 0
         self.humidness = 0
+        self.support_fastlz = False
         self.openSerial()
+
 
     def __del__(self):
         self.closeSerial()
@@ -80,7 +85,33 @@ class LcdComm_WeAct_A(LcdComm):
             with self.update_queue_mutex:
                 self.update_queue.put((self.WriteData, [byteBuffer]))
 
-    def InitializeComm(self):
+    def InitializeComm(self,use_compress:int = 0):
+        byteBuffer = bytearray(2)
+        self.serial_readall()
+        byteBuffer[0] = Command.CMD_SYSTEM_VERSION | Command.CMD_READ
+        byteBuffer[1] = Command.CMD_END
+        self.WriteData(byteBuffer)
+        response = self.serial_read(19)
+        self.serial_flush_input()
+        if response and len(response) == 19:
+            version_str = response[1:9].decode('ascii').strip()
+            logger.info(f"Device version: {version_str}")
+            if version_str.startswith("V"):
+                if version_str == "V1.0.0.0":
+                    self.support_fastlz = False
+                    logger.info("Device does not support fastlz compression.")
+                else:
+                    logger.info("Device supports fastlz compression.")
+                    if use_compress:
+                        self.support_fastlz = True
+                    else:
+                        self.support_fastlz = False
+                        logger.info("User disabled fastlz compression.")
+            else:
+                self.support_fastlz = False
+                logger.info("Device does not support fastlz compression.")
+        else:
+            logger.info("Get version failed") 
         pass
 
     def Reset(self):
@@ -223,9 +254,22 @@ class LcdComm_WeAct_A(LcdComm):
 
         rgb565le = serialize.image_to_RGB565(image,'little')
 
-        # Lock queue mutex then queue all the requests for the image data
-        with self.update_queue_mutex:
-            self.SendLine(byteBuffer)
-            for chunk in serialize.chunked(rgb565le,line_to_send_size):
-                self.SendLine(chunk)
+        if self.support_fastlz:
+            chunk_size = line_to_send_size
+            # Lock queue mutex then queue all the requests for the image data
+            with self.update_queue_mutex:
+                byteBuffer[0] = Command.CMD_SET_BITMAP_WITH_FASTLZ
+                self.SendLine(byteBuffer)
+                # declare the chunk size
+                for i in range(0, len(rgb565le), chunk_size):
+                    chunk = rgb565le[i:i+chunk_size]
+                    compressed_chunk = fastlz.compress(chunk)
+                    chunk_with_header = struct.pack("<HH", len(chunk), len(compressed_chunk[4:])) + compressed_chunk[4:]
+                    self.SendLine(chunk_with_header)
+        else:
+            # Lock queue mutex then queue all the requests for the image data
+            with self.update_queue_mutex:
+                self.SendLine(byteBuffer)
+                for chunk in serialize.chunked(rgb565le,line_to_send_size):
+                    self.SendLine(chunk)
                 

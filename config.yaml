@@ -70,3 +70,5 @@ display:
   # Set to true to reverse display orientation (landscape <-> reverse landscape, portrait <-> reverse portrait)
   # Note: Display basic orientation (portrait or landscape) is defined by the theme you have selected
   DISPLAY_REVERSE: false
+
+  PIC_COMPRESS: false

@@ -40,3 +40,6 @@ msgstr ""
 
 msgid "Error: Another instance of the program is already running."
 msgstr ""
+
+msgid "The icon has been displayed in the tray. Click the icon to open the configuration."
+msgstr ""

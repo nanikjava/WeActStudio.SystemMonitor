@@ -267,6 +267,9 @@ class CPU:
             interval=theme_data.get("INTERVAL", None)
         )
 
+        if math.isnan(cpu_percentage):
+            cpu_percentage = 0
+
         save_last_value(cpu_percentage, cls.last_values_cpu_percentage,
                         theme_data['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
         
@@ -285,6 +288,9 @@ class CPU:
         freq_ghz = sensors.Cpu.frequency() / 1000
         theme_data = config.THEME_DATA['STATS']['CPU']['FREQUENCY']
 
+        if math.isnan(freq_ghz):
+            freq_ghz = 0
+            
         save_last_value(freq_ghz, cls.last_values_cpu_frequency,
                         theme_data['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
 
@@ -1129,3 +1135,44 @@ class Ping:
             min_size=2
         )
         display_themed_line_graph(theme_data['LINE_GRAPH'], cls.last_values_ping)
+
+class InputMonitor:
+    handle = None
+    last_values_mouse_click_count = []
+    last_values_keyboard_press_count = []
+    @classmethod
+    def stats(cls,forced_refresh = False):
+        mouse_click_count = 0
+        keyboard_press_count = 0
+        if HW_SENSORS in ["STATIC", "STUB"]:
+            mouse_click_count = 99999
+            keyboard_press_count = 99999
+        else:
+            if cls.handle is None:
+                try:
+                    cls.handle = utils.InputMonitor()
+                    cls.handle.start()
+                except:
+                    cls.handle = None
+                    logger.error("Error initializing input monitor")
+            else:
+                mouse_click_count = cls.handle.get_mouse_press_count()
+                keyboard_press_count = cls.handle.get_key_press_count()
+        theme_data = config.THEME_DATA['STATS']['INPUT_MONITOR']
+        save_last_value(mouse_click_count, cls.last_values_mouse_click_count,
+                        theme_data['MOUSE_CLICK_COUNT']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+        save_last_value(keyboard_press_count, cls.last_values_keyboard_press_count,
+                        theme_data['KEYBOARD_PRESS_COUNT']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+        if cls.last_values_mouse_click_count[-2] != mouse_click_count or forced_refresh:
+            display_themed_value(theme_data=theme_data['MOUSE_CLICK_COUNT']['TEXT'], value=mouse_click_count, unit=" t",min_size=8)
+        if cls.last_values_keyboard_press_count[-2]!= keyboard_press_count or forced_refresh:
+            display_themed_value(theme_data=theme_data['KEYBOARD_PRESS_COUNT']['TEXT'], value=keyboard_press_count, unit=" t",min_size=8)
+        display_themed_line_graph(theme_data['MOUSE_CLICK_COUNT']['LINE_GRAPH'], cls.last_values_mouse_click_count)
+        display_themed_line_graph(theme_data['KEYBOARD_PRESS_COUNT']['LINE_GRAPH'], cls.last_values_keyboard_press_count)
+    
+    @classmethod
+    def stop(cls):
+        if cls.handle is not None:
+            print("Stopping input monitor")
+            cls.handle.stop()
+            cls.handle = None

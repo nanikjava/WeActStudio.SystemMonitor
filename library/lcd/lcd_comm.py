@@ -112,6 +112,22 @@ class LcdComm(ABC):
         except:
             pass
 
+    def serial_write(self, data: bytes):
+        assert self.lcd_serial is not None
+        self.lcd_serial.write(data)
+
+    def serial_read(self, size: int) -> bytes:
+        assert self.lcd_serial is not None
+        return self.lcd_serial.read(size)
+    
+    def serial_readall(self) -> bytes:
+        assert self.lcd_serial is not None
+        return self.lcd_serial.readall()
+
+    def serial_flush_input(self):
+        if self.lcd_serial is not None:
+            self.lcd_serial.reset_input_buffer()
+
     def WriteData(self, byteBuffer: bytearray):
         self.WriteLine(bytes(byteBuffer))
 
@@ -165,7 +181,7 @@ class LcdComm(ABC):
         pass
 
     @abstractmethod
-    def InitializeComm(self):
+    def InitializeComm(self,use_compress:int = 0):
         pass
 
     @abstractmethod

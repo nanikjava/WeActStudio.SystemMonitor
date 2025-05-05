@@ -233,12 +233,18 @@ def WeatherStats():
 def PingStats():
     stats.Ping.stats()
 
+@async_job("InputMonitor_Stats")
+@schedule(timedelta(seconds=config.THEME_DATA['STATS'].get('INPUT_MONITOR', {}).get("INTERVAL", 0)).total_seconds())
+def InputMonitorStats():
+    stats.InputMonitor.stats()
+
 @async_job("Queue_Handler")
 @schedule(timedelta(milliseconds=1).total_seconds())
 def QueueHandler():
     # Do next action waiting in the queue
     global STOPPING
     if STOPPING:
+        stats.InputMonitor.stop()
         # Empty the action queue to allow program to exit cleanly
         while not config.update_queue.empty():
             f, args = config.update_queue.get()

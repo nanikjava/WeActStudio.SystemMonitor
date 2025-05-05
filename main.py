@@ -93,8 +93,7 @@ def app_exit():
         os._exit(0)
 
 # Show Start Frame
-msg_close_handler = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor') + " " + utils.get_version(),delay=10000)
-time.sleep(1)
+msg_close_handler = utils.show_messagebox(message=_("Starting ..."),title=_('WeAct Studio System Monitor') + " " + utils.get_version(),delay=0)
 
 from library.log import logger
 import library.scheduler as scheduler
@@ -132,6 +131,9 @@ if get_config_display_free_off() == True:
         on_click=on_mouse_click,
         on_scroll=on_mouse_scroll
     )
+    
+    keyboard_listener.daemon = True
+    mouse_listener.daemon = True
     
     keyboard_listener.start()
     mouse_listener.start()
@@ -172,14 +174,18 @@ def stop():
     global keyboard_listener,mouse_listener
     if get_config_display_free_off() == True:
         keyboard_listener.stop()  
+        time.sleep(0.1)
+        keyboard_listener.join(timeout=0.5)
         mouse_listener.stop()
+        time.sleep(0.1)
+        mouse_listener.join(timeout=0.5)
     # We force the exit to avoid waiting for other scheduled tasks: they may have a long delay!
     app_clean()
     app_exit()
 
 def clean_stop(tray_icon=None):
     utils.show_messagebox(message=_('Exit') + " ...",title=_('WeAct Studio System Monitor') + " " + utils.get_version(),delay=5000)
-    time.sleep(1)
+    time.sleep(0.5)
     clean(tray_icon)
     stop()
 
@@ -196,7 +202,7 @@ def start_main():
 def on_configure_tray(tray_icon, item):
     logger.info("Configure from tray icon")
     utils.show_messagebox(message=_('Configure') + ' ' + _("Starting ..."),title=_('WeAct Studio System Monitor') + " " + utils.get_version(),delay=5000)
-    time.sleep(1)
+    time.sleep(0.5)
     clean(tray_icon)
     start_configure()
     stop()
@@ -279,6 +285,8 @@ def scheduler_init():
     time.sleep(0.15)
     scheduler.PingStats()
     time.sleep(0.15)
+    scheduler.InputMonitorStats()
+    time.sleep(0.15)
 
 if platform.system() == "Windows":
     def on_win32_ctrl_event(event):
@@ -324,7 +332,6 @@ try:
                 action=on_exit_tray)
         )
     )
-
     # For platforms != macOS, display the tray icon now with non-blocking function
     if platform.system() != "Darwin":
         tray_icon.run_detached()
@@ -353,8 +360,11 @@ except Exception as e:
     start_configure()
     clean_stop(tray_icon)
 
+close_windowtoast = utils.WindowToast(_('WeAct Studio System Monitor') + " " + utils.get_version(),_("The icon has been displayed in the tray. Click the icon to open the configuration."),icon=Path(__file__).parent / "res" / "icons" / "logo.png")
 msg_close_handler()
-
+if close_windowtoast:
+    time.sleep(5)
+    close_windowtoast()
 if tray_icon and platform.system() == "Darwin":  # macOS-specific
     from AppKit import NSBundle, NSApp, NSApplicationActivationPolicyProhibited
 
