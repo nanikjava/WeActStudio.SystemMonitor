@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2025-01-16 23:32+0800\n"
-"PO-Revision-Date: 2025-04-13 01:24+0800\n"
+"PO-Revision-Date: 2025-08-15 10:34+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: ja\n"
@@ -280,3 +280,18 @@ msgstr "エラー: プログラムの別のインスタンスがすでに実行�
 
 msgid "Picture Compress"
 msgstr "画像圧縮"
+
+msgid "Copy"
+msgstr "コピー"
+
+msgid "Paste"
+msgstr "ペースト"
+
+msgid "Cut"
+msgstr "切る"
+
+msgid "Undo"
+msgstr "アンドゥ"
+
+msgid "Redo"
+msgstr "リドゥ"

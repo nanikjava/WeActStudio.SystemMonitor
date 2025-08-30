@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import library.config as config
 from library.display import display
 

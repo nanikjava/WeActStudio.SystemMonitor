@@ -1,3 +1,14 @@
+author: '@WeActStudio'
+display:
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_RGB_LED: 255, 0, 0
+static_images:
+  BACKGROUND:
+    HEIGHT: 320
+    PATH: background.png
+    WIDTH: 480
+    X: 0
+    Y: 0
 STATS:
   DATE:
     DAY:
@@ -79,7 +90,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         FONT: roboto-mono/RobotoMono-SemiBold.ttf
         FONT_COLOR: 255, 255, 255
-        FONT_SIZE: 50
+        FONT_SIZE: 40
         HEIGHT: 0
         MIN_SIZE: 0
         SHOW: true
@@ -105,14 +116,3 @@ STATS:
         WIDTH: 240
         X: 240
         Y: 250
-author: '@WeActStudio'
-display:
-  DISPLAY_ORIENTATION: landscape
-  DISPLAY_RGB_LED: 255, 0, 0
-static_images:
-  BACKGROUND:
-    HEIGHT: 320
-    PATH: background.png
-    WIDTH: 480
-    X: 0
-    Y: 0

@@ -75,11 +75,11 @@ config.load_theme()
 # For theme editor, always use simulated LCD
 if config.THEME_DATA["display"].get("DISPLAY_SIZE", "320x480") == "480x800":
     config.CONFIG_DATA["display"]["REVISION"] = "SIMU_480x800"
+elif config.THEME_DATA["display"].get("DISPLAY_SIZE", "320x480") == "80x160":
+    config.CONFIG_DATA["display"]["REVISION"] = "SIMU_80x160"
 else:
     config.CONFIG_DATA["display"]["REVISION"] = "SIMU_320x480"
-
 from library.display import display  # Only import display after hardcoded config is set
-
 
 class dict_tools:
     def sort_dict_by_order(d, order):
@@ -173,6 +173,16 @@ class theme_editor:
         self.x0 = 0
         self.y0 = 0
 
+        if display.lcd.get_width() < display.lcd.get_height():
+            self.image_width = 320
+            self.image_height = 480
+        elif display.lcd.get_width() > display.lcd.get_height():
+            self.image_width = 480
+            self.image_height = 320
+        else:
+            self.image_width = 320
+            self.image_height = 320
+
         self.theme_preview_path = config.CURRENT_THEME_PATH / "preview.png"
         
         self.theme_file_change = False
@@ -180,6 +190,13 @@ class theme_editor:
         self.theme_file_unsave = False
 
         self.image_scaler = None
+
+        self.entry_label_text = {}
+        self.entry_label_text['Copy'] = _('Copy')
+        self.entry_label_text['Paste'] = _('Paste')
+        self.entry_label_text['Cut'] = _('Cut')
+        self.entry_label_text['Undo'] = _('Undo')
+        self.entry_label_text['Redo'] = _('Redo')
 
         self.main_refresh_tick = 0
 
@@ -222,9 +239,9 @@ class theme_editor:
 
         self.main.iconphoto(True, tkinter.PhotoImage(file=Path(__file__).parent / "res" / "icons" / "logo.png"))
         self.main.geometry(
-            str(display.lcd.get_width() + 3 * self.RGB_LED_MARGIN + 600)
+            str(self.image_width + 3 * self.RGB_LED_MARGIN + 600)
             + "x"
-            + str(display.lcd.get_height() + 4 * self.RGB_LED_MARGIN + 40 + 100)
+            + str(self.image_height + 4 * self.RGB_LED_MARGIN + 40 + 100)
         )
         self.main.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.main.resizable(False, False)
@@ -240,8 +257,8 @@ class theme_editor:
         self.viewer.place(
             x=0,
             y=0,
-            width=display.lcd.get_width() + 2 * self.RGB_LED_MARGIN,
-            height=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN + 40,
+            width=self.image_width + 2 * self.RGB_LED_MARGIN,
+            height=self.image_height + 2 * self.RGB_LED_MARGIN + 40,
         )
 
         # Display preview in the window
@@ -249,7 +266,7 @@ class theme_editor:
         self.viewer_picture = tkinter.Label(
             self.viewer, image=self.display_image, borderwidth=0
         )
-        self.viewer_picture.place(x=self.RGB_LED_MARGIN, y=self.RGB_LED_MARGIN)
+        self.viewer_picture.place(x=self.RGB_LED_MARGIN + (self.image_width-display.lcd.get_width())/2, y=self.RGB_LED_MARGIN + (self.image_height-display.lcd.get_height())/2)
 
         # Allow to click on preview to show coordinates and draw zones
         self.viewer_picture.bind("<ButtonPress-1>", self.on_button1_press)
@@ -261,19 +278,19 @@ class theme_editor:
         )
         self.label_coord.place(
             x=0,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN,
-            width=display.lcd.get_width() + 2 * self.RGB_LED_MARGIN,
+            y=self.image_height + 2 * self.RGB_LED_MARGIN,
+            width=self.image_width + 2 * self.RGB_LED_MARGIN,
         )
 
         self.label_info = tkinter.Label(
             self.viewer,
             text=_("This preview size: ")
-            + f"{display.lcd.get_width()}x{display.lcd.get_height()}",
+            + f"{display.lcd.get_height()}x{display.lcd.get_width()}",
         )
         self.label_info.place(
             x=0,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN + 20,
-            width=display.lcd.get_width() + 2 * self.RGB_LED_MARGIN,
+            y=self.image_height + 2 * self.RGB_LED_MARGIN + 20,
+            width=self.image_width + 2 * self.RGB_LED_MARGIN,
         )
 
         self.label_zone = tkinter.Label(
@@ -303,7 +320,7 @@ class theme_editor:
     def file_frame_init(self):
         self.file_frame = tkinter.Frame(self.main)
         self.file_frame.place(
-            x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
+            x=self.image_width + 3 * self.RGB_LED_MARGIN,
             y=0,
             width=600,
             height=30,
@@ -368,8 +385,8 @@ class theme_editor:
         self.logger_frame = tkinter.Frame(self.main)
         self.logger_frame.place(
             x=self.RGB_LED_MARGIN,
-            y=display.lcd.get_height() + 3 * self.RGB_LED_MARGIN + 40,
-            width=display.lcd.get_width() + 2 * self.RGB_LED_MARGIN,
+            y=self.image_height + 3 * self.RGB_LED_MARGIN + 40,
+            width=self.image_width + 2 * self.RGB_LED_MARGIN,
             height=100,
         )
         self.log_text = scrolledtext.ScrolledText(
@@ -439,7 +456,7 @@ class theme_editor:
             "", "end", text=self.theme_file
         )
 
-        order = ["author", "display", "static_images", "static_text", "dynamic_images","dynamic_texts", "photo_album"]
+        order = ["author", "display", "static_images", "static_text", "dynamic_images","dynamic_texts", "photo_album","requests_get", "STATS", "PATH"]
         sorted_d = dict_tools.sort_dict_by_order(config.THEME_DATA_EDIT, order)
         import copy
 
@@ -449,10 +466,10 @@ class theme_editor:
         self.theme_tree.item(self.theme_tree_root_node, open=True)
 
         self.theme.place(
-            x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
+            x=self.image_width + 3 * self.RGB_LED_MARGIN,
             y=25 + self.RGB_LED_MARGIN,
             width=600,
-            height=display.lcd.get_height()
+            height=self.image_height
             + 2 * self.RGB_LED_MARGIN
             - 50
             - (25 + self.RGB_LED_MARGIN),
@@ -626,15 +643,10 @@ class theme_editor:
 
     def on_theme_tree_add_item(self, config_dict, item_key, item_value):
         config_dict[item_key] = item_value
-
-        order = ["author", "display", "static_images", "static_text", "dynamic_images", "dynamic_texts", "photo_album"]
-        sorted_d = dict_tools.sort_dict_by_order(config_dict, order)
-        import copy
-
-        config_dict = copy.deepcopy(sorted_d)
-
+        print("add item")
         selection = self.theme_tree.selection()[0]
         if selection:
+            print('reopen node')
             selection_s = selection.split("-")
             # 删除所有节点
             children = self.theme_tree.get_children("")
@@ -643,6 +655,13 @@ class theme_editor:
             self.theme_tree_root_node = self.theme_tree.insert(
                 "", "end", text=self.theme_file
             )
+            # 重新排序
+            order = ["author", "display", "static_images", "static_text", "dynamic_images","dynamic_texts", "photo_album", "requests_get", "STATS", "PATH"]
+
+            if item_key in order and len(selection_s) == 1:
+                print('reorder theme data edit')
+                sorted_d = dict_tools.sort_dict_by_order(config.THEME_DATA_EDIT, order)
+                config.THEME_DATA_EDIT = copy.deepcopy(sorted_d)
             self.theme_tree_add_data(self.theme_tree_root_node, config.THEME_DATA_EDIT)
             # 重新打开节点
             selection_s[0] = self.theme_tree_root_node
@@ -732,6 +751,19 @@ class theme_editor:
                                         "dynamic_x"
                                     ]
                                     s = True
+                                elif (
+                                    selection_length == 3
+                                    and parent_text == "requests_get"
+                                ):
+                                    if config_value.get('GET_TYPE', 'text') == 'text':
+                                        theme_example = config.THEME_EXAMPLE[parent_text][
+                                            "get_text_x"
+                                        ]
+                                    else:
+                                        theme_example = config.THEME_EXAMPLE[parent_text][
+                                            "get_image_x"
+                                        ]
+                                    s = True
                             if s == False:
                                 theme_example = self.theme_tree_item_get_config_dict(
                                     config.THEME_EXAMPLE, selection[0]
@@ -799,8 +831,8 @@ class theme_editor:
             label_tips.grid(row=1, column=0, columnspan=10, sticky="w")
 
         self.editor.place(
-            x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN - 50 + 100,
+            x=self.image_width + 3 * self.RGB_LED_MARGIN,
+            y=self.image_height + 2 * self.RGB_LED_MARGIN - 50 + 100,
             width=600,
             height=100,
         )
@@ -812,8 +844,8 @@ class theme_editor:
         # Create a new editor frame
         self.editor = tkinter.Frame(self.main)
         self.editor.place(
-            x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN + 50,
+            x=self.image_width + 3 * self.RGB_LED_MARGIN,
+            y=self.image_height + 2 * self.RGB_LED_MARGIN + 50,
             width=600,
             height=100
         )
@@ -863,11 +895,13 @@ class theme_editor:
             # Update tips information
             tips_label["text"] = _("Please Select")
 
-            def on_confirm():
+            def on_confirm(event=None):
+                print("standard settings combobox confirm")
                 new_value = combobox.get()
                 if new_value != value:
                     self._update_config_and_refresh(selection, title, new_value)
 
+            combobox.bind("<<ComboboxSelected>>", on_confirm)
             # Create a confirm button
             confirm_button = ttk.Button(
                 self.editor, text=_("Confirm"), command=on_confirm
@@ -886,25 +920,9 @@ class theme_editor:
                 check_button.place(x=setting_x, y=setting_y)
             elif isinstance(value, int):
                 print("Value is int")
-                def restrict_entry(event):
-                    char = event.char
-                    current_text = event.widget.get()
-                    cursor_index = event.widget.index(tkinter.INSERT)
-
-                    # Allow delete operations
-                    if char in ("", "\x7f", "\x08"):
-                        return
-
-                    # Allow input of minus sign and digits
-                    if (cursor_index == 0 and char == "-") or char.isdigit():
-                        return
-                    else:
-                        event.widget.delete(len(current_text), tkinter.END)
-                        return "break"
-
                 # Create an entry box
-                entry = ttk.Entry(self.editor, width=25)
-                entry.bind("<Key>", restrict_entry)
+                entry = utils.EnhancedEntry(self.editor,label_text=self.entry_label_text,restrict_digit=True)
+                # entry.bind("<Key>", restrict_entry)
                 entry.place(x=setting_x, y=setting_y, width=470)
                 entry.insert(0, str(value))
                 entry.focus_set()
@@ -954,30 +972,47 @@ class theme_editor:
                     canvas.bind("<Button-1>", lambda e, c=color: on_canvas_click(e, c))
                 else:
                     # Create an entry box
-                    entry = ttk.Entry(self.editor)
+                    entry = utils.EnhancedEntry(self.editor,label_text=self.entry_label_text)
                     entry.place(x=setting_x, y=setting_y, width=470)
                     entry.insert(0, value)
                     entry.focus_set()
 
             if not is_color_chooser:
                 def on_confirm(event=None):
+                    print_str = ''
                     if isinstance(value, str):
                         new_value = combobox.get() if is_combobox else entry.get()
+                        print_str = "unstandard settings str confirm"
                     elif isinstance(value, bool):
                         new_value = bool_var.get()
+                        print_str = "unstandard settings bool confirm"
                     elif isinstance(value, int):
-                        new_value = int(entry.get())
+                        if entry.get() == '':
+                            return
+                        else:
+                            new_value = int(entry.get())
+                        print_str = "unstandard settings int confirm"
 
                     if new_value != value:
+                        print(print_str)
                         self._update_config_and_refresh(selection, title, new_value)
 
                 if isinstance(value, bool):
                     check_button["command"] = on_confirm
                 else:
-                    try:
-                        entry.bind("<Return>", on_confirm)
-                    except NameError:
-                        pass
+                    if 'entry' in locals():
+                        try:
+                            entry.bind("<Return>", on_confirm)
+                            entry.bind("<FocusOut>", on_confirm)
+                        except NameError:
+                            print("entry NameError")
+                            pass
+                    elif 'combobox' in locals():
+                        try:
+                            combobox.bind("<<ComboboxSelected>>", on_confirm)
+                        except NameError:
+                            print("combobox NameError")
+                            pass
 
                     # Create a confirm button
                     confirm_button = ttk.Button(
@@ -1002,8 +1037,8 @@ class theme_editor:
 
         self.editor = tkinter.Frame(self.main)
         self.editor.place(
-            x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN - 50 + 100,
+            x=self.image_width + 3 * self.RGB_LED_MARGIN,
+            y=self.image_height + 2 * self.RGB_LED_MARGIN - 50 + 100,
             width=600,
             height=100,
         )
@@ -1013,26 +1048,12 @@ class theme_editor:
         )
         label.grid(row=0, column=0, columnspan=10, sticky="w")
 
-        def restrict_entry(event):
-            current_text = event.widget.get()
-            new_char = event.char
-            if new_char in ("", "\x08", "\x7f", "_", "-"):
-                return
-
-            if event.state == 0x04:
-                return
-
-            if not new_char.isalnum():
-                event.widget.delete(len(current_text), tkinter.END)
-                return "break"
-
-        entry = ttk.Entry(self.editor, width=25)
-        entry.bind("<Key>", restrict_entry)
+        entry = utils.EnhancedEntry(self.editor,label_text=self.entry_label_text,restrict_alnum=True, width=25)
         entry.grid(row=1, column=0, columnspan=10, sticky="w" + "e")
         entry.insert(0, title)
         entry.focus_set()
 
-        def on_confirm():
+        def on_confirm(event=None):
             selcection_value = dict(
                 self.theme_tree_item_get_config_dict(config.THEME_DATA_EDIT, selection)
             )
@@ -1049,9 +1070,13 @@ class theme_editor:
                 )
                 self.theme_refresh = True
             else:
-                self.logger.error(f"{entry.get()} already exists")
-                self.logger_error_message(f"{entry.get()} already exists")
+                if title != entry.get():
+                    self.logger.error(f"{entry.get()} already exists")
+                    self.logger_error_message(f"{entry.get()} already exists")
 
+        entry.bind("<Return>", on_confirm)
+        entry.bind("<FocusOut>", on_confirm)
+        
         confirm_button = ttk.Button(self.editor, text=_("Confirm"), command=on_confirm)
         confirm_button.grid(row=1, column=11, columnspan=1, sticky="w" + "e")
 
@@ -1092,6 +1117,7 @@ class theme_editor:
                                 or parent_text == "static_text"
                                 or parent_text == "dynamic_images"
                                 or parent_text == "dynamic_texts"
+                                or parent_text == "requests_get"
                             ):
                                 self.editor_display_dict(
                                     self.theme_tree_selection, selection_item_text
@@ -1108,6 +1134,8 @@ class theme_editor:
                                     tip_show = _("If you want to add more text,\nchange the TEXT_EXAMPLE name first")
                                 elif selection_item_text == "static_images":
                                     tip_show = _("If you want to add more image,\nchange the IMAGE_EXAMPLE name first")
+                                elif selection_item_text == "requests_get":
+                                    tip_show = _("If you want to add more requests_get,\nchange the get_xx name first")
                                 self.editor_set_free(tip_show)
                         else:
                             self.editor_set_free()
@@ -1118,38 +1146,48 @@ class theme_editor:
             self.editor_set_free()
 
     def main_resize(self):
+        if display.lcd.get_width() < display.lcd.get_height():
+            self.image_width = 320
+            self.image_height = 480
+        elif display.lcd.get_width() > display.lcd.get_height():
+            self.image_width = 480
+            self.image_height = 320
+        else:
+            self.image_width = 320
+            self.image_height = 320
+
         self.main.geometry(
-            str(display.lcd.get_width() + 3 * self.RGB_LED_MARGIN + 600)
+            str(self.image_width + 3 * self.RGB_LED_MARGIN + 600)
             + "x"
-            + str(display.lcd.get_height() + 4 * self.RGB_LED_MARGIN + 40 + 100)
+            + str(self.image_height + 4 * self.RGB_LED_MARGIN + 40 + 100)
         )
 
         self.viewer.place(
             x=0,
             y=0,
-            width=display.lcd.get_width() + 2 * self.RGB_LED_MARGIN,
-            height=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN + 40,
+            width=self.image_width + 2 * self.RGB_LED_MARGIN,
+            height=self.image_height + 2 * self.RGB_LED_MARGIN + 40,
         )
 
-        self.viewer_picture.place(x=self.RGB_LED_MARGIN, y=self.RGB_LED_MARGIN)
+        self.viewer_picture.place(x=self.RGB_LED_MARGIN + (self.image_width-display.lcd.get_width())/2, y=self.RGB_LED_MARGIN + (self.image_height-display.lcd.get_height())/2)
 
         self.label_coord.place(
             x=0,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN,
-            width=display.lcd.get_width() + 2 * self.RGB_LED_MARGIN,
+            y=self.image_height + 2 * self.RGB_LED_MARGIN,
+            width=self.image_width + 2 * self.RGB_LED_MARGIN,
         )
 
         self.label_info.place(
             x=0,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN + 20,
-            width=display.lcd.get_width() + 2 * self.RGB_LED_MARGIN,
+            y=self.image_height + 2 * self.RGB_LED_MARGIN + 20,
+            width=self.image_width + 2 * self.RGB_LED_MARGIN,
         )
 
         self.theme.place(
-            x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
+            x=self.image_width + 3 * self.RGB_LED_MARGIN,
             y=25 + self.RGB_LED_MARGIN,
             width=600,
-            height=display.lcd.get_height()
+            height=self.image_height
             + 2 * self.RGB_LED_MARGIN
             - 50
             - (25 + self.RGB_LED_MARGIN)
@@ -1157,14 +1195,14 @@ class theme_editor:
         )
 
         self.editor.place(
-            x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
-            y=display.lcd.get_height() + 2 * self.RGB_LED_MARGIN - 50 + 100,
+            x=self.image_width + 3 * self.RGB_LED_MARGIN,
+            y=self.image_height + 2 * self.RGB_LED_MARGIN - 50 + 100,
             width=600,
             height=100,
         )
 
         self.file_frame.place(
-            x=display.lcd.get_width() + 3 * self.RGB_LED_MARGIN,
+            x=self.image_width + 3 * self.RGB_LED_MARGIN,
             y=0,
             width=600,
             height=30,
@@ -1172,8 +1210,8 @@ class theme_editor:
 
         self.logger_frame.place(
             x=self.RGB_LED_MARGIN,
-            y=display.lcd.get_height() + 3 * self.RGB_LED_MARGIN + 40,
-            width=display.lcd.get_width() + 2 * self.RGB_LED_MARGIN,
+            y=self.image_height + 3 * self.RGB_LED_MARGIN + 40,
+            width=self.image_width + 2 * self.RGB_LED_MARGIN,
             height=100,
         )
 
@@ -1184,6 +1222,10 @@ class theme_editor:
         ):
             self.theme_file_change = True
             self.main_refresh_tick = 0
+            # Update the preview.png that is in the theme folder
+            if self.theme_refresh != True or not self.theme_preview_path.exists():
+                print("update preview")
+                display.lcd.screen_image.save(self.theme_preview_path)
         else:
             self.theme_file_change = False
 
@@ -1208,11 +1250,6 @@ class theme_editor:
             self.main_resize()
 
             self.last_edit_time = os.path.getmtime(self.theme_file)
-
-            # Update the preview.png that is in the theme folder
-            if self.theme_refresh != True or not self.theme_preview_path.exists():
-                print("update preview")
-                display.lcd.screen_image.save(self.theme_preview_path)
 
             # Display new picture
             self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)
@@ -1251,6 +1288,7 @@ class theme_editor:
             import library.dynamic_images as dynamic_images
             import library.dynamic_texts as dynamic_texts
             import library.photo_album as photo_album
+            import library.requests_get as requests_get
 
             if need_refresh == True:
                 error_text = "initialize_display"
@@ -1328,6 +1366,8 @@ class theme_editor:
                 dynamic_images.dynamic_images.init()
                 dynamic_texts.dynamic_texts.init()
                 photo_album.photo_album.init()
+                if config.THEME_DATA['requests_get'].get("SHOW", False) == True:
+                    requests_get.requests_get.init()
 
             need_refresh_img = False
             
@@ -1339,6 +1379,9 @@ class theme_editor:
                 if self.main_refresh_tick % (config.THEME_DATA["photo_album"].get("INTERVAL", 0) * 10) == 0:
                     if photo_album.photo_album.handle():
                         need_refresh_img = True
+            if config.THEME_DATA['requests_get'].get("SHOW", False) == True:
+                if requests_get.requests_get.get(True):
+                    need_refresh_img = True
             
             if need_refresh_img == True:
                 self.display_image = ImageTk.PhotoImage(display.lcd.screen_image)
@@ -1427,14 +1470,17 @@ class theme_editor:
             self.close_theme_frame.geometry(f"{width}x{height}+{x}+{y}")
 
     def draw_zone(self, x0, y0, x1, y1):
+        x_err = (self.image_width - display.lcd.get_width())/2
+        y_err = (self.image_height - display.lcd.get_height())/2
+
         x = min(self.x0, x1)
         y = min(self.y0, y1)
-        width = max(self.x0, x1) - min(x0, x1)
-        height = max(self.y0, y1) - min(y0, y1)
+        width = max(self.x0, x1) - min(x0, x1) + 1
+        height = max(self.y0, y1) - min(y0, y1) + 1
         if width > 0 and height > 0:
             self.label_zone.place(
-                x=x + self.RGB_LED_MARGIN,
-                y=y + self.RGB_LED_MARGIN,
+                x=x + self.RGB_LED_MARGIN + x_err,
+                y=y + self.RGB_LED_MARGIN + y_err,
                 width=width,
                 height=height,
             )
@@ -1463,6 +1509,7 @@ class theme_editor:
                 self.x0, self.y0, x1, y1
             )
         )
+
         self.draw_zone(self.x0, self.y0, x1, y1)
 
     def on_button1_release(self, event):

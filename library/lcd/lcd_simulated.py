@@ -187,6 +187,8 @@ class LcdSimulated(LcdComm):
         if image.size[0] > self.get_width():
             image_width = self.get_width()
 
+        assert x >= 0, f"Display Image X {x} coordinate must be >= 0"
+        assert y >= 0, f"Display Image Y {y} coordinate must be >= 0"
         assert x <= self.get_width(), f'Display Image X {x} coordinate must be <= display width {self.get_width()}'
         assert y <= self.get_height(), 'Image Y coordinate must be <= display height'
         assert image_height > 0, 'Image height must be > 0'

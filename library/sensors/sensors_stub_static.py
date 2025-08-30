@@ -103,6 +103,18 @@ class Memory(sensors.Memory):
     @staticmethod
     def virtual_free() -> int:  # In Mbytes
         return int(MEMORY_TOTAL_SIZE_GB / 100 * (100 - PERCENTAGE_SENSOR_VALUE)) * 1024
+    
+    @staticmethod
+    def total_percent() -> float:
+        return PERCENTAGE_SENSOR_VALUE
+
+    @staticmethod
+    def total_used() -> int:  # In Mbytes
+        return int(MEMORY_TOTAL_SIZE_GB / 100 * PERCENTAGE_SENSOR_VALUE) * 1024
+
+    @staticmethod
+    def total_free() -> int:  # In Mbytes
+        return int(MEMORY_TOTAL_SIZE_GB / 100 * (100 - PERCENTAGE_SENSOR_VALUE)) * 1024
 
 
 class Disk(sensors.Disk):

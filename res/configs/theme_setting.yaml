@@ -41,3 +41,7 @@ FORMAT:
 BAR_DECORATION: 
   Ellipse: Ellipse
   Normal: ''
+
+GET_TYPE:
+  image: image
+  text: text

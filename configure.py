@@ -99,32 +99,41 @@ from library.sensors.sensors_python import sensors_fans, is_cpu_fan
 from library.lcd.lcd_comm import Orientation
 
 WEACT_A_MODEL = "WeAct Studio Display FS V1"
+WEACT_B_MODEL = "WeAct Studio Display FS 0.96 Inch"
 SIMULATED_A_MODEL = "Simulated 320x480"
 SIMULATED_B_MODEL = "Simulated 480x800"
+SIMULATED_C_MODEL = "Simulated 80x160"
 
 SIZE_1 = "320x480"
 SIZE_2 = "480x800"
+SIZE_3 = "80x160"
 
-size_list = (SIZE_1, SIZE_2)
+size_list = (SIZE_1, SIZE_2, SIZE_3)
 orientation_list = (_("portrait"), _("landscape"))
 
 # Maps between config.yaml values and GUI description
 revision_to_model_map = {
     "A_320x480": WEACT_A_MODEL,
+    "B_80x160": WEACT_B_MODEL,
     "SIMU_320x480": SIMULATED_A_MODEL,
     "SIMU_480x800": SIMULATED_B_MODEL,
+    "SIMU_80x160": SIMULATED_C_MODEL,
 }
 
 model_to_revision_map = {
     WEACT_A_MODEL: "A_320x480",
+    WEACT_B_MODEL: "B_80x160",
     SIMULATED_A_MODEL: "SIMU_320x480",
     SIMULATED_B_MODEL: "SIMU_480x800",
+    SIMULATED_C_MODEL: "SIMU_80x160",
 }
 
 model_to_size_map = {
     WEACT_A_MODEL: SIZE_1,
+    WEACT_B_MODEL: SIZE_3,
     SIMULATED_A_MODEL: SIZE_1,
     SIMULATED_B_MODEL: SIZE_2,
+    SIMULATED_C_MODEL: SIZE_3,
 }
 
 hw_lib_map = {
@@ -264,6 +273,13 @@ class ConfigWindow:
         else:
             self.window.tk.call("source", Path(__file__).parent / "res" / "tk_themes" / "sv_ttk" / "theme" / "light.tcl")
             style.theme_use("sun-valley-light")
+
+        self.entry_label_text = {}
+        self.entry_label_text['Copy'] = _('Copy')
+        self.entry_label_text['Paste'] = _('Paste')
+        self.entry_label_text['Cut'] = _('Cut')
+        self.entry_label_text['Undo'] = _('Undo')
+        self.entry_label_text['Redo'] = _('Redo')
 
         self.theme_preview_img = None
 
@@ -559,6 +575,7 @@ class ConfigWindow:
         self.display_brightness_last = int(self.brightness_slider.get())
         self.pic_compress_bool_var_last = self.pic_compress_bool_var.get()
         self.theme_select_last = self.theme_cb.get()
+        self.model_select_last = self.model_cb.get()
         self.theme_setting_change = True
         self.window_after_time = 1000
 
@@ -698,10 +715,16 @@ class ConfigWindow:
             if self.display_init == False:
                 try:
                     import library.scheduler as scheduler
-                    from library.display import display
+                    import library.display
+                    from library import config
+                
+                    if self.model_select_last != self.model_cb.get():
+                        self.model_select_last = self.model_cb.get()
+                        config.load_config()
+                        library.display.display = library.display.Display()
 
                     self.scheduler = scheduler
-                    self.display = display
+                    self.display = library.display.display
                     
                     self.display.use_compress = 1 if self.pic_compress_bool_var.get() == True else 0
                     self.on_com_refresh_button()
@@ -709,7 +732,7 @@ class ConfigWindow:
                         self.display.lcd.com_port = "AUTO"
                     else:
                         self.display.lcd.com_port = self.com_cb.get()
-                    if display.lcd.lcd_serial == None or display.lcd.lcd_serial.is_open == False:
+                    if self.display.lcd.lcd_serial == None or self.display.lcd.lcd_serial.is_open == False:
                         print("Open Display LCD Serial")
                         r = self.display.lcd.openSerial()
                     else:
@@ -831,16 +854,28 @@ class ConfigWindow:
             finally:
                 # Set the fixed width for the preview image
                 fixed_width = 300
+                fixed_height = 450
                 # Get the original width and height of the image
                 width, height = theme_preview.size
-                # Calculate the ratio to maintain the aspect ratio
-                ratio = fixed_width / width
-                # Calculate the new height based on the ratio
-                new_height = int(height * ratio)
-                # Resize the image with the fixed width and calculated height
-                theme_preview = theme_preview.resize(
-                    (fixed_width, new_height), Image.Resampling.LANCZOS
-                )
+                if width < fixed_width and height < fixed_height:
+                    # Create a new image with fixed dimensions
+                    new_image = Image.new('RGB', (fixed_width, fixed_height), (85, 85, 85))
+                    # Calculate position to center the original image
+                    x_offset = (fixed_width - width) // 2
+                    y_offset = (fixed_height - height) // 2
+                    # Paste the original image centered on the new image
+                    new_image.paste(theme_preview, (x_offset, y_offset))
+                    theme_preview = new_image
+                else:
+                    # Original scaling logic
+                    width_ratio = fixed_width / width
+                    height_ratio = fixed_height / height
+                    ratio = min(width_ratio, height_ratio)
+                    new_width = int(width * ratio)
+                    new_height = int(height * ratio)
+                    theme_preview = theme_preview.resize(
+                        (new_width, new_height), Image.Resampling.LANCZOS
+                    )
                 self.theme_preview_img = ImageTk.PhotoImage(theme_preview)
                 self.theme_preview.config(image=self.theme_preview_img)
 
@@ -858,6 +893,22 @@ class ConfigWindow:
                 else:
                     self.theme_author.config(foreground="#a3a3a3", cursor="")
                     self.theme_author.unbind("<Button-1>")
+        else:
+            theme_preview = Image.open(Path(__file__).parent / "res" / "configs" / "no-preview.png")
+            # Set the fixed width for the preview image
+            fixed_width = 300
+            # Get the original width and height of the image
+            width, height = theme_preview.size
+            # Calculate the ratio to maintain the aspect ratio
+            ratio = fixed_width / width
+            # Calculate the new height based on the ratio
+            new_height = int(height * ratio)
+            # Resize the image with the fixed width and calculated height
+            theme_preview = theme_preview.resize(
+                (fixed_width, new_height), Image.Resampling.LANCZOS
+            )
+            self.theme_preview_img = ImageTk.PhotoImage(theme_preview)
+            self.theme_preview.config(image=self.theme_preview_img)
                 
 
     def load_config_values(self):
@@ -943,7 +994,11 @@ class ConfigWindow:
         themes_list = self.theme_get.get_themes(model_to_size_map[self.model_cb.get()])
         if theme is None or theme == "" or theme not in themes_list:
             # Theme from config.yaml is not valid: use first theme available default size 320x480
-            self.config["config"]["THEME"] = self.theme_get.get_themes(model_to_size_map[self.model_cb.get()])[0]
+            theme_get = self.theme_get.get_themes(model_to_size_map[self.model_cb.get()])
+            if len(theme_get) > 0:
+                self.config["config"]["THEME"] = theme_get[0]
+            else:
+                self.config["config"]["THEME"] = ""
         
         try:
             self.theme_cb.set(config.get("THEME",None))
@@ -1089,7 +1144,7 @@ class ConfigWindow:
             side=tkinter.TOP, padx=10, pady=10, anchor=tkinter.W
         )
 
-        self.new_theme_editor_entry = ttk.Entry(self.new_theme_editor)
+        self.new_theme_editor_entry = utils.EnhancedEntry(self.new_theme_editor,label_text=self.entry_label_text)
         self.new_theme_editor_entry.pack(fill=tkinter.X, expand=True, padx=10, ipadx=30)
         self.new_theme_editor_entry.bind(
             "<KeyRelease>", self.new_theme_editor_entry_change
@@ -1196,7 +1251,7 @@ class ConfigWindow:
                     template_name = "theme_template_320x480.yaml"
                 else:
                     template_name = "theme_template_480x320.yaml"
-            else:
+            elif model_to_size_map[self.model_cb.get()] == SIZE_2:
                 if (
                     self.new_theme_editor_orientation_combobox.get()
                     == orientation_list[0]
@@ -1204,6 +1259,18 @@ class ConfigWindow:
                     template_name = "theme_template_480x800.yaml"
                 else:
                     template_name = "theme_template_800x480.yaml"
+            elif model_to_size_map[self.model_cb.get()] == SIZE_3:
+                if (
+                    self.new_theme_editor_orientation_combobox.get()
+                    == orientation_list[0]
+                ):
+                    template_name = "theme_template_80x160.yaml"
+                else:
+                    template_name = "theme_template_160x80.yaml"
+            else:
+                messagebox.showerror(_("Error"), f"Unknown model")
+                return
+
             dst_name = "theme.yaml"
             src_file = configs_directory / template_name
             dst_file = new_dir / dst_name
@@ -1229,7 +1296,7 @@ class ConfigWindow:
                     new_image = Image.new("RGB", (320, 480), "black")
                 else:
                     new_image = Image.new("RGB", (480, 320), "black")
-            else:
+            elif model_to_size_map[self.model_cb.get()] == SIZE_2:
                 if (
                     self.new_theme_editor_orientation_combobox.get()
                     == orientation_list[0]
@@ -1237,6 +1304,18 @@ class ConfigWindow:
                     new_image = Image.new("RGB", (480, 800), "black")
                 else:
                     new_image = Image.new("RGB", (800, 480), "black")
+            elif model_to_size_map[self.model_cb.get()] == SIZE_3:
+                if (
+                    self.new_theme_editor_orientation_combobox.get()
+                    == orientation_list[0]
+                ):
+                    new_image = Image.new("RGB", (80, 160), "black")
+                else:
+                    new_image = Image.new("RGB", (160, 80), "black")
+            else:
+                messagebox.showerror(_("Error"), f"Unknown model")
+                return
+
             new_image.save(dst_file)
 
             # save theme change
@@ -1356,7 +1435,7 @@ class ConfigWindow:
             side=tkinter.TOP, padx=10, pady=10, anchor=tkinter.W
         )
 
-        self.copy_theme_editor_entry = ttk.Entry(self.copy_theme_editor)
+        self.copy_theme_editor_entry = utils.EnhancedEntry(self.copy_theme_editor,label_text=self.entry_label_text)
         self.copy_theme_editor_entry.pack(fill=tkinter.X, expand=True, padx=10,ipadx=30)
         self.copy_theme_editor_entry.bind(
             "<KeyRelease>", self.copy_theme_editor_entry_change
@@ -1469,8 +1548,11 @@ class ConfigWindow:
             self.display_init = False
             self.live_display_bool_var.set(False)
             time.sleep(1)
-
-        self.display_other_config_process = utils.run.weact_device_setting()
+        model = self.model_cb.get()
+        if model == WEACT_A_MODEL:
+            self.display_other_config_process = utils.run.weact_device_setting(0)
+        else:
+            self.display_other_config_process = utils.run.weact_device_setting(1)
 
     def on_saverun_click(self):
         if self.is_theme_editor_process():
@@ -1501,7 +1583,7 @@ class ConfigWindow:
             self.brightness_val_label.configure(state="normal")
             self.com_refresh_button.configure(state="normal")
 
-            if model == WEACT_A_MODEL:
+            if model == WEACT_A_MODEL or model == WEACT_B_MODEL:
                 self.other_setting_button.configure(state="normal")
             else:
                 self.other_setting_button.configure(state="disabled")
@@ -1591,6 +1673,13 @@ class PingWeatherConfigWindow:
 
         self.main_window = main_window
 
+        self.entry_label_text = {}
+        self.entry_label_text['Copy'] = _('Copy')
+        self.entry_label_text['Paste'] = _('Paste')
+        self.entry_label_text['Cut'] = _('Cut')
+        self.entry_label_text['Undo'] = _('Undo')
+        self.entry_label_text['Redo'] = _('Redo')
+
         # ping frame
         self.ping_frame = tkinter.Frame(self.window)
         self.ping_frame.grid(row=0, column=0, columnspan=4, padx=5, pady=5,sticky="w")
@@ -1598,7 +1687,7 @@ class PingWeatherConfigWindow:
         self.ping_label.grid(row=0, column=0, padx=5, pady=5,sticky="w")
         self.ping_label1 = ttk.Label(self.ping_frame, text=_("Hostname / IP to ping"))
         self.ping_label1.grid(row=1, column=0, padx=5, pady=5,sticky="w")
-        self.ping_entry = ttk.Entry(self.ping_frame)
+        self.ping_entry = utils.EnhancedEntry(self.ping_frame,label_text=self.entry_label_text)
         self.ping_entry.grid(row=1, column=1, columnspan=2, padx=5, pady=5,sticky="w"+"e")
 
         # weather frame
@@ -1622,7 +1711,7 @@ class PingWeatherConfigWindow:
 
         self.api_label = ttk.Label(self.weather_frame, text="OpenWeatherMap API key")
         self.api_label.grid(row=3, column=0, padx=5, pady=5,sticky="w")
-        self.api_entry = ttk.Entry(self.weather_frame)
+        self.api_entry = utils.EnhancedEntry(self.weather_frame,label_text=self.entry_label_text)
         self.api_entry.grid(row=3, column=1, columnspan=2, padx=5, pady=5,sticky="w"+"e")
 
         # latlong frame
@@ -1637,13 +1726,13 @@ class PingWeatherConfigWindow:
 
         self.lat_label = ttk.Label(self.latlong_frame, text=_("Latitude"))
         self.lat_label.grid(row=1, column=0, padx=5, pady=5,sticky="w")
-        self.lat_entry = ttk.Entry(self.latlong_frame, validate="key",
+        self.lat_entry = utils.EnhancedEntry(self.latlong_frame,label_text=self.entry_label_text, validate="key",
                                    validatecommand=(self.window.register(self.validateCoord), "%P"))
         self.lat_entry.grid(row=1, column=1, padx=5, pady=5,sticky="w"+"e")
 
         self.long_label = ttk.Label(self.latlong_frame, text=_("Longitude"))
         self.long_label.grid(row=1, column=2, padx=5, pady=5,sticky="w")
-        self.long_entry = ttk.Entry(self.latlong_frame, validate="key",
+        self.long_entry = utils.EnhancedEntry(self.latlong_frame,label_text=self.entry_label_text, validate="key",
                                     validatecommand=(self.window.register(self.validateCoord), "%P"))
         self.long_entry.grid(row=1, column=3, padx=5, pady=5,sticky="w"+"e")
         
@@ -1795,13 +1884,20 @@ class WorkspaceSettingsWindow:
         self.window.title(_("Workspace Settings"))
 
         self.main_window = main_window
+        
+        self.entry_label_text = {}
+        self.entry_label_text['Copy'] = _('Copy')
+        self.entry_label_text['Paste'] = _('Paste')
+        self.entry_label_text['Cut'] = _('Cut')
+        self.entry_label_text['Undo'] = _('Undo')
+        self.entry_label_text['Redo'] = _('Redo')
 
         # theme folder 
         theme_folder_label = ttk.Label(self.window, text=_("Themes Folder:"))
         theme_folder_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         self.theme_folder_path = tkinter.StringVar()
-        self.theme_folder_entry = ttk.Entry(self.window, textvariable=self.theme_folder_path, width=50)
+        self.theme_folder_entry = utils.EnhancedEntry(self.window,label_text=self.entry_label_text, textvariable=self.theme_folder_path, width=50)
         self.theme_folder_entry.grid(row=0, column=1, padx=5, pady=5, sticky="we")
 
         theme_folder_button = ttk.Button(self.window, text=_("Select Folder"), command=self.select_theme_folder)
@@ -1812,7 +1908,7 @@ class WorkspaceSettingsWindow:
         font_folder_label.grid(row=1, column=0, padx=5, pady=5, sticky="w")
 
         self.font_folder_path = tkinter.StringVar()
-        self.font_folder_entry = ttk.Entry(self.window, textvariable=self.font_folder_path, width=50)
+        self.font_folder_entry = utils.EnhancedEntry(self.window,label_text=self.entry_label_text, textvariable=self.font_folder_path, width=50)
         self.font_folder_entry.grid(row=1, column=1, padx=5, pady=5, sticky="we")
 
         font_folder_button = ttk.Button(self.window, text=_("Select Folder"), command=self.select_font_folder)

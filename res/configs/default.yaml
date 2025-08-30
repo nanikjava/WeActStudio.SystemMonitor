@@ -146,6 +146,21 @@ STATS:
         SHOW: False
       PERCENT_TEXT:
         SHOW: False
+    TOTAL:
+      GRAPH:
+        SHOW: False
+      RADIAL:
+        SHOW: False
+      LINE_GRAPH:
+        SHOW: False
+      USED:
+        SHOW: False
+      FREE:
+        SHOW: False
+      TOTAL:
+        SHOW: False
+      PERCENT_TEXT:
+        SHOW: False
   DISK:
     INTERVAL: 0
     USED:
@@ -295,4 +310,7 @@ dynamic_texts:
   SHOW: False
 
 photo_album:
+  SHOW: False
+
+requests_get:
   SHOW: False

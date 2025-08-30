@@ -30,6 +30,7 @@ import library.stats as stats
 import library.dynamic_images as dynamic_images
 import library.dynamic_texts as dynamic_texts
 import library.photo_album as photo_album
+import library.requests_get as requests_get
 
 STOPPING = False
 
@@ -237,6 +238,14 @@ def PingStats():
 @schedule(timedelta(seconds=config.THEME_DATA['STATS'].get('INPUT_MONITOR', {}).get("INTERVAL", 0)).total_seconds())
 def InputMonitorStats():
     stats.InputMonitor.stats()
+
+@async_job("requests_get_Handler")
+@schedule(timedelta(milliseconds=(100 if config.THEME_DATA['requests_get'].get("SHOW", False) == True else 0)).total_seconds())
+def requests_get_Handler():
+    requests_get.requests_get.get()
+
+def requests_get_Init():
+    requests_get.requests_get.init()
 
 @async_job("Queue_Handler")
 @schedule(timedelta(milliseconds=1).total_seconds())

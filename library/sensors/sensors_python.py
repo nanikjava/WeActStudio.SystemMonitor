@@ -446,6 +446,35 @@ class Memory(sensors.Memory):
             return virtual_free_t
         except:
             return -1
+        
+    @staticmethod
+    def total_percent() -> float:
+        try:
+            return psutil.virtual_memory().percent
+        except:
+            return math.nan
+        
+    @staticmethod
+    def total_used() -> int:  # In Mbytes
+        try:
+            # Do not use psutil.virtual_memory().used: from https://psutil.readthedocs.io/en/latest/#memory
+            # "It is calculated differently depending on the platform and designed for informational purposes only"
+            virtual_used_t = psutil.virtual_memory().total - psutil.virtual_memory().available
+            virtual_used_t = round(virtual_used_t / 1024 / 1024)
+            return virtual_used_t
+        except:
+            return -1
+
+    @staticmethod
+    def total_free() -> int:  # In Mbytes
+        try:
+            # Do not use psutil.virtual_memory().free: from https://psutil.readthedocs.io/en/latest/#memory
+            # "note that this doesn’t reflect the actual memory available (use available instead)."
+            virtual_free_t = psutil.virtual_memory().available
+            virtual_free_t = round(virtual_free_t / 1024 / 1024)
+            return virtual_free_t
+        except:
+            return -1
 
 
 class Disk(sensors.Disk):

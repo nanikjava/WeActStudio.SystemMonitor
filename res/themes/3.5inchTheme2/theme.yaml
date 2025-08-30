@@ -1,3 +1,39 @@
+author: '@mathoudebine'
+display:
+  DISPLAY_ORIENTATION: portrait
+  DISPLAY_RGB_LED: 0, 0, 255
+static_images:
+  BACKGROUND:
+    HEIGHT: 480
+    PATH: background.png
+    WIDTH: 320
+    X: 0
+    Y: 0
+static_text:
+  DISK_FREE_LABEL:
+    BACKGROUND_COLOR: 132, 154, 165
+    FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+    FONT_COLOR: 255, 255, 255
+    FONT_SIZE: 23
+    TEXT: 'Free:'
+    X: 124
+    Y: 441
+  DISK_TOTAL_LABEL:
+    BACKGROUND_COLOR: 132, 154, 165
+    FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+    FONT_COLOR: 255, 255, 255
+    FONT_SIZE: 23
+    TEXT: 'Total:'
+    X: 124
+    Y: 381
+  DISK_USED_LABEL:
+    BACKGROUND_COLOR: 132, 154, 165
+    FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+    FONT_COLOR: 255, 255, 255
+    FONT_SIZE: 23
+    TEXT: 'Used:'
+    X: 124
+    Y: 411
 STATS:
   CPU:
     FREQUENCY:
@@ -160,7 +196,7 @@ STATS:
         HEIGHT: 15
         MAX_VALUE: 100
         MIN_VALUE: 0
-        SHOW: true
+        SHOW: false
         WIDTH: 150
         X: 155
         Y: 270
@@ -169,7 +205,7 @@ STATS:
         FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
         FONT_COLOR: 255, 255, 255
         FONT_SIZE: 23
-        SHOW: true
+        SHOW: false
         SHOW_UNIT: true
         X: 250
         Y: 246
@@ -178,43 +214,50 @@ STATS:
         FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
         FONT_COLOR: 255, 255, 255
         FONT_SIZE: 23
-        SHOW: true
+        SHOW: false
         SHOW_UNIT: true
         X: 204
         Y: 296
-author: '@mathoudebine'
-display:
-  DISPLAY_ORIENTATION: portrait
-  DISPLAY_RGB_LED: 0, 0, 255
-static_images:
-  BACKGROUND:
-    HEIGHT: 480
-    PATH: background.png
-    WIDTH: 320
-    X: 0
-    Y: 0
-static_text:
-  DISK_FREE_LABEL:
-    BACKGROUND_COLOR: 132, 154, 165
-    FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-    FONT_COLOR: 255, 255, 255
-    FONT_SIZE: 23
-    TEXT: 'Free:'
-    X: 124
-    Y: 441
-  DISK_TOTAL_LABEL:
-    BACKGROUND_COLOR: 132, 154, 165
-    FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-    FONT_COLOR: 255, 255, 255
-    FONT_SIZE: 23
-    TEXT: 'Total:'
-    X: 124
-    Y: 381
-  DISK_USED_LABEL:
-    BACKGROUND_COLOR: 132, 154, 165
-    FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
-    FONT_COLOR: 255, 255, 255
-    FONT_SIZE: 23
-    TEXT: 'Used:'
-    X: 124
-    Y: 411
+    TOTAL:
+      GRAPH:
+        SHOW: true
+        X: 155
+        Y: 270
+        WIDTH: 150
+        HEIGHT: 15
+        MIN_VALUE: 0
+        MAX_VALUE: 100
+        BAR_COLOR: 0, 0, 255
+        BAR_OUTLINE: false
+        BACKGROUND_COLOR: 0, 0, 0
+      USED:
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        MIN_SIZE: 0
+        X: 204
+        Y: 296
+        # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
+        # To avoid this use one of these 2 methods (or both):
+        #   - either use a monospaced font (fonts with "mono" in name, see res/fonts/ for available fonts)
+        #   - or force a static width/height for the text field. Be sure to have enough space for the longest value that can be displayed (e.g. "100%" for a percentage)
+        WIDTH: 0   # Uncomment to force a static width
+        HEIGHT: 0   # Uncomment to force static height
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_SIZE: 23
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_IMAGE: background.png
+      PERCENT_TEXT:
+        SHOW: true
+        SHOW_UNIT: true
+        UNIT_ML: false
+        X: 250
+        Y: 246
+        # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
+        # To avoid this use one of these 2 methods (or both):
+        #   - either use a monospaced font (fonts with "mono" in name, see res/fonts/ for available fonts)
+        #   - or force a static width/height for the text field. Be sure to have enough space for the longest value that can be displayed (e.g. "100%" for a percentage)
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_SIZE: 23
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_IMAGE: background.png

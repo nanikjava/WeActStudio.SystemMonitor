@@ -74,6 +74,7 @@ static_text:
    BACKGROUND_IMAGE: background.png
    ALIGN: left  # left / center / right
    ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+   ROTATION: 0
 
 dynamic_texts:
   SHOW: False
@@ -93,6 +94,7 @@ dynamic_texts:
     FONT_COLOR: 0, 0, 0
     ALIGN: left  # left / center / right
     ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+    ROTATION: 0
 
 dynamic_images:
   SHOW: False
@@ -122,6 +124,47 @@ photo_album:
   AUTO_REFRESH: False
   INTERVAL: 3
 
+requests_get:
+  SHOW: False
+  get_text_x:
+    SHOW: False
+    INTERVAL_100mS: 100
+    GET_TYPE: text
+    URL: ''
+    ARGS1: ''
+    ARGS2: ''
+    RETURN_SETTING: ''
+    X: 0
+    Y: 0
+    WIDTH: 10
+    HEIGHT: 10
+    FONT: geforce/GeForce-Bold.ttf
+    FONT_SIZE: 10
+    FONT_COLOR: 0, 0, 0
+    BACKGROUND_COLOR: 255, 255, 255
+    BACKGROUND_IMAGE: background.png
+    ALIGN: left  # left / center / right
+    ANCHOR: lt
+    ROTATION: 0
+  get_image_x:
+    SHOW: False
+    INTERVAL_100mS: 100
+    GET_TYPE: image
+    URL: ''
+    ARGS1: ''
+    ARGS2: ''
+    RETURN_SETTING: ''
+    X: 0
+    Y: 0
+    WIDTH: 10
+    HEIGHT: 10
+    BACKGROUND_COLOR: 255, 255, 255
+    BACKGROUND_IMAGE: background.png
+    ALIGN: left  # left / center / right
+    OVERLAY_BG: False
+    RADIUS: 0
+    ALPHA: 255
+
 STATS:
   CPU:
     PERCENTAGE:
@@ -149,6 +192,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -231,6 +275,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -314,6 +359,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
       FIVE:
         TEXT:
           SHOW: False
@@ -335,6 +381,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
       FIFTEEN:
         TEXT:
           SHOW: False
@@ -356,6 +403,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
     TEMPERATURE:
       # In seconds. Longer intervals cause this to refresh more slowly.
       # Setting to lower values will display near real time data,
@@ -381,6 +429,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -463,6 +512,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -586,6 +636,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -664,6 +715,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       LINE_GRAPH:
         SHOW: False
         X: 300
@@ -703,6 +755,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     MEMORY_TOTAL:
       TEXT:
         SHOW: False
@@ -724,6 +777,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     TEMPERATURE:
       TEXT:
         SHOW: False
@@ -745,6 +799,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -823,6 +878,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -901,6 +957,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -979,6 +1036,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -1237,6 +1295,144 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+    TOTAL:
+      GRAPH:
+        SHOW: False
+        X: 115
+        Y: 303
+        WIDTH: 178
+        HEIGHT: 13
+        MIN_VALUE: 0
+        MAX_VALUE: 100
+        BAR_COLOR: 255, 0, 0
+        BAR_OUTLINE: False
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+      RADIAL:
+        SHOW: False
+        X: 141
+        Y: 275
+        RADIUS: 28
+        WIDTH: 8
+        MIN_VALUE: 0
+        MAX_VALUE: 100
+        ANGLE_START: 110
+        ANGLE_END: 70
+        ANGLE_STEPS: 1
+        ANGLE_SEP: 25
+        CLOCKWISE: True
+        BAR_COLOR: 255, 0, 0
+        SHOW_TEXT: True
+        SHOW_UNIT: True
+        MIN_SIZE: 0
+        FONT: roboto-mono/RobotoMono-Bold.ttf
+        FONT_SIZE: 13
+        FONT_COLOR: 200, 200, 200
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        CUSTOM_BBOX: 0, 0, 160, 80
+        TEXT_OFFSET: -10, -20
+        BAR_BACKGROUND_COLOR: 0, 50, 0
+        DRAW_BAR_BACKGROUND: False
+        BAR_DECORATION: ''
+      LINE_GRAPH:
+        SHOW: False
+        X: 300
+        Y: 220
+        WIDTH: 133
+        HEIGHT: 70
+        MIN_VALUE: 30
+        MAX_VALUE: 120
+        HISTORY_SIZE: 10
+        AUTOSCALE: True
+        LINE_COLOR: 61, 184, 225
+        LINE_WIDTH: 2
+        AXIS: True
+        AXIS_COLOR: 255, 135, 0
+        AXIS_FONT: roboto/Roboto-Black.ttf
+        AXIS_FONT_SIZE: 10
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+      USED:
+        SHOW: False
+        SHOW_UNIT: True
+        UNIT_ML: FALSE
+        MIN_SIZE: 0
+        X: 204
+        Y: 290
+        # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
+        # To avoid this use one of these 2 methods (or both):
+        #   - either use a monospaced font (fonts with "mono" in name, see res/fonts/ for available fonts)
+        #   - or force a static width/height for the text field. Be sure to have enough space for the longest value that can be displayed (e.g. "100%" for a percentage)
+        WIDTH: 0   # Uncomment to force a static width
+        HEIGHT: 0   # Uncomment to force static height
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_SIZE: 23
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+      FREE:
+        SHOW: FALSE
+        SHOW_UNIT: True
+        UNIT_ML: FALSE
+        MIN_SIZE: 0
+        X: 182
+        Y: 129
+        # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
+        # To avoid this use one of these 2 methods (or both):
+        #   - either use a monospaced font (fonts with "mono" in name, see res/fonts/ for available fonts)
+        #   - or force a static width/height for the text field. Be sure to have enough space for the longest value that can be displayed (e.g. "100%" for a percentage)
+        WIDTH: 0   # Uncomment to force a static width
+        HEIGHT: 0   # Uncomment to force static height
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_SIZE: 23
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+      TOTAL:
+        SHOW: FALSE
+        SHOW_UNIT: True
+        UNIT_ML: FALSE
+        MIN_SIZE: 0
+        X: 182
+        Y: 129
+        # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
+        # To avoid this use one of these 2 methods (or both):
+        #   - either use a monospaced font (fonts with "mono" in name, see res/fonts/ for available fonts)
+        #   - or force a static width/height for the text field. Be sure to have enough space for the longest value that can be displayed (e.g. "100%" for a percentage)
+        WIDTH: 0   # Uncomment to force a static width
+        HEIGHT: 0   # Uncomment to force static height
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_SIZE: 23
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+      PERCENT_TEXT:
+        SHOW: False
+        SHOW_UNIT: True
+        UNIT_ML: FALSE
+        MIN_SIZE: 0
+        X: 250
+        Y: 240
+        # Text sensors may vary in size and create "ghosting" effects where old value stay displayed under the new one.
+        # To avoid this use one of these 2 methods (or both):
+        #   - either use a monospaced font (fonts with "mono" in name, see res/fonts/ for available fonts)
+        #   - or force a static width/height for the text field. Be sure to have enough space for the longest value that can be displayed (e.g. "100%" for a percentage)
+        WIDTH: 0   # Uncomment to force a static width
+        HEIGHT: 0   # Uncomment to force static height
+        FONT: jetbrains-mono/JetBrainsMono-Bold.ttf
+        FONT_SIZE: 23
+        FONT_COLOR: 255, 255, 255
+        BACKGROUND_COLOR: 0, 0, 0
+        BACKGROUND_IMAGE: background.png
+        ALIGN: right  # left / center / right
+        ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
   DISK:
     INTERVAL: 10
     USED:
@@ -1317,6 +1513,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       PERCENT_TEXT:
         SHOW: False
         SHOW_UNIT: True
@@ -1337,6 +1534,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     TOTAL:
       TEXT:
         SHOW: False
@@ -1358,6 +1556,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     FREE:
       TEXT:
         SHOW: False
@@ -1379,6 +1578,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
   NET:
     INTERVAL: 1
     WLO:
@@ -1403,6 +1603,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1442,6 +1643,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
       DOWNLOAD:
         TEXT:
           SHOW: FALSE
@@ -1463,6 +1665,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1502,6 +1705,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
     ETH:
       UPLOAD:
         TEXT:
@@ -1524,6 +1728,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1563,6 +1768,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
       DOWNLOAD:
         TEXT:
           SHOW: FALSE
@@ -1584,6 +1790,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
         LINE_GRAPH:
           SHOW: False
           X: 300
@@ -1623,6 +1830,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
           ALIGN: right  # left / center / right
           ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+          ROTATION: 0
   DATE:
     # For time display, it is recommended not to change the interval: keep to 1
     INTERVAL: 1
@@ -1645,6 +1853,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     HOUR: # Format (12/24h, timezone translations) will match your computer locale
       TEXT:
         FORMAT: short # short (6:48 PM) / medium (6:48:53 PM) / long (6:48:53 PM UTC) / full (6:48:53 PM Coordinated Universal Time) / custom pattern e.g. "HH:mm:ss zzz" (6:48:53 EDT)
@@ -1664,6 +1873,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
   UPTIME:
     # For seconds display, it is recommended not to change the interval: keep to 1
     INTERVAL: 1
@@ -1685,6 +1895,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     FORMATTED:  # Uptime as formatted string with days e.g. "49 days, 16:47:16"
       TEXT:
         SHOW: FALSE
@@ -1703,6 +1914,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
   VOLUME:
     INTERVAL: 2
     GRAPH:
@@ -1764,6 +1976,7 @@ STATS:
       BACKGROUND_IMAGE: background.png
       ALIGN: right  # left / center / right
       ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+      ROTATION: 0
   LCD_SENSOR:
     TEMPERATURE:
       # In seconds. Longer intervals cause this to refresh more slowly.
@@ -1790,6 +2003,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -1872,6 +2086,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: right  # left / center / right
         ANCHOR: rm   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
       GRAPH:
         SHOW: False
         X: 115
@@ -1951,6 +2166,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     TEMPERATURE_FELT:
       TEXT:
         SHOW: False
@@ -1972,6 +2188,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     UPDATE_TIME:
       TEXT:
         SHOW: False
@@ -1993,6 +2210,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     HUMIDITY:
       TEXT:
         SHOW: False
@@ -2014,6 +2232,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     WEATHER_DESCRIPTION:
       TEXT:
         SHOW: False
@@ -2035,6 +2254,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
   PING:
     INTERVAL: 10
     GRAPH:
@@ -2108,6 +2328,7 @@ STATS:
       BACKGROUND_IMAGE: background.png
       ALIGN: left  # left / center / right
       ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+      ROTATION: 0
   INPUT_MONITOR:
     INTERVAL: 1
     MOUSE_CLICK_COUNT:
@@ -2149,6 +2370,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0
     KEYBOARD_PRESS_COUNT:
       LINE_GRAPH:
         SHOW: False
@@ -2188,3 +2410,4 @@ STATS:
         BACKGROUND_IMAGE: background.png
         ALIGN: left  # left / center / right
         ANCHOR: lt   # Check https://pillow.readthedocs.io/en/stable/handbook/text-anchors.html
+        ROTATION: 0

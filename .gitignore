@@ -138,6 +138,6 @@ tmp
 external/LibreHardwareMonitor/LibreHardwareMonitorLib.sys
 
 Python/
-Python_/
+Python_*/
 
 .vscode/

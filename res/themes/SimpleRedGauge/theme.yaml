@@ -103,7 +103,7 @@ STATS:
       TEXT:
         SHOW: True
         SHOW_UNIT: True
-        X: -2
+        X: 0
         Y: 45
         FONT: generale-mono/GeneraleMonoA.ttf
         FONT_SIZE: 40
@@ -225,7 +225,7 @@ STATS:
       UPLOAD:
         TEXT:
           SHOW: True
-          X: 175
+          X: 145
           Y: 430
           FONT: generale-mono/GeneraleMonoA.ttf
           FONT_SIZE: 20
@@ -234,7 +234,7 @@ STATS:
       DOWNLOAD:
         TEXT:
           SHOW: True
-          X: 175
+          X: 145
           Y: 455
           FONT: generale-mono/GeneraleMonoA.ttf
           FONT_SIZE: 20

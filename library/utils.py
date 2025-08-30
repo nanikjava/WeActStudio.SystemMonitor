@@ -281,10 +281,10 @@ class run:
         return subprocess.Popen([exec_name, str(configure_py)], shell=True)
     
     @classmethod
-    def weact_device_setting(cls):
+    def weact_device_setting(cls,type=0):
         exec_name = cls.get_executable_name()
         weact_device_setting_py = cls.grandparent_dir / "weact_device_setting.py"
-        return subprocess.Popen([exec_name, str(weact_device_setting_py)], shell=True)
+        return subprocess.Popen([exec_name, str(weact_device_setting_py),f"{type}"], shell=True)
     
     @classmethod
     def theme_editor(cls,theme_name):
@@ -431,3 +431,115 @@ class InputMonitor:
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit point - ensures cleanup"""
         self.stop()
+
+class EnhancedEntry(ttk.Entry):
+    def __init__(self, master=None,restrict_alnum=False,restrict_digit=False, label_text=None,**kwargs):
+        super().__init__(master, **kwargs)
+        self._undo_stack = []
+        self._redo_stack = []
+        self.label_text = label_text
+        if self.label_text == None:
+            self.label_text = {}
+            self.label_text['Copy'] = 'Copy'
+            self.label_text['Paste'] = 'Paste'
+            self.label_text['Cut'] = 'Cut'
+            self.label_text['Undo'] = 'Undo'
+            self.label_text['Redo'] = 'Redo'
+        self._setup_context_menu()
+        self.bind('<Control-z>', self.undo)
+        self.bind('<Control-x>', self.cut)
+        self.bind('<Control-c>', self.copy)
+        self.bind('<Control-v>', self.paste)
+        self.bind('<Control-y>', self.redo)
+        self.bind('<Control-a>', self.select_all)
+        self.bind('<Key>', self._record_change)
+        self._restrict_alnum = restrict_alnum
+        self._restrict_digit = restrict_digit
+
+    def _setup_context_menu(self):
+        self.context_menu = tk.Menu(self, tearoff=0)
+        self.context_menu.add_command(label=self.label_text['Copy'], command=self.copy)
+        self.context_menu.add_command(label=self.label_text['Paste'], command=self.paste)
+        self.context_menu.add_command(label=self.label_text['Cut'], command=self.cut)
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label=self.label_text['Undo'], command=self.undo)
+        self.context_menu.add_command(label=self.label_text['Redo'], command=self.redo)
+        self.bind('<Button-3>', self._show_context_menu)
+
+    def _show_context_menu(self, event):
+        self.context_menu.post(event.x_root, event.y_root)
+
+    def _record_change(self, event):
+        if event.state != 8:
+            return
+        if event.keysym not in ('Control_L', 'Control_R', 'Shift_L', 'Shift_R', 
+                              'Alt_L', 'Alt_R', 'Left', 'Right', 'Up', 'Down',
+                              'Home', 'End', 'Page_Up', 'Page_Down'):
+            if event.keysym not in ('Delete','BackSpace'):
+                if self._restrict_alnum:
+                    if not event.char.isalnum() and event.char not in ('_', '-', ' '):
+                        return 'break'
+                if self._restrict_digit:
+                    cursor_index = event.widget.index(tk.INSERT)
+                    if (cursor_index == 0 and event.char == "-") or event.char.isdigit():
+                        return
+                    else:
+                        return 'break'
+
+            current_text = self.get()
+            if not self._undo_stack or self._undo_stack[-1] != current_text:
+                self._undo_stack.append(current_text)
+                self._redo_stack.clear()
+
+    def set_restrict_alnum(self, restrict):
+        self._restrict_alnum = restrict
+
+    def set_restrict_digit(self, restrict):
+        self._restrict_digit = restrict
+
+    def copy(self, event=None):
+        try:
+            self.clipboard_clear()
+            self.clipboard_append(self.selection_get())
+        except tk.TclError:
+            pass
+        return 'break'
+
+    def paste(self, event=None):
+        try:
+            if self.selection_present():
+                self.delete(tk.SEL_FIRST, tk.SEL_LAST)
+            
+            if not self._undo_stack or self._undo_stack[-1] != self.get():
+                self._undo_stack.append(self.get())
+                self._redo_stack.clear()
+                
+            self.insert(tk.INSERT, self.clipboard_get())
+        except tk.TclError:
+            pass
+        return 'break'
+
+    def cut(self, event=None):
+        if self.selection_present():
+            self._undo_stack.append(self.get())
+            self._redo_stack.clear()
+            self.copy()
+            self.delete(tk.SEL_FIRST, tk.SEL_LAST)
+        return 'break'
+
+    def undo(self, event=None):
+        if self._undo_stack:
+            self._redo_stack.append(self.get())
+            self.delete(0, tk.END)
+            self.insert(0, self._undo_stack.pop())
+
+    def redo(self, event=None):
+        if self._redo_stack:
+            self._undo_stack.append(self.get())
+            self.delete(0, tk.END)
+            self.insert(0, self._redo_stack.pop())
+
+    def select_all(self, event=None):
+        self.selection_range(0, tk.END)
+        self.icursor(tk.END)
+        return 'break'

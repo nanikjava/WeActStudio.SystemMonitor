@@ -99,6 +99,21 @@ class Memory(ABC):
     def virtual_free() -> int:  # In bytes
         pass
 
+    @staticmethod
+    @abstractmethod
+    def total_percent() -> float:  # In bytes
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def total_used() -> int:  # In bytes
+        pass
+    
+    @staticmethod
+    @abstractmethod
+    def total_free() -> int:  # In bytes
+        pass
+
 
 class Disk(ABC):
     @staticmethod

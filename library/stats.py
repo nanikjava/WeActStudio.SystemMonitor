@@ -667,9 +667,13 @@ class Gpu:
 class Memory:
     last_values_memory_swap = []
     last_values_memory_virtual = []
+    last_values_memory_total = []
     last_virtual_used = -1
     last_virtual_free = -1
     last_virtual_total = -1
+    last_total_used = -1
+    last_total_free = -1
+    last_total_total = -1
     @classmethod
     def stats(cls,forced_refresh = False):
         memory_stats_theme_data = config.THEME_DATA['STATS']['MEMORY']
@@ -730,6 +734,49 @@ class Memory:
                 unit=" M"
             )
 
+        total_percent = sensors.Memory.total_percent()
+        save_last_value(total_percent, cls.last_values_memory_total,
+                        memory_stats_theme_data['TOTAL']['LINE_GRAPH'].get("HISTORY_SIZE", DEFAULT_HISTORY_SIZE))
+        need_refresh = True
+        if math.isnan(cls.last_values_memory_total[-2]) == False:
+            if int(total_percent) == int(cls.last_values_memory_total[-2]):
+                need_refresh = False
+        if need_refresh or forced_refresh:
+            display_themed_progress_bar(memory_stats_theme_data['TOTAL']['GRAPH'], total_percent)
+            display_themed_percent_radial_bar(memory_stats_theme_data['TOTAL']['RADIAL'], total_percent)
+            display_themed_percent_value(memory_stats_theme_data['TOTAL']['PERCENT_TEXT'], total_percent)
+        display_themed_line_graph(memory_stats_theme_data['TOTAL']['LINE_GRAPH'], cls.last_values_memory_total)
+
+        total_used = sensors.Memory.total_used()
+        total_free = sensors.Memory.total_free()
+        total_total = total_used + total_free
+        
+        if total_used != cls.last_total_used or forced_refresh:
+            cls.last_total_used = total_used
+            display_themed_value(
+                theme_data=memory_stats_theme_data['TOTAL']['USED'],
+                value=total_used,
+                min_size=5,
+                unit=" M"
+            )
+        
+        if total_free != cls.last_total_free or forced_refresh:
+            cls.last_total_free = total_free
+            display_themed_value(
+                theme_data=memory_stats_theme_data['TOTAL']['FREE'],
+                value=total_free,
+                min_size=5,
+                unit=" M"
+            )
+            
+        if total_total != cls.last_total_total or forced_refresh:
+            cls.last_total_total = total_total
+            display_themed_value(
+                theme_data=memory_stats_theme_data['TOTAL']['TOTAL'],
+                value=total_total,
+                min_size=5,
+                unit=" M"
+            )
 
 class Disk:
     last_values_disk_usage = []

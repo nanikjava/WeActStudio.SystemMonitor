@@ -1,3 +1,27 @@
+author: '@WeActStudio'
+display:
+  DISPLAY_ORIENTATION: landscape
+  DISPLAY_RGB_LED: 0, 255, 128
+  DISPLAY_SIZE: 320x480
+static_images:
+  BACKGROUND:
+    HEIGHT: 320
+    PATH: background.png
+    WIDTH: 480
+    X: 0
+    Y: 0
+photo_album:
+  ALIGN: center
+  AUTO_REFRESH: false
+  BACKGROUND_COLOR: 0, 0, 0
+  BACKGROUND_IMAGE: background.png
+  INTERVAL: 10
+  MAX_HEIGHT: 290
+  MAX_WIDTH: 480
+  SHOW: true
+  SHOW_RANDOM: false
+  X: 0
+  Y: 0
 STATS:
   DATE:
     DAY:
@@ -68,27 +92,3 @@ STATS:
         WIDTH: 0
         X: 300
         Y: 305
-author: '@your_GitHub_username'
-display:
-  DISPLAY_ORIENTATION: landscape
-  DISPLAY_RGB_LED: 0, 255, 128
-  DISPLAY_SIZE: 320x480
-photo_album:
-  ALIGN: center
-  AUTO_REFRESH: false
-  BACKGROUND_COLOR: 0, 0, 0
-  BACKGROUND_IMAGE: background.png
-  INTERVAL: 10
-  MAX_HEIGHT: 290
-  MAX_WIDTH: 480
-  SHOW: true
-  SHOW_RANDOM: false
-  X: 0
-  Y: 0
-static_images:
-  BACKGROUND:
-    HEIGHT: 320
-    PATH: background.png
-    WIDTH: 480
-    X: 0
-    Y: 0

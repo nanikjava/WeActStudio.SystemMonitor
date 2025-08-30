@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2024-09-14 23:32+0800\n"
-"PO-Revision-Date: 2025-04-13 01:24+0800\n"
+"PO-Revision-Date: 2025-08-15 10:34+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh\n"
@@ -278,4 +278,19 @@ msgstr "错误：程序的另一个实例已经在运行。"
 
 msgid "Picture Compress"
 msgstr "图片压缩"
+
+msgid "Copy"
+msgstr "复制"
+
+msgid "Paste"
+msgstr "粘贴"
+
+msgid "Cut"
+msgstr "剪切"
+
+msgid "Undo"
+msgstr "撤销"
+
+msgid "Redo"
+msgstr "恢复"
 

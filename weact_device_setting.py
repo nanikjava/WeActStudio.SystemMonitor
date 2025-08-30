@@ -9,6 +9,9 @@ from PIL import Image, ImageDraw, ImageFont
 import struct
 import traceback
 from pathlib import Path
+from typing import Iterator, Literal
+import fastlz
+import numpy as np
 
 class Command(IntEnum):
     CMD_WHO_AM_I = 0x01  # Establish communication before driving the screen
@@ -20,6 +23,7 @@ class Command(IntEnum):
     CMD_FREE = 0x07
     CMD_SET_UNCONNECT_BRIGHTNESS = 0x10
     CMD_SET_UNCONNECT_ORIENTATION = 0x11
+    CMD_SET_BITMAP_WITH_FASTLZ = 0x15
     CMD_SYSTEM_RESET = 0x40
     CMD_SYSTEM_VERSION = 0x42
     CMD_SYSTEM_SERIAL_NUM = 0x43
@@ -60,12 +64,17 @@ class Orientation(IntEnum):
 
 
 class lcd_weact:
-    def __init__(self, port_name, port_timeout) -> None:
+    def __init__(self, port_name, port_timeout,type) -> None:
         self.port_name = port_name
         self.port_timeout = port_timeout
+        self.type = type
         self.port = None
-        self.width = 320
-        self.height = 480
+        if self.type == 0:
+            self.width = 320
+            self.height = 480
+        else:
+            self.width = 80
+            self.height = 160
         self.serial_rx_thread_quit = False
         self.temperature = 0
         self.humidness = 0
@@ -75,12 +84,17 @@ class lcd_weact:
         self.serial_rx_data = bytearray()
         pass
 
-    def __init__(self, port_timeout) -> None:
+    def __init__(self, port_timeout,type) -> None:
         self.port_name = ""
         self.port_timeout = port_timeout
         self.port = None
-        self.width = 320
-        self.height = 480
+        self.type = type
+        if self.type == 0:
+            self.width = 320
+            self.height = 480
+        else:
+            self.width = 80
+            self.height = 160
         self.serial_rx_thread_quit = False
         self.temperature = 0
         self.humidness = 0
@@ -94,7 +108,11 @@ class lcd_weact:
         port_list = list(list_ports.comports())
         self.port_name = ""
         for i in port_list:
-            if "AB" in i[2]:
+            if "AB" in i[2] and self.type == 0:
+                print("find device", i[0])
+                self.port_name = i[0]
+                break
+            if "AD" in i[2] and self.type == 1:
                 print("find device", i[0])
                 self.port_name = i[0]
                 break
@@ -253,11 +271,19 @@ class lcd_weact:
         byteBuffer[2] = Command.CMD_END
         if self.write_cmd(byteBuffer) == True:
             if orientation <= 1:
-                self.width = 320
-                self.height = 480
+                if self.type == 0:
+                    self.width = 320
+                    self.height = 480
+                else:
+                    self.width = 80
+                    self.height = 160
             else:
-                self.width = 480
-                self.height = 320
+                if self.type == 0:
+                    self.width = 480
+                    self.height = 320
+                else:
+                    self.width = 160
+                    self.height = 80
             return True
         else:
             return False
@@ -270,11 +296,19 @@ class lcd_weact:
         result = self.read_cmd_result(byteBuffer[0],3)
         if result != None and len(result) == 2:
             if result[0] <= 1:
-                self.width = 320
-                self.height = 480
+                if self.type == 0:
+                    self.width = 320
+                    self.height = 480
+                else:
+                    self.width = 80
+                    self.height = 160
             else:
-                self.width = 480
-                self.height = 320
+                if self.type == 0:
+                    self.width = 480
+                    self.height = 320
+                else:
+                    self.width = 160
+                    self.height = 80
             return result[0]
         else:
             return None
@@ -420,8 +454,42 @@ class lcd_weact:
         byteBuffer[9] = Command.CMD_END
 
         return self.write_cmd(byteBuffer)
+    
+    def chunked(self, data: bytes, chunk_size: int) -> Iterator[bytes]:
+        for i in range(0, len(data), chunk_size):
+            yield data[i : i + chunk_size]
 
-    def show_bitmap(self, xs: int, ys: int, bitmap: Image):
+    def image_to_RGB565(self, image: Image.Image, endianness: Literal["big", "little"]) -> bytes:
+        if image.mode not in ["RGB", "RGBA"]:
+            # we need the first 3 channels to be R, G and B
+            image = image.convert("RGB")
+
+        rgb = np.asarray(image)
+
+        # flatten the first 2 dimensions (width and height) into a single stream
+        # of RGB pixels
+        rgb = rgb.reshape((image.size[1] * image.size[0], -1))
+
+        # extract R, G, B channels and promote them to 16 bits
+        r = rgb[:, 0].astype(np.uint16)
+        g = rgb[:, 1].astype(np.uint16)
+        b = rgb[:, 2].astype(np.uint16)
+
+        # construct RGB565
+        r = r >> 3
+        g = g >> 2
+        b = b >> 3
+        rgb565 = (r << 11) | (g << 5) | b
+
+        # serialize to the correct endianness
+        if endianness == "big":
+            typ = ">u2"
+        else:
+            typ = "<u2"
+        return rgb565.astype(typ).tobytes()
+
+    def show_bitmap(self, xs: int, ys: int, bitmap: Image, use_fastlz:bool = False):
+
         result = False
 
         image_height = bitmap.height
@@ -433,23 +501,36 @@ class lcd_weact:
         xe = image_width + xs - 1
         ye = image_height + ys - 1
 
-        line = bytes()
-        pix = bitmap.load()
-        for h in range(image_height):
-            for w in range(image_width):
+        byteBuffer = bytearray(10)
+        byteBuffer[0] = Command.CMD_SET_BITMAP
+        byteBuffer[1] = xs & 0xFF
+        byteBuffer[2] = xs >> 8 & 0xFF
+        byteBuffer[3] = ys & 0xFF
+        byteBuffer[4] = ys >> 8 & 0xFF
+        byteBuffer[5] = xe & 0xFF
+        byteBuffer[6] = xe >> 8 & 0xFF
+        byteBuffer[7] = ye & 0xFF
+        byteBuffer[8] = ye >> 8 & 0xFF
+        byteBuffer[9] = Command.CMD_END
 
-                R = pix[w, h][0] >> 3
-                G = pix[w, h][1] >> 2
-                B = pix[w, h][2] >> 3
+        line_to_send_size = self.width * 4
 
-                # Color information is 0bRRRRRGGGGGGBBBBB
-                # Encode in Little-Endian (native x86/ARM encoding)
-                rgb = (R << 11) | (G << 5) | B
-                line += struct.pack("<H", rgb)
+        rgb565le = self.image_to_RGB565(bitmap,'little')
 
-        if self.set_xy_address(xs, ys, xe, ye) == True:
-            if len(line) > 0:
-                result = self.write_cmd(line)
+        if use_fastlz:
+            chunk_size = line_to_send_size
+            byteBuffer[0] = Command.CMD_SET_BITMAP_WITH_FASTLZ
+            self.write_cmd(byteBuffer)
+            # declare the chunk size
+            for i in range(0, len(rgb565le), chunk_size):
+                chunk = rgb565le[i:i+chunk_size]
+                compressed_chunk = fastlz.compress(chunk)
+                chunk_with_header = struct.pack("<HH", len(chunk), len(compressed_chunk[4:])) + compressed_chunk[4:]
+                result = self.write_cmd(chunk_with_header)
+        else:
+            self.write_cmd(byteBuffer)
+            for chunk in self.chunked(rgb565le,line_to_send_size):
+                result = self.write_cmd(chunk)
 
         return result
 
@@ -466,7 +547,17 @@ class lcd_weact:
     ):
         image = bitmap.copy()
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype(Path(__file__).parent / "res" / "fonts" / "SourceHanSansCN" / "SourceHanSansCN-Normal.otf", size)
+        if self.type == 0 or size > 12:
+            font = ImageFont.truetype(Path(__file__).parent / "res" / "fonts" / "SourceHanSansCN" / "SourceHanSansCN-Normal.otf", size)
+        else:
+            if size == 12:
+                font = ImageFont.truetype(Path(__file__).parent / "res" / "fonts" / "fusion-pixel" / "fusion-pixel-12px-monospaced-zh_hans.otf", size)
+            elif size == 10:
+                font = ImageFont.truetype(Path(__file__).parent / "res" / "fonts" / "fusion-pixel" / "fusion-pixel-10px-monospaced-zh_hans.otf", size)  
+            elif size == 8:
+                font = ImageFont.truetype(Path(__file__).parent / "res" / "fonts" / "fusion-pixel" / "fusion-pixel-8px-monospaced-zh_hans.otf", size)
+            else:
+                font = ImageFont.truetype(Path(__file__).parent / "res" / "fonts" / "SourceHanSansCN" / "SourceHanSansCN-Normal.otf", size)
         left, top, right, bottom = draw.textbbox(
             (xs, ys), text, font=font, align=align, anchor=anchor
         )
@@ -607,7 +698,10 @@ class tk_gui:
         self.device_brightness_last = 0
         self.device_unconnect_brightness_last = 0
         image = Image.open(Path(__file__).parent / "res" / "backgrounds" / "logo.png")
-        self.image_logo = image.resize((200,200))
+        if self.lcd.type == 0:
+            self.image_logo = image.resize((200,200))
+        else:
+            self.image_logo = image.resize((80,80))
 
         self.refresh_device_state()
         self.window_refresh_tick = 0
@@ -648,6 +742,9 @@ class tk_gui:
                 else:
                     self.device_connected = False
 
+                self.lcd.full(Color.BLACK)
+                time.sleep(0.05)
+
                 self.lcd.set_device_brightness(10,1000)
                 value = 10
                 converted_level = round((value / 255) * 100)
@@ -679,7 +776,8 @@ class tk_gui:
                 if value != None:
                     self.Serial_Num_string.set(_("Serial Num: ") + value.decode())
                 
-                self.lcd.set_device_humiture_report_time(1000)
+                if self.lcd.type == 0:
+                    self.lcd.set_device_humiture_report_time(1000)
 
                 if self.device_orientation_last <= 1:
                     self.device_show_image_portrait()
@@ -690,84 +788,166 @@ class tk_gui:
 
     def device_show_image_portrait(self):
         if self.device_connected == True:
-            image_r = Image.new(
-                        'RGB',
-                        (100, 100),
-                        0x0000ff
-                    )
-            image_g = Image.new(
-                        'RGB',
-                        (100, 100),
-                        0x00ff00
-                    )
-            image_b = Image.new(
-                        'RGB',
-                        (100, 100),
-                        0xff0000
-                    )
+            if self.lcd.type == 0:
+                image_r = Image.new(
+                            'RGB',
+                            (100, 100),
+                            0x0000ff
+                        )
+                image_g = Image.new(
+                            'RGB',
+                            (100, 100),
+                            0x00ff00
+                        )
+                image_b = Image.new(
+                            'RGB',
+                            (100, 100),
+                            0xff0000
+                        )
 
-            # full lcd color
-            self.lcd.full(Color.BLACK)
+                # full lcd color
+                self.lcd.full(Color.BLACK)
 
-            # show red color
-            self.lcd.show_bitmap(0,0,image_r)
-            # show green color
-            self.lcd.show_bitmap(110,0,image_g)
-            # show blue color
-            self.lcd.show_bitmap(220,0,image_b)
-            # show pic
-            lcd.show_bitmap(lcd.width//2-self.image_logo.width//2,110,self.image_logo)
-            # show text
-            image = Image.new(
-                        'RGB',
-                        (320, 480),
-                        0x000000
-                    )
-            lcd.show_text(10,320,_("Hello World !"),(255,255,255),20,'left',None,image)
-            lcd.show_text(10,350,_("Hello WeAct Studio !"),(255,255,255),20,'left',None,image)
+                # show red color
+                self.lcd.show_bitmap(0,0,image_r)
+                # show green color
+                self.lcd.show_bitmap(110,0,image_g)
+                # show blue color
+                self.lcd.show_bitmap(220,0,image_b)
+                # show pic
+                lcd.show_bitmap(lcd.width//2-self.image_logo.width//2,110,self.image_logo)
+                # show text
+                image = Image.new(
+                            'RGB',
+                            (320, 480),
+                            0x000000
+                        )
+                lcd.show_text(10,320,_("Hello World !"),(255,255,255),20,'left',None,image)
+                lcd.show_text(10,350,_("Hello WeAct Studio !"),(255,255,255),20,'left',None,image)
+            else:
+                image_r = Image.new(
+                            'RGB',
+                            (10, 10),
+                            0x0000ff
+                        )
+                image_g = Image.new(
+                            'RGB',
+                            (10, 10),
+                            0x00ff00
+                        )
+                image_b = Image.new(
+                            'RGB',
+                            (10, 10),
+                            0xff0000
+                        )
+                
+                # full lcd color
+                self.lcd.full(Color.BLACK)
+                
+                # show red color
+                self.lcd.show_bitmap(0,0,image_r,True)
+
+                # show green color
+                self.lcd.show_bitmap(20,0,image_g,True)
+                # show blue color
+                self.lcd.show_bitmap(40,0,image_b,True)
+                # show pic
+                lcd.show_bitmap(lcd.width//2-self.image_logo.width//2,20,self.image_logo,True)
+                # show text
+                image = Image.new(
+                            'RGB',
+                            (80, 160),
+                            0x000000
+                        )
+                lcd.show_text(2,105,"Hello World!",(255,255,255),12,'left',None,image)
+                lcd.show_text(2,117,"你好世界!",(255,255,255),12,'left',None,image)
+                lcd.show_text(2,131,"Hello WeAct!",(255,255,255),12,'left',None,image)
+                lcd.show_text(2,143,"你好微行!",(255,255,255),12,'left',None,image)
+
 
     def device_show_image_landscape(self):
         if self.device_connected == True:
-            image_r = Image.new(
-                        'RGB',
-                        (100, 100),
-                        0x0000ff
-                    )
-            image_g = Image.new(
-                        'RGB',
-                        (100, 100),
-                        0x00ff00
-                    )
-            image_b = Image.new(
-                        'RGB',
-                        (100, 100),
-                        0xff0000
-                    )
+            if self.lcd.type == 0:
+                image_r = Image.new(
+                            'RGB',
+                            (100, 100),
+                            0x0000ff
+                        )
+                image_g = Image.new(
+                            'RGB',
+                            (100, 100),
+                            0x00ff00
+                        )
+                image_b = Image.new(
+                            'RGB',
+                            (100, 100),
+                            0xff0000
+                        )
 
-            # full lcd color
-            self.lcd.full(Color.BLACK)
+                # full lcd color
+                self.lcd.full(Color.BLACK)
 
-            # show red color
-            self.lcd.show_bitmap(0,0,image_r)
-            # show green color
-            self.lcd.show_bitmap(110,0,image_g)
-            # show blue color
-            self.lcd.show_bitmap(220,0,image_b)
-            # show pic
-            lcd.show_bitmap(10,110,self.image_logo)
-            # show text
-            image = Image.new(
-                        'RGB',
-                        (480, 320),
-                        0x000000
-                    )
-            lcd.show_text(250,200,_("Hello World !"),(255,255,255),20,'left',None,image)
-            lcd.show_text(250,230,_("Hello WeAct Studio !"),(255,255,255),20,'left',None,image)
+                # show red color
+                self.lcd.show_bitmap(0,0,image_r)
+                # show green color
+                self.lcd.show_bitmap(110,0,image_g)
+                # show blue color
+                self.lcd.show_bitmap(220,0,image_b)
+                # show pic
+                lcd.show_bitmap(10,110,self.image_logo)
+                # show text
+                image = Image.new(
+                            'RGB',
+                            (480, 320),
+                            0x000000
+                        )
+                lcd.show_text(250,200,_("Hello World !"),(255,255,255),20,'left',None,image)
+                lcd.show_text(250,230,_("Hello WeAct Studio !"),(255,255,255),20,'left',None,image)
+            else:
+                image_r = Image.new(
+                            'RGB',
+                            (10, 10),
+                            0x0000ff
+                        )
+                image_g = Image.new(
+                            'RGB',
+                            (10, 10),
+                            0x00ff00
+                        )
+                image_b = Image.new(
+                            'RGB',
+                            (10, 10),
+                            0xff0000
+                        )
+
+                # full lcd color
+                self.lcd.full(Color.BLACK)
+
+                # show red color
+                self.lcd.show_bitmap(0,0,image_r)
+                # show green color
+                self.lcd.show_bitmap(0,20,image_g,True)
+                # show blue color
+                self.lcd.show_bitmap(0,40,image_b,True)
+                # show pic
+                lcd.show_bitmap(lcd.width//2-self.image_logo.width//2-20,lcd.height//2-self.image_logo.height//2,self.image_logo,True)
+                # show text
+                image = Image.new(
+                            'RGB',
+                            (160, 80),
+                            0x000000
+                        )
+                lcd.show_text(105,22,"Hello World!",(255,255,255),8,'left',None,image)
+                lcd.show_text(105,32,"你好世界!",(255,255,255),8,'left',None,image)
+                lcd.show_text(105,42,"Hello WeAct!",(255,255,255),8,'left',None,image)
+                lcd.show_text(105,52,"你好微行!",(255,255,255),8,'left',None,image)
+
 
     def on_closing(self):
         if self.lcd.port != None:
             if self.lcd.port.is_open == True:
-                self.lcd.set_device_humiture_report_time(0)
+                if self.lcd.type == 0:
+                    self.lcd.set_device_humiture_report_time(0)
                 self.lcd.set_device_brightness(0,500)
                 self.lcd.set_device_free()
                 self.lcd.close()
@@ -811,7 +991,7 @@ class tk_gui:
                     else:
                         self.device_show_image_landscape()
                 
-                if self.window_refresh_tick >= 2:
+                if self.window_refresh_tick >= 2 and self.lcd.type == 0:
                     self.window_refresh_tick = 0
                     temperature,humidness = self.lcd.get_device_humiture_report()
                     if self.device_orientation_last <= 1:
@@ -843,5 +1023,10 @@ class tk_gui:
         self.window.after(500, self.window_refresh)
 
 if __name__ == "__main__":
-    lcd = lcd_weact(0.2)
+    if len(sys.argv) > 1:
+        type = int(sys.argv[1])
+    else:
+        exit(0)
+
+    lcd = lcd_weact(0.2,type)
     gui = tk_gui(lcd)

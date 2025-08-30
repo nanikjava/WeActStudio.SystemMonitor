@@ -1,5 +1,3 @@
-import os
-
 import library.config as config
 from library.display import display
 

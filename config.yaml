@@ -55,8 +55,10 @@ config:
 display:
   # Display revision:
   # - A_320x480  for WeAct Studio Display FS V1
+  # - B_80x160  for WeAct Studio Display FS 0.96 Inch
   # - SIMU_320x480  for 320x480 simulated LCD
   # - SIMU_480x800  for 480x800 simulated LCD
+  # - SIMU_80x160  for 80x160 simulated LCD
   REVISION: A_320x480
 
   # Display Brightness

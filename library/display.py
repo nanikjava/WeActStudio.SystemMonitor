@@ -22,6 +22,7 @@ import sys
 from library import config
 from library.lcd.lcd_comm import Orientation
 from library.lcd.lcd_comm_weact_a import LcdComm_WeAct_A
+from library.lcd.lcd_comm_weact_b import LcdComm_WeAct_B
 from library.lcd.lcd_simulated import LcdSimulated
 from library.log import logger
 from pathlib import Path
@@ -57,6 +58,10 @@ class Display:
             self.lcd = LcdComm_WeAct_A(com_port=config.CONFIG_DATA['config']['COM_PORT'],
                                    update_queue=config.update_queue)
             self.is_LcdSimulated = False
+        elif config.CONFIG_DATA["display"]["REVISION"] == "B_80x160":
+            self.lcd = LcdComm_WeAct_B(com_port=config.CONFIG_DATA['config']['COM_PORT'],
+                                   update_queue=config.update_queue)
+            self.is_LcdSimulated = False
         elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU_320x480":
             self.lcd = LcdSimulated(display_width=320,
                                     display_height=480)
@@ -64,6 +69,10 @@ class Display:
         elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU_480x800":
             self.lcd = LcdSimulated(display_width=480,
                                     display_height=800)
+            self.is_LcdSimulated = True
+        elif config.CONFIG_DATA["display"]["REVISION"] == "SIMU_80x160":
+            self.lcd = LcdSimulated(display_width=80,
+                                    display_height=160)
             self.is_LcdSimulated = True
         else:
             logger.error("Unknown display revision '", config.CONFIG_DATA["display"]["REVISION"], "'")
@@ -171,6 +180,7 @@ class Display:
                     background_image=config.get_theme_file_path(config.THEME_DATA['static_text'][text].get("BACKGROUND_IMAGE", None)),
                     align=config.THEME_DATA['static_text'][text].get("ALIGN", "left"),
                     anchor=config.THEME_DATA['static_text'][text].get("ANCHOR", "lt"),
+                    rotation=config.THEME_DATA['static_text'][text].get("ROTATION", 0),
                 )
 
     def initialize_sensor(self):

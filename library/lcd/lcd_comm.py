@@ -19,21 +19,17 @@
 
 import copy
 import math
-import os
 import queue
-import sys
 import threading
-import time
 from abc import ABC, abstractmethod
 from enum import IntEnum
 from typing import Tuple, List, Optional, Dict
 from pathlib import Path
 import serial
 from PIL import Image, ImageDraw, ImageFont
-
+from io import BytesIO
 from library.log import logger
 from library.lcd.color import Color, parse_color
-
 
 class Orientation(IntEnum):
     PORTRAIT = 0
@@ -267,6 +263,7 @@ class LcdComm(ABC):
             background_image: Optional[str] = None,
             align: str = 'left',
             anchor: str = 'la',
+            rotation: int = 0
     ):
         # Convert text to bitmap using PIL and display it
         # Provide the background image path to display text with transparent background
@@ -279,7 +276,9 @@ class LcdComm(ABC):
             self.get_height())
         assert len(text) > 0, 'Text must not be empty'
         assert font_size > 0, "Font size must be > 0"
-            
+
+        anchor_set = None if '\n' in text else anchor
+
         text_image = None
         if background_image is None:
             background_color = parse_color(background_color)
@@ -297,52 +296,163 @@ class LcdComm(ABC):
         ttfont = self.open_font(font, font_size)
         d = ImageDraw.Draw(text_image)
 
-        # If only width is specified, assume height based on font size (one-line text)
-        if width > 0 and height == 0:
-            height = font_size
-        # If only height is specified, assume width based on font size (one-line text)
-        elif width == 0 and height > 0:
-            left, top, right, bottom = d.textbbox((x, y), text, font=ttfont, align=align, anchor=anchor)
-            width = right - left
+        # Split text into lines based on width
+        current_line = ''
+        lines = []
+        screen_width = self.get_width()
+        font_height = ttfont.size
+        # initialize coordinates, ensure left and top initial values are large enough, and right and bottom initial values are small enough
+        left = float('inf')
+        top = float('inf')
+        right = float('-inf')
+        bottom = float('-inf')
+        # initialize current line y coordinate, update it when line break
+        current_y = y
 
-        # If width/height are not specified, calculate them based on text
-        if width == 0 or height == 0:
-            left, top, right, bottom = d.textbbox((x, y), text, font=ttfont, align=align, anchor=anchor)
+        for char in text:
+            test_line = current_line + char
+            x0, y0, x1, y1 = d.textbbox((x, current_y), test_line, font=ttfont, align=align, anchor=anchor_set)
+            width_now = x1 - x0
+            
+            # ensure current line does not exceed width limit
+            width_limit = width if width != 0 else screen_width
+            # check if current line exceeds width limit or screen width
+            if x0 >= 0 and width_now <= width_limit and x1 <= screen_width and char != '\n':
+                current_line = test_line
+            else:
+                if current_line:
+                    # record current line text box information
+                    x0, y0, x1, y1 = d.textbbox((x, current_y), current_line, font=ttfont, align=align, anchor=anchor_set)
+                    if anchor_set is not None:
+                        height_now = y1 - y0
+                        height_error = (font_height-height_now)/2
+                        if anchor_set.endswith('m'):
+                            y0 = y0 - height_error
+                            y1 = y1 + height_error
+                        elif anchor_set.endswith('b'):
+                            y0 = y0 - (font_height-height_now)
+                        else:
+                            y1 = y1 + (font_height-height_now)
+                    left = min(left, x0)
+                    top = min(top, y0)
+                    right = max(right, x1)
+                    bottom = max(bottom, y1)
+                    lines.append(current_line)
+                    # update current line y coordinate
+                    current_y += font_height
+                if char == '\n':
+                   current_line = ''
+                else:
+                    current_line = char
 
-            # textbbox may return float values, which is not good for the bitmap operations below.
-            # Let's extend the bounding box to the next whole pixel in all directions
-            left, top = math.floor(left), math.floor(top)
-            right, bottom = math.ceil(right), math.ceil(bottom)
+        # handle last line
+        if current_line:
+            x0, y0, x1, y1 = d.textbbox((x, current_y), current_line, font=ttfont, align=align, anchor=anchor_set)
+            # print(f'x0: {x0} y0: {y0} x1: {x1} y1: {y1}')
+            if anchor_set is not None:
+                height_now = y1 - y0
+                height_error = (font_height-height_now)/2
+                if anchor_set.endswith('m'):
+                    y0 = y0 - height_error
+                    y1 = y1 + height_error
+                elif anchor_set.endswith('b'):
+                    y0 = y0 - (font_height-height_now)
+                else:
+                    y1 = y1 + (font_height-height_now)
+            left = min(left, x0)
+            top = min(top, y0)
+            right = max(right, x1)
+            bottom = max(bottom, y1)
+            lines.append(current_line)
+
+        # calculate actual text width and height
+        # print(f'left: {left} top: {top} right: {right} bottom: {bottom}')
+        text_width = right - left
+        text_height = len(lines) * font_height
+        # print(text_width,text_height,lines,font_height,len(lines))
+
+        # when width or height is 0, set it to actual text width or height
+        if width == 0:
+            width = text_width
+        if height == 0:
+            height = text_height
+
+        # calculate offset to center text
+        offset_x = 0
+        offset_y = 0
+        if anchor is not None:
+            if width > text_width:
+                if anchor.startswith('m'):
+                    offset_x = width // 2
+                    if anchor_set is not None:
+                        offset_x = 0 
+                elif anchor.startswith('r'):
+                    offset_x = width
+                    if anchor_set is not None:
+                        offset_x = 0
+
+            if height > font_height:
+                if anchor.endswith('m'):
+                    offset_y = height // 2
+                    if anchor_set is not None:
+                        offset_y = offset_y - font_height/2
+                elif anchor.endswith('b'):
+                    offset_y = height
+                    if anchor_set is not None:
+                        offset_y = offset_y - font_height
+
+        # calculate new display area and offset
+        new_left = left - offset_x
+        new_top = top - offset_y
+        new_right = new_left + width
+        new_bottom = new_top + height
+        
+        # print(f'new_left: {new_left} new_top: {new_top} new_right: {new_right} new_bottom: {new_bottom}')
+
+        if anchor is not None:
+            if align == 'center':
+                offset_x = offset_x - (width - text_width) // 2
+            elif align == 'right':
+                offset_x = offset_x - (width - text_width)
+            
+            if height > text_height:
+                offset_y = offset_y - (new_bottom - new_top - text_height) // 2
+
+        if rotation != 0:
+            # create a temporary image to draw text
+            tmp_img = Image.new(
+                'RGBA',
+                (self.get_width(), self.get_height()),
+                (0, 0, 0, 0)
+            )
+            tmp_draw = ImageDraw.Draw(tmp_img)
+            for line_idx, line in enumerate(lines):
+                line_y = y + line_idx * font_height - offset_y
+                tmp_draw.text((x-offset_x, line_y), line, fill=font_color, font=ttfont, align=align, anchor=anchor_set)
+            tmp_img = tmp_img.crop((new_left, new_top, new_right, new_bottom))
+            # rotate image
+            tmp_img = tmp_img.rotate(rotation, expand=True)
+            # calculate new coordinates
+            if anchor is not None:
+                if anchor.startswith('m') or align == 'center':
+                    x -= tmp_img.width // 2
+                elif anchor.startswith('r') or align == 'right':
+                    x -= tmp_img.width
+                if anchor.endswith('m'):
+                    y -= tmp_img.height // 2
+                elif anchor.endswith('b'):
+                    y -= tmp_img.height
+            text_image.paste(tmp_img, (x, y), tmp_img)
+            new_left, new_top, new_right, new_bottom = x, y, x + tmp_img.width, y + tmp_img.height
         else:
-            left, top, right, bottom = x, y, x + width, y + height
+            # draw text on image
+            for line_idx, line in enumerate(lines):
+                line_y = y + line_idx * font_height - offset_y
+                d.text((x-offset_x, line_y), line, fill=font_color, font=ttfont, align=align, anchor=anchor_set)
 
-            if anchor.startswith("m"):
-                x = int((right + left) / 2)
-            elif anchor.startswith("r"):
-                x = right
-            else:
-                x = left
-
-            if anchor.endswith("m"):
-                y = int((bottom + top) / 2)
-            elif anchor.endswith("b"):
-                y = bottom
-            else:
-                y = top
-
-        # Draw text onto the background image with specified color & font
-        d.text((x, y), text, font=ttfont, fill=font_color, align=align, anchor=anchor)
-
-        # Restrict the dimensions if they overflow the display size
-        left = max(left, 0)
-        top = max(top, 0)
-        right = min(right, self.get_width())
-        bottom = min(bottom, self.get_height())
-
-        # Crop text bitmap to keep only the text
-        text_image = text_image.crop(box=(left, top, right, bottom))
-
-        self.DisplayPILImage(text_image, left, top)
+        # crop text image to get actual text area
+        text_image = text_image.crop((new_left, new_top, new_right, new_bottom))
+        self.DisplayPILImage(text_image, int(new_left), int(new_top))
 
     def DisplayProgressBar(self, x: int, y: int, width: int, height: int, min_value: int = 0, max_value: int = 100,
                            value: int = 50,
@@ -710,6 +820,18 @@ class LcdComm(ABC):
 
         self.DisplayPILImage(bar_image, xc - radius + custom_bbox[0], yc - radius + custom_bbox[1])
        # self.DisplayPILImage(bar_image, xc - radius, yc - radius)
+    def resize_image(self, image: Image.Image, max_width: int, max_height: int) -> Image.Image:
+        width_set = max_width
+        height_set = max_height
+        if image.width > width_set: 
+            ratio = width_set / image.width  
+            height = int(image.height * ratio)  
+            image = image.resize((width_set, height), Image.LANCZOS)  
+        if image.height > height_set:   
+            ratio = height_set / image.height  
+            width = int(image.width * ratio)  
+            image = image.resize((width, height_set), Image.LANCZOS) 
+        return image
 
     # Load image from the filesystem, or get from the cache if it has already been loaded previously
     def open_image(self, bitmap_path: str,max_width: int=0,max_height:int=0,id:int=-1) -> Image.Image:
@@ -717,16 +839,7 @@ class LcdComm(ABC):
         if bitmap_path_with_id not in self.image_cache:
             image = Image.open(bitmap_path)
             if max_width > 0 and max_height > 0:
-                width_set = max_width
-                height_set = max_height
-                if image.width > width_set: 
-                    ratio = width_set / image.width  
-                    height = int(image.height * ratio)  
-                    image = image.resize((width_set, height), Image.LANCZOS)  
-                if image.height > height_set:   
-                    ratio = height_set / image.height  
-                    width = int(image.width * ratio)  
-                    image = image.resize((width, height_set), Image.LANCZOS) 
+                image = self.resize_image(image, max_width, max_height)
             else:
                 assert image.width <= self.get_width(), "Bitmap " + bitmap_path_with_id + f' width {image.width} exceeds display width {self.get_width()}'
                 assert image.height <= self.get_height(), "Bitmap " + bitmap_path_with_id + f' height {image.height} exceeds display height {self.get_height()}'
@@ -783,11 +896,11 @@ class LcdComm(ABC):
     def DisplayImage2(self, x: int, y: int,max_width: int,max_height: int,image: str = None,align: str = 'left',
                         background_color: Tuple[int, int, int] = (255, 255, 255),background_image: str = None, 
                         color: Tuple[int, int, int] = (255, 255, 255), radius: int = 0, alpha: int = 255, 
-                        overlay_display=False, id:int=0):
+                        overlay_display=False, id:int=0,image_data:BytesIO=None):
         # display a image
         width_set = max_width
         height_set = max_height
-        if image is None:
+        if image is None and image_data is None:
             display_image = Image.new('RGBA', (width_set, height_set), (0, 0, 0, 0))
             draw = ImageDraw.Draw(display_image)
             if isinstance(color, str):
@@ -802,7 +915,11 @@ class LcdComm(ABC):
                     width_set = self.get_width()
                 if max_height == 0:
                     height_set = self.get_height()
-            display_image = self.open_image(image,width_set,height_set,id)
+            if image_data is None:
+                display_image = self.open_image(image,width_set,height_set,id)
+            else:
+                display_image = Image.open(image_data)
+                display_image = self.resize_image(display_image,width_set,height_set)
             mask = Image.new('L', display_image.size, 0)
             draw = ImageDraw.Draw(mask)
             draw.rounded_rectangle((0, 0, display_image.size[0], display_image.size[1]), radius=radius, fill=alpha)

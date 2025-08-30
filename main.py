@@ -287,6 +287,9 @@ def scheduler_init():
     time.sleep(0.15)
     scheduler.InputMonitorStats()
     time.sleep(0.15)
+    scheduler.requests_get_Init()
+    scheduler.requests_get_Handler()
+    time.sleep(0.15)
 
 if platform.system() == "Windows":
     def on_win32_ctrl_event(event):
@@ -306,15 +309,19 @@ if platform.system() == "Windows":
                 logger.info("Computer is going to sleep, display will turn off")
                 display.turn_off()
                 scheduler.STOPPING = True
+                return 0
             elif wParam == win32con.PBT_APMRESUMEAUTOMATIC:
                 logger.info("Computer is resuming from sleep, display will turn on")
                 app_clean()
                 start_main()
                 app_exit()
+                return 0
         else:
             # For any other events, the program will stop
             logger.info("Program will now exit")
             clean_stop()
+            return 0
+        return win32gui.DefWindowProc(hWnd, msg, wParam, lParam)
 
 # Create a tray icon for the program, with an Exit entry in menu
 try:
@@ -356,7 +363,7 @@ try:
     scheduler_init()
 except Exception as e:
     messagebox.showerror(_("Error"), _("Error: ") + f'{e}')
-    logger.error(f'{e}')
+    logger.error(f'init error {e}')
     start_configure()
     clean_stop(tray_icon)
 

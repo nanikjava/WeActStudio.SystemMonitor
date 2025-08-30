@@ -1,6 +1,4 @@
----
-author: "@RussNelson"
-
+author: '@RussNelson'
 display:
   DISPLAY_ORIENTATION: landscape
   DISPLAY_RGB_LED: 255, 0, 0
@@ -18,16 +16,17 @@ STATS:
     INTERVAL: 1
     DAY:
       TEXT:
-        SHOW: True
+        SHOW: true
         X: 10
         Y: 32
         FONT: roboto/Roboto-Bold.ttf
         FONT_SIZE: 80
         FONT_COLOR: 200, 200, 200
         BACKGROUND_COLOR: 0, 0, 0
+        FORMAT: yyyy.MM.dd
     HOUR:
       TEXT:
-        SHOW: True
+        SHOW: true
         X: 10
         Y: 176
         FONT: roboto/Roboto-Bold.ttf

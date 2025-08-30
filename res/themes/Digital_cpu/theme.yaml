@@ -16,12 +16,14 @@ STATS:
         SHOW: true
         SHOW_UNIT: false
         X: 23
-        Y: 309
+        Y: 350
         FONT: digital/DIGITAL-7.TTF
         FONT_SIZE: 200
         FONT_COLOR: 20, 240, 116
         # BACKGROUND_COLOR: 132, 154, 165
         BACKGROUND_IMAGE: background_digital.png
+        ANCHOR: lm
+        ALIGN: left
     TEMPERATURE:
       INTERVAL: 2
       TEXT:

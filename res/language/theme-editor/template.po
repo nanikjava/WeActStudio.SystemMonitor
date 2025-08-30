@@ -118,5 +118,23 @@ msgstr ""
 msgid "If you want to add more image,\nchange the IMAGE_EXAMPLE name first"
 msgstr ""
 
+msgid "If you want to add more requests_get,\nchange the get_xx name first"
+msgstr ""
+
 msgid "Theme dir"
+msgstr ""
+
+msgid "Copy"
+msgstr ""
+
+msgid "Paste"
+msgstr ""
+
+msgid "Cut"
+msgstr ""
+
+msgid "Undo"
+msgstr ""
+
+msgid "Redo"
 msgstr ""

@@ -379,24 +379,25 @@ class Gpu(sensors.Gpu):
 class Memory(sensors.Memory):
     @staticmethod
     def swap_percent() -> float:
-        memory = get_hw_and_update(Hardware.HardwareType.Memory)
-
         virtual_mem_used = math.nan
         mem_used = math.nan
         virtual_mem_available = math.nan
         mem_available = math.nan
 
         # Get virtual / physical memory stats
-        for sensor in memory.Sensors:
+        virtual_memory = get_hw_and_update(Hardware.HardwareType.Memory,'Virtual Memory')
+        for sensor in virtual_memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
-                    "Virtual Memory Used") and sensor.Value is not None:
+                    "Memory Used") and sensor.Value is not None:
                 virtual_mem_used = round(sensor.Value)
             elif sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
+                    "Memory Available") and sensor.Value is not None:
+                virtual_mem_available = round(sensor.Value)
+        total_memory = get_hw_and_update(Hardware.HardwareType.Memory,'Total Memory')
+        for sensor in total_memory.Sensors:
+            if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Used") and sensor.Value is not None:
                 mem_used = round(sensor.Value)
-            elif sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
-                    "Virtual Memory Available") and sensor.Value is not None:
-                virtual_mem_available = round(sensor.Value)
             elif sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Available") and sensor.Value is not None:
                 mem_available = round(sensor.Value)
@@ -415,8 +416,8 @@ class Memory(sensors.Memory):
 
     @staticmethod
     def virtual_percent() -> float:
-        memory = get_hw_and_update(Hardware.HardwareType.Memory)
-        for sensor in memory.Sensors:
+        virtual_memory = get_hw_and_update(Hardware.HardwareType.Memory,'Virtual Memory')
+        for sensor in virtual_memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Load and str(sensor.Name).startswith(
                     "Memory") and sensor.Value is not None:
                 return float(sensor.Value)
@@ -425,8 +426,8 @@ class Memory(sensors.Memory):
 
     @staticmethod
     def virtual_used() -> int:  # In Mbytes
-        memory = get_hw_and_update(Hardware.HardwareType.Memory)
-        for sensor in memory.Sensors:
+        virtual_memory = get_hw_and_update(Hardware.HardwareType.Memory,'Virtual Memory')
+        for sensor in virtual_memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Used") and sensor.Value is not None:
                 return round(sensor.Value * 1024)
@@ -435,8 +436,38 @@ class Memory(sensors.Memory):
 
     @staticmethod
     def virtual_free() -> int:  # In Mbytes
-        memory = get_hw_and_update(Hardware.HardwareType.Memory)
-        for sensor in memory.Sensors:
+        virtual_memory = get_hw_and_update(Hardware.HardwareType.Memory,'Virtual Memory')
+        for sensor in virtual_memory.Sensors:
+            if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
+                    "Memory Available") and sensor.Value is not None:
+                return round(sensor.Value * 1024)
+
+        return 0
+    
+    @staticmethod
+    def total_percent() -> float:
+        total_memory = get_hw_and_update(Hardware.HardwareType.Memory,'Total Memory')
+        for sensor in total_memory.Sensors:
+            if sensor.SensorType == Hardware.SensorType.Load and str(sensor.Name).startswith(
+                    "Memory") and sensor.Value is not None:
+                return float(sensor.Value)
+
+        return math.nan
+    
+    @staticmethod
+    def total_used() -> int:  # In Mbytes
+        total_memory = get_hw_and_update(Hardware.HardwareType.Memory,'Total Memory')
+        for sensor in total_memory.Sensors:
+            if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
+                    "Memory Used") and sensor.Value is not None:
+                return round(sensor.Value * 1024)
+
+        return 0
+
+    @staticmethod
+    def total_free() -> int:  # In Mbytes
+        total_memory = get_hw_and_update(Hardware.HardwareType.Memory,'Total Memory')
+        for sensor in total_memory.Sensors:
             if sensor.SensorType == Hardware.SensorType.Data and str(sensor.Name).startswith(
                     "Memory Available") and sensor.Value is not None:
                 return round(sensor.Value * 1024)

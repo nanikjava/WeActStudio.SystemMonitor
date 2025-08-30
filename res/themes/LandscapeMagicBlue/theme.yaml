@@ -1,6 +1,4 @@
----
-author: "@mathoudebine"
-
+author: '@mathoudebine'
 display:
   DISPLAY_ORIENTATION: landscape
   DISPLAY_RGB_LED: 16, 223, 239
@@ -14,7 +12,7 @@ static_images:
     HEIGHT: 320
 static_text:
   DISK_LABEL:
-    TEXT: "DISK"
+    TEXT: DISK
     X: 420
     Y: 36
     FONT: roboto/Roboto-Bold.ttf
@@ -22,7 +20,7 @@ static_text:
     FONT_COLOR: 16, 223, 239
     BACKGROUND_IMAGE: background.png
   DISK_USED_LABEL:
-    TEXT: "Used:"
+    TEXT: 'Used:'
     X: 350
     Y: 67
     FONT: roboto/Roboto-Regular.ttf
@@ -34,7 +32,7 @@ STATS:
     PERCENTAGE:
       INTERVAL: 1
       RADIAL:
-        SHOW: True
+        SHOW: true
         X: 241
         Y: 154
         RADIUS: 52
@@ -45,10 +43,10 @@ STATS:
         ANGLE_END: 60
         ANGLE_STEPS: 20
         ANGLE_SEP: 0
-        CLOCKWISE: True
+        CLOCKWISE: true
         BAR_COLOR: 255, 0, 173
-        SHOW_TEXT: True
-        SHOW_UNIT: True
+        SHOW_TEXT: true
+        SHOW_UNIT: true
         FONT: generale-mono/GeneraleMonoA.ttf
         FONT_SIZE: 22
         FONT_COLOR: 255, 0, 173
@@ -57,8 +55,8 @@ STATS:
     FREQUENCY:
       INTERVAL: 5
       TEXT:
-        SHOW: True
-        SHOW_UNIT: False
+        SHOW: true
+        SHOW_UNIT: false
         #X: 200
         #Y: 260
         X: 97
@@ -70,8 +68,8 @@ STATS:
     TEMPERATURE:
       INTERVAL: 5
       TEXT:
-        SHOW: True
-        SHOW_UNIT: False
+        SHOW: true
+        SHOW_UNIT: false
         X: 22
         Y: 167
         FONT: generale-mono/GeneraleMonoA.ttf
@@ -82,7 +80,7 @@ STATS:
     INTERVAL: 1
     PERCENTAGE:
       RADIAL:
-        SHOW: True
+        SHOW: true
         X: 366
         Y: 155
         RADIUS: 35
@@ -93,10 +91,10 @@ STATS:
         ANGLE_END: 60
         ANGLE_STEPS: 20
         ANGLE_SEP: 0
-        CLOCKWISE: True
+        CLOCKWISE: true
         BAR_COLOR: 255, 0, 173
-        SHOW_TEXT: True
-        SHOW_UNIT: True
+        SHOW_TEXT: true
+        SHOW_UNIT: true
         FONT: generale-mono/GeneraleMonoA.ttf
         FONT_SIZE: 16
         FONT_COLOR: 128, 255, 255
@@ -104,7 +102,7 @@ STATS:
         BACKGROUND_IMAGE: background.png
     MEMORY:
       GRAPH:
-        SHOW: True
+        SHOW: true
         X: 383
         Y: 266
         WIDTH: 78
@@ -112,11 +110,11 @@ STATS:
         MIN_VALUE: 0
         MAX_VALUE: 100
         BAR_COLOR: 255, 0, 173
-        BAR_OUTLINE: False
+        BAR_OUTLINE: false
         BACKGROUND_COLOR: 8, 20, 66
       TEXT:
-        SHOW: True
-        SHOW_UNIT: True
+        SHOW: true
+        SHOW_UNIT: true
         X: 386
         Y: 240
         FONT: generale-mono/GeneraleMonoA.ttf
@@ -124,7 +122,7 @@ STATS:
         FONT_COLOR: 128, 255, 255
         BACKGROUND_IMAGE: background.png
       RADIAL:
-        SHOW: True
+        SHOW: true
         X: 348
         Y: 250
         RADIUS: 31
@@ -135,10 +133,10 @@ STATS:
         ANGLE_END: 60
         ANGLE_STEPS: 20
         ANGLE_SEP: 0
-        CLOCKWISE: True
+        CLOCKWISE: true
         BAR_COLOR: 255, 0, 173
-        SHOW_TEXT: True
-        SHOW_UNIT: True
+        SHOW_TEXT: true
+        SHOW_UNIT: true
         FONT: generale-mono/GeneraleMonoA.ttf
         FONT_SIZE: 14
         FONT_COLOR: 128, 255, 255
@@ -146,8 +144,8 @@ STATS:
         BACKGROUND_IMAGE: background.png
     TEMPERATURE:
       TEXT:
-        SHOW: True
-        SHOW_UNIT: False
+        SHOW: true
+        SHOW_UNIT: false
         X: 419
         Y: 167
         FONT: generale-mono/GeneraleMonoA.ttf
@@ -158,7 +156,7 @@ STATS:
     INTERVAL: 5
     VIRTUAL:
       GRAPH:
-        SHOW: True
+        SHOW: true
         X: 19
         Y: 266
         WIDTH: 80
@@ -166,11 +164,11 @@ STATS:
         MIN_VALUE: 0
         MAX_VALUE: 100
         BAR_COLOR: 82, 255, 255
-        BAR_OUTLINE: False
+        BAR_OUTLINE: false
         BACKGROUND_COLOR: 8, 20, 66
       USED:
-        SHOW: True
-        SHOW_UNIT: True
+        SHOW: true
+        SHOW_UNIT: true
         X: 22
         Y: 240
         FONT: generale-mono/GeneraleMonoA.ttf
@@ -178,7 +176,7 @@ STATS:
         FONT_COLOR: 128, 255, 255
         BACKGROUND_IMAGE: background.png
       RADIAL:
-        SHOW: True
+        SHOW: true
         X: 136
         Y: 250
         RADIUS: 31
@@ -189,9 +187,9 @@ STATS:
         ANGLE_END: 60
         ANGLE_STEPS: 20
         ANGLE_SEP: 0
-        CLOCKWISE: True
+        CLOCKWISE: true
         BAR_COLOR: 255, 0, 173
-        SHOW_TEXT: True
+        SHOW_TEXT: true
         FONT: generale-mono/GeneraleMonoA.ttf
         FONT_SIZE: 14
         FONT_COLOR: 128, 255, 255
@@ -201,7 +199,7 @@ STATS:
     INTERVAL: 10
     USED:
       GRAPH:
-        SHOW: True
+        SHOW: true
         X: 352
         Y: 93
         WIDTH: 110
@@ -209,11 +207,11 @@ STATS:
         MIN_VALUE: 0
         MAX_VALUE: 100
         BAR_COLOR: 82, 255, 255
-        BAR_OUTLINE: False
+        BAR_OUTLINE: false
         BACKGROUND_IMAGE: background.png
       TEXT:
-        SHOW: True
-        SHOW_UNIT: True
+        SHOW: true
+        SHOW_UNIT: true
         X: 390
         Y: 65
         FONT: generale-mono/GeneraleMonoA.ttf
@@ -225,7 +223,7 @@ STATS:
     ETH:
       UPLOAD:
         TEXT:
-          SHOW: True
+          SHOW: true
           X: 43
           Y: 65
           FONT: generale-mono/GeneraleMonoA.ttf
@@ -234,7 +232,7 @@ STATS:
           BACKGROUND_IMAGE: background.png
       DOWNLOAD:
         TEXT:
-          SHOW: True
+          SHOW: true
           X: 43
           Y: 85
           FONT: generale-mono/GeneraleMonoA.ttf
@@ -245,16 +243,17 @@ STATS:
     INTERVAL: 1
     DAY:
       TEXT:
-        SHOW: True
+        SHOW: true
         X: 58
         Y: 10
         FONT: generale-mono/GeneraleMonoA.ttf
         FONT_SIZE: 12
         FONT_COLOR: 128, 255, 255
         BACKGROUND_IMAGE: background.png
+        FORMAT: yyyy.MM.dd
     HOUR:
       TEXT:
-        SHOW: True
+        SHOW: true
         X: 334
         Y: 10
         FONT: generale-mono/GeneraleMonoA.ttf

@@ -1,12 +1,9 @@
 import os
-
 import library.config as config
 from library.display import display
-from library.log import logger
 import random 
 from pathlib import Path
-    
-from pathlib import Path
+from library.log import logger
 
 def list_theme_pic():
     # List to store the paths of picture files
@@ -79,6 +76,7 @@ class photo_album:
                 cls.auto_refresh = cls.theme_data.get("AUTO_REFRESH", False)
                 cls.theme_pic_list = list_theme_pic()
                 cls.theme_data_ok = True
+                logger.info("photo_album init ok")
                 return
         cls.theme_data_ok = False
 

@@ -87,6 +87,18 @@ class Memory(sensors.Memory):
     @staticmethod
     def virtual_free() -> int:  # In Mbytes
         return random.randint(3000, 16000)
+    
+    @staticmethod
+    def total_percent() -> float:
+        return random.uniform(0, 100)
+
+    @staticmethod
+    def total_used() -> int:  # In Mbytes
+        return random.randint(3000, 16000)
+
+    @staticmethod
+    def total_free() -> int:  # In Mbytes
+        return random.randint(3000, 16000)
 
 
 class Disk(sensors.Disk):
