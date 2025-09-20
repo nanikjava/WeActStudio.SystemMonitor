@@ -12,6 +12,71 @@ from pathlib import Path
 from typing import Iterator, Literal
 import fastlz
 import numpy as np
+import os
+import pty
+import serial.tools.list_ports
+
+def create_fake_tty(name="fakeUSB0", product="AB", vid=0x1234, pid=0x5678):
+    master, slave = pty.openpty()
+    slave_path = os.ttyname(slave)
+
+    _orig_comports = serial.tools.list_ports.comports
+
+    class FakePort:
+        def __init__(self, device, name, description, hwid):
+            self.device = device
+            self.name = name
+            self.description = description
+            self.hwid = hwid
+
+        def __getitem__(self, index):
+            if index == 0:
+                return self.device
+            elif index == 1:
+                return self.name
+            elif index == 2:
+                return self.description
+            elif index == 3:
+                return self.hwid
+            raise IndexError
+
+    def fake_comports():
+        ports = list(_orig_comports())
+        ports.append(FakePort(slave_path, name, f"Fake Device {product}", f"USB VID:PID={vid:04x}:{pid:04x}"))
+        return ports
+
+    serial.tools.list_ports.comports = fake_comports
+
+    def simulator():
+        while True:
+            try:
+                # Read command bytes (blocking)
+                data = os.read(master, 16)  # read up to 16 bytes
+                if not data:
+                    time.sleep(0.01)
+                    continue
+
+                print("data = " , data)
+                # Check for brightness read command
+                if len(data) >= 2:
+                    cmd = data[0]
+                    end_byte = data[1]
+                    if (cmd & Command.CMD_READ) and (cmd & 0x7F) == Command.CMD_SET_UNCONNECT_BRIGHTNESS and end_byte == Command.CMD_END:
+                        # Prepare a 2-byte response, e.g., brightness 128
+                        print("sending response")
+                        response = bytes([128, 0])
+                        os.write(master, response)
+            except OSError:
+                break  # master closed
+
+    t = threading.Thread(target=simulator, daemon=True)
+    t.start()
+
+    return slave_path, t
+
+tty_path, master_fd = create_fake_tty()
+print(f"Fake TTY available at: {tty_path}")
+
 
 class Command(IntEnum):
     CMD_WHO_AM_I = 0x01  # Establish communication before driving the screen
@@ -88,6 +153,7 @@ class lcd_weact:
         port_list = list(list_ports.comports())
         self.port_name = ""
         for i in port_list:
+            print(i[0] + " --- " + i[1] + " --- " + i[2])
             if "AB" in i[2]:
                 print(f"{self.print_tag} find device", i[0])
                 if self.type == 0 or self.type == None:
@@ -201,7 +267,11 @@ class lcd_weact:
     def read_cmd_result(self):
         read = self.port.readline()
         return read
-
+    
+    def readresult(self):
+        read = self.port.readline()
+        return read
+    
     def read_cmd_result(self, cmd,length):
         self.serial_rx_result = 0
         self.serial_rx_length = length
@@ -348,7 +418,9 @@ class lcd_weact:
         byteBuffer[0] = Command.CMD_SET_UNCONNECT_BRIGHTNESS | Command.CMD_READ
         byteBuffer[1] = Command.CMD_END
         self.write_cmd(byteBuffer)
-        result = self.read_cmd_result(byteBuffer[0],3)
+        # result = self.read_cmd_result(byteBuffer[0],3)
+        result = self.readresult()
+        print("result for get_device_unconnect_brightness ", result)
         if result != None and len(result) == 2:
             return result[0]
         else:
@@ -594,6 +666,7 @@ if __name__ == "__main__":
     # Loading Language
     sys.path.append(os.path.dirname(__file__))
     from library.utils import set_language
+    print(__file__)
     _ = set_language(__file__)
 
     class tk_gui:
@@ -1048,5 +1121,5 @@ if __name__ == "__main__":
     else:
         type = None
 
-    lcd = lcd_weact(port_name="",port_timeout=0.2,type=type)
+    lcd = lcd_weact(port_name="/dev/pts/2",port_timeout=0.2,type=type)
     gui = tk_gui(lcd)

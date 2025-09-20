@@ -178,7 +178,7 @@ def set_language(file_path):
     lang = lang.split("_")
     _file_name = os.path.basename(file_path)
     file_name = os.path.splitext(_file_name)[0]
-    print(f"Language: {lang[0]}, Country: {lang[1]}, Encoding: {encoding}")
+    # print(f"Language: {lang[0]}, Country: {lang[1]}, Encoding: {encoding}")
     lang_set = get_language_code(lang[0])
     localedir = os.path.join(os.path.dirname(file_path), f"res\\language\\{file_name}")
     available_languages = []
