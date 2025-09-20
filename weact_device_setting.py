@@ -13,70 +13,10 @@ from typing import Iterator, Literal
 import fastlz
 import numpy as np
 import os
-import pty
-import serial.tools.list_ports
-
-def create_fake_tty(name="fakeUSB0", product="AB", vid=0x1234, pid=0x5678):
-    master, slave = pty.openpty()
-    slave_path = os.ttyname(slave)
-
-    _orig_comports = serial.tools.list_ports.comports
-
-    class FakePort:
-        def __init__(self, device, name, description, hwid):
-            self.device = device
-            self.name = name
-            self.description = description
-            self.hwid = hwid
-
-        def __getitem__(self, index):
-            if index == 0:
-                return self.device
-            elif index == 1:
-                return self.name
-            elif index == 2:
-                return self.description
-            elif index == 3:
-                return self.hwid
-            raise IndexError
-
-    def fake_comports():
-        ports = list(_orig_comports())
-        ports.append(FakePort(slave_path, name, f"Fake Device {product}", f"USB VID:PID={vid:04x}:{pid:04x}"))
-        return ports
-
-    serial.tools.list_ports.comports = fake_comports
-
-    def simulator():
-        while True:
-            try:
-                # Read command bytes (blocking)
-                data = os.read(master, 16)  # read up to 16 bytes
-                if not data:
-                    time.sleep(0.01)
-                    continue
-
-                print("data = " , data)
-                # Check for brightness read command
-                if len(data) >= 2:
-                    cmd = data[0]
-                    end_byte = data[1]
-                    if (cmd & Command.CMD_READ) and (cmd & 0x7F) == Command.CMD_SET_UNCONNECT_BRIGHTNESS and end_byte == Command.CMD_END:
-                        # Prepare a 2-byte response, e.g., brightness 128
-                        print("sending response")
-                        response = bytes([128, 0])
-                        os.write(master, response)
-            except OSError:
-                break  # master closed
-
-    t = threading.Thread(target=simulator, daemon=True)
-    t.start()
-
-    return slave_path, t
+from fakeusb import create_fake_tty
 
 tty_path, master_fd = create_fake_tty()
 print(f"Fake TTY available at: {tty_path}")
-
 
 class Command(IntEnum):
     CMD_WHO_AM_I = 0x01  # Establish communication before driving the screen
@@ -418,8 +358,8 @@ class lcd_weact:
         byteBuffer[0] = Command.CMD_SET_UNCONNECT_BRIGHTNESS | Command.CMD_READ
         byteBuffer[1] = Command.CMD_END
         self.write_cmd(byteBuffer)
-        # result = self.read_cmd_result(byteBuffer[0],3)
-        result = self.readresult()
+        result = self.read_cmd_result(byteBuffer[0],3)
+        # result = self.readresult()
         print("result for get_device_unconnect_brightness ", result)
         if result != None and len(result) == 2:
             return result[0]
@@ -798,8 +738,9 @@ if __name__ == "__main__":
             self.refresh_device_state()
             self.window_refresh_tick = 0
             self.window_refresh()
-
+            print("window_refresh")
             self.window.mainloop()
+            print("Mainloop")
             pass
 
         def on_refresh_device_open(self):
@@ -857,14 +798,18 @@ if __name__ == "__main__":
                         self.device_connected = False
                     
                     value = self.lcd.get_device_info()
+                    print("value  get_device_info = ", value)
                     if value != None:
                         self.WHO_AM_I_string.set(value.decode())
 
                     value = self.lcd.get_device_version()
+                    print("value get_device_version = ", value)
                     if value != None:
                         self.Version_string.set(_("Version: ") + value.decode())
 
                     value = self.lcd.get_device_serial_num()
+                    print("value get_device_serial_num = ", value)
+
                     if value != None:
                         self.Serial_Num_string.set(_("Serial Num: ") + value.decode())
                     
@@ -875,6 +820,9 @@ if __name__ == "__main__":
                         self.device_show_image_portrait()
                     else:
                         self.device_show_image_landscape()
+
+                    print("DONE!!!")
+
                 except:
                     traceback.print_exc()
 
