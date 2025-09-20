@@ -59,7 +59,7 @@ def create_fake_tty(name="fakeUSB0", product="AB", vid=0x1234, pid=0x5678):
                 # Read command bytes (blocking)
                 data = os.read(master, 16)  # read up to 16 bytes
                 if not data:
-                    time.sleep(0.01)
+                    time.sleep(2)
                     continue
 
                 print("data = " , data)
@@ -69,9 +69,19 @@ def create_fake_tty(name="fakeUSB0", product="AB", vid=0x1234, pid=0x5678):
                     end_byte = data[1]
                     if (cmd & CMD_READ) and (cmd & 0x7F) == CMD_SET_UNCONNECT_BRIGHTNESS and end_byte == CMD_END:
                         # Prepare a 2-byte response, e.g., brightness 128
-                        print("sending response")
+                        print("CMD_SET_UNCONNECT_BRIGHTNESS- sending response")
                         response = bytes([cmd, 128, end_byte])
                         os.write(master, response)
+                    if (cmd & CMD_READ) and (cmd & 0x7F) == CMD_SET_ORIENTATION and end_byte == CMD_END:
+                        # Prepare a 2-byte response, e.g., brightness 128
+                        print("CMD_SET_ORIENTATION - sending response")
+                        response = bytes([cmd, 0, end_byte])
+                        os.write(master, response)   
+                    if (cmd & CMD_READ) and (cmd & 0x7F) == CMD_SET_UNCONNECT_ORIENTATION and end_byte == CMD_END:
+                        # Prepare a 2-byte response, e.g., brightness 128
+                        print("CMD_SET_UNCONNECT_ORIENTATION - sending response")
+                        response = bytes([cmd, 1, end_byte])
+                        os.write(master, response)                                               
             except OSError:
                 break  # master closed
 

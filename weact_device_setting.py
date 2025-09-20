@@ -93,7 +93,6 @@ class lcd_weact:
         port_list = list(list_ports.comports())
         self.port_name = ""
         for i in port_list:
-            print(i[0] + " --- " + i[1] + " --- " + i[2])
             if "AB" in i[2]:
                 print(f"{self.print_tag} find device", i[0])
                 if self.type == 0 or self.type == None:
@@ -576,7 +575,7 @@ class lcd_weact:
         bitmap: Image,
     ):
         image = bitmap.copy()
-        draw = ImageDraw.Draw(image)
+        draw = ImageDraw.Draw(im=image)
         if self.type == 0 or size > 12:
             font = ImageFont.truetype(Path(__file__).parent / "res" / "fonts" / "SourceHanSansCN" / "SourceHanSansCN-Normal.otf", size)
         else:
@@ -619,6 +618,9 @@ if __name__ == "__main__":
             else:
                 device_state = _("Device connected !")
                 self.device_connected = True
+                
+            
+            print("Is device connected = " , self.device_connected)
 
             self.window = tkinter.Tk()
             self.window.title(_("WeAct Studio Display Configuration"))
@@ -738,7 +740,6 @@ if __name__ == "__main__":
             self.refresh_device_state()
             self.window_refresh_tick = 0
             self.window_refresh()
-            print("window_refresh")
             self.window.mainloop()
             print("Mainloop")
             pass
@@ -746,12 +747,14 @@ if __name__ == "__main__":
         def on_refresh_device_open(self):
             if self.lcd.auto_open() == False:
                 device_state = _("Device not connected !")
+                print("on_refresh_device_open  self.lcd.auto_open() == False")
                 self.device_connected = False
             else:
                 device_state = _("Device connected !")
                 self.device_connected = True
                 self.refresh_device_state()
             self.device_state_string.set(device_state)
+            print("on_refresh_device_open self.device_connected  = ", self.device_connected )
 
         def on_device_reset(self):
             if self.device_connected == True:
@@ -762,17 +765,21 @@ if __name__ == "__main__":
             if self.device_connected == True:
                 try:
                     value = self.lcd.get_device_unconnect_orientation()
+                    print("get_device_unconnect_orientation value ", value , "self.device_connected ", self.device_connected)
                     if value != None and self.device_connected:
                         self.u_orient_cb.current(value)
                         self.device_unconnect_orientation_last = value
                     else:
+                        print("refresh_device_state - get_device_unconnect_orientation - self.device_connected = False")
                         self.device_connected = False
 
                     value = self.lcd.get_device_orientation()
+                    print("get_device_orientation value ", value , "self.device_connected ", self.device_connected)
                     if value != None and self.device_connected:
                         self.orient_cb.current(value)
                         self.device_orientation_last = value
                     else:
+                        print("refresh_device_state - get_device_orientation - self.device_connected = False")
                         self.device_connected = False
 
                     self.lcd.full(Color.BLACK)
@@ -997,7 +1004,9 @@ if __name__ == "__main__":
                 os._exit(0)
 
         def window_refresh(self):
+            print("window_refresh is called and self.device_connected is ", self.device_connected) 
             if self.device_connected == True:
+                print("window_refresh and device connected")
                 try:
                     if self.lcd.serial_rx_thread_quit == 2:
                         raise Exception("serial_rx_thread_quit")
